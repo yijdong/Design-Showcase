@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design Showcase</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --card: #1e1e1e;
+      --border: #2a2a2a;
+      --accent: #6c63ff;
+      --accent2: #ff6584;
+      --accent3: #43e97b;
+      --text: #f0f0f0;
+      --muted: #888;
+      --radius: 16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(13,13,13,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 0%, rgba(108,99,255,0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 80%, rgba(255,101,132,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+    .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; position: relative; }
+    .btn {
+      padding: 0.8rem 2rem;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      animation: bounce 2s infinite;
+    }
+    .scroll-hint svg { opacity: 0.5; }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* SECTIONS */
+    section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 1rem;
+    }
+    .section-desc {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 540px;
+      margin-bottom: 3rem;
+    }
+
+    /* WORKS GRID */
+    .works-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .work-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform 0.25s, border-color 0.25s;
+      cursor: pointer;
+    }
+    .work-card:hover { transform: translateY(-6px); border-color: var(--accent); }
+    .work-card .thumb {
+      width: 100%;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .work-card .thumb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: inherit;
+      filter: blur(40px) opacity(0.5);
+      transform: scale(1.5);
+      z-index: 0;
+    }
+    .work-card .thumb span { position: relative; z-index: 1; }
+    .bg1 { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+    .bg2 { background: linear-gradient(135deg, #1a0a2e, #2d1b69); }
+    .bg3 { background: linear-gradient(135deg, #0a1a0a, #0d4a1e); }
+    .bg4 { background: linear-gradient(135deg, #2e0a0a, #6e1a1a); }
+    .bg5 { background: linear-gradient(135deg, #0a1a2e, #103a6e); }
+    .bg6 { background: linear-gradient(135deg, #1a1500, #4a3800); }
+    .work-info { padding: 1.25rem; }
+    .work-info h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .work-info p { font-size: 0.85rem; color: var(--muted); }
+    .work-tags {
+      display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem;
+    }
+    .tag {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 50px;
+      background: rgba(108,99,255,0.15);
+      color: var(--accent);
+      border: 1px solid rgba(108,99,255,0.3);
+    }
+
+    /* SKILLS */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .skill-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .skill-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .skill-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+    .skill-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; }
+    .skill-desc { font-size: 0.85rem; color: var(--muted); }
+    .skill-bar-wrap { margin-top: 0.75rem; background: var(--border); border-radius: 50px; height: 4px; }
+    .skill-bar { height: 4px; border-radius: 50px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+    /* STATS */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stat-label { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2.5rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    /* FLOATING BLOBS */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.06;
+      pointer-events: none;
+      animation: float 8s ease-in-out infinite;
+    }
+    .blob1 { width: 400px; height: 400px; background: var(--accent); top: -100px; right: -100px; animation-delay: 0s; }
+    .blob2 { width: 300px; height: 300px; background: var(--accent2); bottom: 10%; left: -80px; animation-delay: 3s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 1rem; }
+      .nav-links { gap: 1rem; }
+      section { padding: 4rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+
+  <nav>
+    <div class="nav-logo">Design Showcase</div>
+    <div class="nav-links">
+      <a href="#works">作品</a>
+      <a href="#skills">技能</a>
+      <a href="#about">关于</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <h1>设计 · 创意 · <span>无限可能</span></h1>
+    <p>探索精选设计作品集，感受每一个像素背后的创意与用心。</p>
+    <div class="btn-group">
+      <a href="#works" class="btn btn-primary">浏览作品</a>
+      <a href="#about" class="btn btn-secondary">了解更多</a>
+    </div>
+    <div class="scroll-hint">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/></svg>
+      向下滚动
+    </div>
+  </div>
+
+  <!-- WORKS -->
+  <section id="works">
+    <p class="section-label">Portfolio</p>
+    <h2 class="section-title">精选作品</h2>
+    <p class="section-desc">每个项目都是一次探索，从概念到像素，用设计讲述故事。</p>
+
+    <div class="works-grid">
+      <div class="work-card">
+        <div class="thumb bg1"><span>🌌</span></div>
+        <div class="work-info">
+          <h3>星际探索 App</h3>
+          <p>沉浸式天文可视化应用，带你探索宇宙的奥秘。</p>
+          <div class="work-tags">
+            <span class="tag">UI/UX</span>
+            <span class="tag">Motion</span>
+            <span class="tag">iOS</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-card">
+        <div class="thumb bg2"><span>🎨</span></div>
+        <div class="work-info">
+          <h3>创意工作室品牌</h3>
+          <p>为独立工作室打造的视觉识别系统，简约而富有张力。</p>
+          <div class="work-tags">
+            <span class="tag">Branding</span>
+            <span class="tag">Logo</span>
+            <span class="tag">Print</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-card">
+        <div class="thumb bg3"><span>🌿</span></div>
+        <div class="work-info">
+          <h3>绿色生活电商</h3>
+          <p>以自然为主题的电商平台，将环保理念融入每个交互细节。</p>
+          <div class="work-tags">
+            <span class="tag">E-commerce</span>
+            <span class="tag">Web Design</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-card">
+        <div class="thumb bg4"><span>🎵</span></div>
+        <div class="work-info">
+          <h3>音乐流媒体平台</h3>
+          <p>大胆用色与音波动效，让听觉体验延伸为视觉感受。</p>
+          <div class="work-tags">
+            <span class="tag">Dashboard</span>
+            <span class="tag">Animation</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-card">
+        <div class="thumb bg5"><span>📊</span></div>
+        <div class="work-info">
+          <h3>数据可视化工具</h3>
+          <p>将复杂数据转化为直观图表，信息美学的极致呈现。</p>
+          <div class="work-tags">
+            <span class="tag">Data Viz</span>
+            <span class="tag">SaaS</span>
+            <span class="tag">Web</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-card">
+        <div class="thumb bg6"><span>☕</span></div>
+        <div class="work-info">
+          <h3>精品咖啡品牌</h3>
+          <p>暖调质感排版与手工插画，诠释咖啡文化的温度。</p>
+          <div class="work-tags">
+            <span class="tag">Branding</span>
+            <span class="tag">Illustration</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" style="background: var(--surface); max-width: 100%; padding: 6rem 2rem;">
+    <div style="max-width: 1100px; margin: 0 auto;">
+      <p class="section-label">Expertise</p>
+      <h2 class="section-title">核心技能</h2>
+      <p class="section-desc">设计工具与方法论的深度融合，打造有温度的用户体验。</p>
+
+      <div class="skills-grid">
+        <div class="skill-card">
+          <div class="skill-icon">🎨</div>
+          <div class="skill-name">UI 界面设计</div>
+          <div class="skill-desc">Figma / Sketch / Adobe XD</div>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="width:95%"></div></div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">✨</div>
+          <div class="skill-name">动效与交互</div>
+          <div class="skill-desc">Principle / Framer / After Effects</div>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="width:85%"></div></div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">🖼️</div>
+          <div class="skill-name">品牌视觉</div>
+          <div class="skill-desc">Logo / VI系统 / 排版</div>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="width:90%"></div></div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">🧠</div>
+          <div class="skill-name">用户研究</div>
+          <div class="skill-desc">用户访谈 / 可用性测试</div>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="width:80%"></div></div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">💻</div>
+          <div class="skill-name">前端实现</div>
+          <div class="skill-desc">HTML / CSS / React</div>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="width:75%"></div></div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">📐</div>
+          <div class="skill-name">设计系统</div>
+          <div class="skill-desc">组件库 / 设计规范 / Tokens</div>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="width:88%"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <p class="section-label">About</p>
+    <h2 class="section-title">数据说话</h2>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num">50+</div>
+        <div class="stat-label">完成项目</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">5yr</div>
+        <div class="stat-label">从业经验</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">30+</div>
+        <div class="stat-label">合作客户</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">12</div>
+        <div class="stat-label">设计奖项</div>
+      </div>
+    </div>
+
+    <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; max-width: 680px;">
+      <h3 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem;">设计，是为人而生的。</h3>
+      <p style="color: var(--muted); line-height: 1.8;">
+        我相信好的设计不仅仅关乎美学，更是关乎解决问题、传递情感和创造价值。
+        每一个项目都是一段对话——与用户的对话、与品牌的对话、与时代的对话。
+        我在这段对话中寻找共鸣，用视觉语言让复杂的事物变得清晰、有温度。
+      </p>
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="#works" class="btn btn-primary" style="font-size:0.85rem; padding:0.6rem 1.5rem;">查看作品</a>
+        <a href="mailto:hello@example.com" class="btn btn-secondary" style="font-size:0.85rem; padding:0.6rem 1.5rem;">联系我</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p style="margin-bottom:0.5rem">Design Showcase &copy; 2026</p>
+    <p>用心设计，每一像素都有意义</p>
+  </footer>
+
+</body>
+</html>
