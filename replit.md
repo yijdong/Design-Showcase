@@ -1,42 +1,70 @@
-# Design Showcase
+# Workspace
 
-A Chinese-language design portfolio showcase website built with Node.js and Express.
+## Overview
+
+pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
 ## Stack
 
-- **Runtime**: Node.js 20
-- **Server**: Express 5
-- **Frontend**: Vanilla HTML/CSS (served as static files from `public/`)
-- **Port**: 5000
+- **Monorepo tool**: pnpm workspaces
+- **Node.js version**: 20
+- **Package manager**: pnpm
+- **TypeScript version**: 5.9
+- **API framework**: Express 5
+- **Database**: PostgreSQL + Drizzle ORM
+- **Validation**: Zod (`zod/v4`), `drizzle-zod`
+- **API codegen**: Orval (from OpenAPI spec)
+- **Build**: esbuild (CJS bundle)
+- **Frontend**: React 19 + Vite 7 + Tailwind CSS + shadcn/ui
 
-## Project Structure
+## Structure
 
+```text
+artifacts-monorepo/
+├── artifacts/
+│   ├── portfolio/          # React/Vite frontend (port 5000)
+│   └── api-server/         # Express API server (port 8000)
+├── lib/                    # Shared libraries
+│   ├── api-spec/           # OpenAPI spec + Orval codegen config
+│   ├── api-client-react/   # Generated React Query hooks
+│   ├── api-zod/            # Generated Zod schemas from OpenAPI
+│   └── db/                 # Drizzle ORM schema + DB connection
+├── scripts/                # Utility scripts
+├── attached_assets/        # Static assets
+├── pnpm-workspace.yaml
+├── tsconfig.base.json
+├── tsconfig.json
+└── package.json
 ```
-├── server.js          # Express server, serves static files on port 5000
-├── public/
-│   └── index.html     # Single-page design showcase frontend
-├── package.json
-└── replit.md
-```
 
-## Running the App
+## Development Workflows
 
+- **Portfolio (frontend)**: `PORT=5000 BASE_PATH=/ pnpm --filter @workspace/portfolio run dev`
+- **API Server (backend)**: `PORT=8000 pnpm --filter @workspace/api-server run dev`
+
+Frontend proxies `/api/*` → `http://localhost:8000` via Vite proxy.
+
+## Database
+
+PostgreSQL via Replit's built-in DB. `DATABASE_URL` is set automatically.
+
+Push schema changes: `pnpm --filter @workspace/db run push`
+
+## API
+
+- Health: `GET /api/healthz`
+- API spec: `lib/api-spec/openapi.yaml`
+
+Run codegen: `pnpm --filter @workspace/api-spec run codegen`
+
+## TypeScript & Composite Projects
+
+Every package extends `tsconfig.base.json` which sets `composite: true`. Always typecheck from the root:
 ```bash
-npm start
+pnpm run typecheck
 ```
 
-The app runs on `0.0.0.0:5000`.
+## Root Scripts
 
-## Features
-
-- Hero section with gradient typography
-- Portfolio/works grid with 6 showcase cards
-- Skills section with progress bars
-- About/stats section
-- Sticky navigation with blur backdrop
-- Dark theme with floating blob animations
-- Fully responsive layout
-
-## Deployment
-
-Configured for autoscale deployment with `node server.js`.
+- `pnpm run build` — typecheck + build all packages
+- `pnpm run typecheck` — `tsc --build --emitDeclarationOnly`

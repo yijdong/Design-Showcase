@@ -1,0 +1,19 @@
+packages:
+  "framer-motion": "For smooth page transitions, fade-ins, and hover animations"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for intelligently merging tailwind classes"
+
+images:
+  - path: "artifacts/portfolio/public/images/profile-placeholder.png"
+    description: "A minimal, warm-toned profile avatar placeholder featuring a friendly but professional abstract geometric design in cream and warm yellow tones"
+    aspect_ratio: "1:1"
+  - path: "artifacts/portfolio/public/images/project-cover-1.png"
+    description: "Abstract geometric composition in soft beige, warm gray, and muted yellow, representing an enterprise B2B dashboard"
+    aspect_ratio: "16:9"
+  - path: "artifacts/portfolio/public/images/project-cover-2.png"
+    description: "Abstract minimal tech illustration with soft glowing nodes in cream and muted blue-gray, representing AI systems"
+    aspect_ratio: "16:9"
+
+notes:
+  - No backend API is needed. All data is static and provided in the source code as requested.
+  - Using framer-motion for simple, elegant route transitions.

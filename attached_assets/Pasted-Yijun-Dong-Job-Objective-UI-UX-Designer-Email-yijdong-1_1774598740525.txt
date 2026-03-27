@@ -1,0 +1,61 @@
+Yijun Dong
+Job Objective: UI/UX Designer
+* Email: yijdong@163.com
+* Phone: 18092240354
+Profile
+* End-to-End UI/UX Design: Focus on interaction and user experience. Able to handle the full design process, including requirements, user research, interaction, visual design, and usability testing.
+* Complex ToB System: Experienced in enterprise system design (e.g., Huawei, Mercedes-Benz). Skilled in structuring multi-role workflows and turning complex business needs into clear and usable solutions.
+* AI Product Design: Worked on AI data platforms and AI systems. Able to translate AI capabilities into practical interaction designs for multi-role use. Familiar with AI tools (image generation, prototyping) for design exploration.
+* Design System & Component Library: Experienced in building design systems and reusable components. Able to define clear standards and documentation to support consistency and efficient development.
+Work Experience
+Wicresoft | Interaction Designer
+2025.05 - Present Join Baidu ERNIE Bot team (UX Applied Model Dept.) Responsible for interaction design of the Data Annotation Platform and Data Engineering Platform.
+* Requirement analysis: clarify requirements and goals, identify key issues, and support solution delivery.
+* Interaction design: conduct competitor analysis and solution exploration; design core flows, key components.
+* Collaboration: work with PM and Devs, support design reviews, and follow implementation quality.
+Luxshare Precision | Product Manager (Mobile OS Interaction)
+2024.12 - 2025.03
+* Responsible for AI mobile system design and competitor analysis. Also worked on AI development tools, defining requirements based on multiple rounds of user interviews.
+Thoughtworks Xi'an | UX Designer
+2019.10 - 2024.08 Participated in projects for clients like Huawei and Mercedes-Benz, with responsibilities including:
+* Used user research to find business goals and set the design direction.
+* Created interaction and visual designs and presented them to clients for approval.
+Quanying Technology Co., Ltd. (Xi'an) | Interaction Designer
+2018.04 - 2019.10
+* Responsible for the interaction design of the Quanying Cloud product, covering both web and mobile platforms.
+Beijing Wanxiu Tech (Gaea) | UI Designer
+2017.03 - 2018.04
+* Handled the design of "Lü Fa Shi Camp," encompassing interaction design, UI design, and motion design.
+Newton Science Education Co., Ltd. | UI Designer
+2016.03 - 2017.03
+* Responsible for the UI design, H5 event interface design.
+Project Experience
+ERNIE Data Annotation Platform & Data Engineering Platform
+2025.05 - Present
+* Annotation Platform UX Improvements: Designed workflows for part-time annotators and improved key features such as agent components, complex content comparison, and AI pre-check to enhance efficiency and quality control.
+* Data Engineering Platform Redesign: Led end-to-end interaction improvements. Rebuilt key workflows (data upload, QA, initial review, final review, release), making processes easier to understand and lowering the barrier for engineers.
+Mercedes-Benz Financial Services Platform
+2021.05 - 2024.07 | 0-1 Design | Design System
+* 0-1 Design: Led the 0-1 design for the Dealer Platform (DSS) and Agent Portal. Improved the user retention system and simplified complex workflows.
+* Design System: Built a design library with over 20 components to speed up development.
+Huawei Enterprise Projects
+2019.11 - 2021.04 | Multi-field ToB Design
+* Multi-field ToB Design: Managed full design cycles for network management (OSS ISSTAR), device control (HEM), and ads. Served over 100,000 users.
+* Cross-platform Consistency: Created a design systems for Web and Mobile. Increased component reuse by 40% and cut development time by 25%.
+EV User Research & Testing
+2020.04 - 2024.03 | User Research & Usability Testing
+* User Interviews: Found pain points and validated 20+ features through deep interviews.
+* User Shadowing: Used car cameras to record 7 days of real driving behavior to identify pain points.
+* Usability Testing: Tested 30+ core tasks. Used eye-tracking to analyze the interface and set feature priorities.
+Quanying Cloud Platform
+2018.04 - 2019.10 | Industrial Internet
+* Industrial Internet: Designed core modules for energy monitoring, smart alerts, and digital twins.
+* Data Visualization: Designed interactive charts and data trends for Web and Big Screens.
+Education
+* Huaqiao University | Bachelor's Degree in Industrial Design | 2012-2016
+* Tatung University, Taiwan | Exchange Student in Industrial Design | 2014-2015
+Skills
+* Figma/Sketch: Expert
+* AI-driven Prototyping: Proficient
+* Principal (动效): Proficient
+* Adobe PS/AI: Proficient

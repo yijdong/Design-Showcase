@@ -1,0 +1,188 @@
+You are a front-end engineer.
+
+I already have a portfolio website.
+DO NOT change the overall layout or structure.
+
+Your task is to REPLACE the existing "EXPERTISE & TOOLS" section on the homepage with a new bilingual module.
+
+---
+
+# 【Placement】
+
+- Replace the current "EXPERTISE & TOOLS" section
+- Keep its position (below Hero section)
+- Do NOT move other sections
+
+---
+
+# 【Layout】
+
+Use a LEFT–RIGHT layout:
+
+LEFT: What I Do (capabilities)  
+RIGHT: Tools
+
+- Two columns
+- Balanced spacing
+- Responsive: stack vertically on mobile
+
+---
+
+# 【Bilingual Support】
+
+- Support Chinese (zh) and English (en)
+- Use content[lang] structure
+- Switching language updates content dynamically
+
+---
+
+# 【Content — MUST USE EXACT TEXT】
+
+## 中文（zh）
+
+左侧（我会做什么）：
+
+标题：我会做什么
+
+- 交互设计：梳理复杂流程，让操作更清晰  
+- 视觉设计：保证界面简洁一致  
+- 用户研究：从真实用户中理解需求  
+- 可用性测试：验证设计是否好用  
+- 需求分析：拆解问题，明确目标，并结合竞品分析辅助判断  
+
+右侧（工具）：
+
+标题：工具
+
+- Figma / Sketch：精通  
+- Gemini / Claude / Replit：熟练（AI原型）  
+- Principal：熟练（动效）  
+- Adobe PS / AI：熟练  
+
+---
+
+## English（en）
+
+LEFT (What I Do):
+
+Title: What I Do
+
+- Interaction Design: Design clear flows and simplify complex workflows  
+- Visual Design: Create clean and consistent UI  
+- User Research: Understand user needs through real scenarios  
+- Usability Testing: Test designs and find real issues  
+- Requirement Analysis: Break down problems, define goals, and use competitor analysis to guide decisions  
+
+RIGHT (Tools):
+
+Title: Tools
+
+- Figma / Sketch — Expert  
+- Gemini / Claude / Replit — Proficient (AI prototyping)  
+- Principal — Proficient (motion design)  
+- Adobe PS / AI — Proficient  
+
+---
+
+# 【Visualization Requirements — IMPORTANT】
+
+## 1. Capabilities (LEFT)
+
+Each capability should include:
+
+- Icon (simple line icon, consistent style)
+- Title (bold)
+- Description (lighter text)
+
+Layout:
+[icon]  Title  
+        Description
+
+Rules:
+- Use minimal, clean icons (no colorful illustrations)
+- Interaction Design should be visually emphasized:
+  - slightly larger OR
+  - stronger color OR
+  - subtle highlight background
+
+---
+
+## 2. Tools (RIGHT)
+
+Each tool should include:
+
+- Tool name
+- Proficiency level (visualized)
+
+### Use Progress Bar for proficiency:
+
+Map levels to percentage:
+
+- Expert → 90%
+- Proficient → 70%
+
+Display:
+- Thin horizontal progress bar
+- Subtle color (match site accent color)
+- Background track (light gray)
+
+Example:
+Figma / Sketch  
+[██████████░░] 90%
+
+---
+
+# 【Design Style】
+
+Keep consistent with existing site:
+
+- Soft background
+- Thin borders
+- Clean spacing
+- No heavy shadows
+- No flashy colors
+
+Progress bar style:
+- Height: small (4–6px)
+- Rounded corners
+- Smooth but subtle
+
+---
+
+# 【Interaction】
+
+- Hover on capability:
+  - slight background highlight OR border change
+- Progress bar:
+  - optional subtle animation on load (grow from 0 → value)
+  - keep fast and minimal
+
+---
+
+# 【Code Requirements】
+
+- Do NOT hardcode text in JSX
+- Use structured data (content[lang])
+- Component reusable (e.g. <SkillsSection />)
+- Keep logic simple and clean
+
+---
+
+# 【Output】
+
+Provide:
+
+1. Component code (SkillsSection)
+2. Example usage in homepage
+3. Data structure (including proficiency mapping)
+4. Icon suggestion (can use lucide-react or similar)
+
+---
+
+# 【Important Principles】
+
+- Keep it simple
+- Avoid over-design
+- Focus on clarity
+- Do NOT redesign the page
+- Do NOT modify text
