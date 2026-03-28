@@ -12,6 +12,7 @@ import Projects from "@/pages/projects";
 import VibeCoding from "@/pages/vibe-coding";
 import Insight from "@/pages/insight";
 import ProjectDetail from "@/pages/project-detail";
+import AnnotationPlatformDetail from "@/pages/annotation-detail";
 import ArticleDetail from "@/pages/article-detail";
 import Resume from "@/pages/resume";
 import NotFound from "@/pages/not-found";
@@ -29,6 +30,7 @@ function Router() {
           <Route path="/vibe-coding" component={VibeCoding} />
           <Route path="/insight" component={Insight} />
           <Route path="/resume" component={Resume} />
+          <Route path="/projects/ernie-annotation" component={AnnotationPlatformDetail} />
           <Route path="/projects/:id" component={ProjectDetail} />
           <Route path="/vibe-coding/:id" component={ProjectDetail} />
           <Route path="/insight/:id" component={ArticleDetail} />

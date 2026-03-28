@@ -155,38 +155,38 @@ export const COMMERCIAL_PROJECTS: Project[] = [
   {
     id: "ernie-annotation",
     type: "commercial",
-    title: "ERNIE Annotation Platform",
-    titleZh: "一言标注平台",
+    title: "AI Annotation Platform",
+    titleZh: "AI数据标注平台",
     tags: ["AI 数据标注平台"],
     date: "2025.05 – 至今",
-    description: "UX upgrade for the annotation platform; optimized experience for both annotator-side and management-side.",
-    descriptionZh: "标注平台体验升级；标注端与管理端体验优化。",
-    coverImage: "project-cover-1.png",
+    description: "Core interaction designer for the annotation platform; responsible for key experience design on both annotator-side and management-side.",
+    descriptionZh: "作为平台核心交互设计师，负责标注端与管理端的关键体验设计",
+    coverImage: "Annotation Platform.png",
     details: {
-      background: "The ERNIE Bot data annotation platform serves part-time annotators and internal operations teams at Baidu.",
-      backgroundZh: "百度一言数据标注平台服务于兼职标注人员和内部运营团队。",
-      problem: "Complex annotation workflows were causing inefficiencies and quality issues in AI training data.",
-      problemZh: "复杂的标注流程导致 AI 训练数据生产效率低下，质量参差不齐。",
+      background: "The AI data annotation platform supports multi-role collaboration through a complete annotation, quality inspection, and review workflow, ensuring stable and controllable data production while continuously delivering high-quality annotation results.",
+      backgroundZh: "标注平台通过完善的标注、质检、审核流程，支持多角色高效协作，保障数据生产过程稳定、可控，持续输出高质量标注结果，并配套精细化的项目管理与数据统计，全面提升标注效率与管理可视性。\n\n提供灵活且可扩展的标注能力，支持自定义模板与组件配置，覆盖文本、图像、音频、视频等多模态标注场景。",
+      problem: "Skilled workforce hard to schedule, complex content hard to annotate, quality hard to control.",
+      problemZh: "专业人力难调度、复杂内容难标、质量难控",
       role: "Interaction Designer",
       roleZh: "交互设计师",
       process: "Requirement Analysis → Competitive Research → Interaction Design → Design Review → Handoff",
       processZh: "需求分析 → 竞品研究 → 交互设计 → 设计评审 → 开发交付",
       solutions: [
         {
-          title: "Annotation Flow Redesign",
-          titleZh: "标注流程重新设计",
-          description: "Streamlined the annotation workflow for part-time workers to improve accuracy and speed.",
-          descriptionZh: "为兼职人员优化标注流程，提升准确率与效率。"
+          title: "Agent Component Experience Optimization",
+          titleZh: "智能体组件体验优化",
+          description: "Redesigned the agent annotation component to improve usability across complex multi-turn dialogue scenarios.",
+          descriptionZh: "重新设计智能体标注组件，提升复杂多轮对话场景下的可用性。"
         },
         {
-          title: "AI Pre-check",
-          titleZh: "AI 预检",
-          description: "Integrated AI pre-check to catch quality issues before manual review.",
-          descriptionZh: "集成 AI 预检功能，在人工审核前捕捉质量问题。"
+          title: "AI Pre-check Rule Configuration",
+          titleZh: "AI预检规则配置",
+          description: "Built an AI pre-check rule configuration system that catches quality issues automatically before manual review.",
+          descriptionZh: "构建 AI 预检规则配置体系，在人工审核前自动识别质量问题。"
         }
       ],
-      outcome: "Improved annotation efficiency and quality control across the ERNIE Bot data pipeline.",
-      outcomeZh: "提升了一言数据链路中的标注效率与质量管控能力。"
+      outcome: "Improved annotation efficiency and quality control for the AI data annotation platform.",
+      outcomeZh: "提升了AI数据标注平台的标注效率与质量可控性"
     }
   },
   {
