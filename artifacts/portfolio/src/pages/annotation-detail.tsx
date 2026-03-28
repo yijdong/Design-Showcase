@@ -55,36 +55,32 @@ function FeatureCards() {
 
 const USER_PERSONAS = [
   {
-    emoji: "👨‍💼",
+    img: "user01.png",
     name: "管理人员",
     desc: "配置任务、规则与人员体系",
-    bg: "bg-blue-50",
-    ring: "ring-blue-200",
   },
   {
-    emoji: "✏️",
+    img: "user02.png",
     name: "标注人员",
     desc: "完成具体数据标注任务",
-    bg: "bg-emerald-50",
-    ring: "ring-emerald-200",
   },
   {
-    emoji: "🔍",
+    img: "user03.png",
     name: "质检/审核人员",
     desc: "对标注结果进行多级质量把控",
-    bg: "bg-amber-50",
-    ring: "ring-amber-200",
   },
 ];
 
 function UsersSection() {
   return (
-    <div className="flex flex-col sm:flex-row gap-6">
+    <div className="flex flex-col sm:flex-row gap-8">
       {USER_PERSONAS.map((u) => (
         <div key={u.name} className="flex items-center gap-4">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl shrink-0 ring-2 ${u.bg} ${u.ring}`}>
-            {u.emoji}
-          </div>
+          <img
+            src={`${BASE}images/${u.img}`}
+            alt={u.name}
+            className="w-16 h-16 rounded-full object-cover shrink-0"
+          />
           <div>
             <p className="font-semibold text-base text-foreground">{u.name}</p>
             <p className="text-sm text-muted-foreground mt-0.5">{u.desc}</p>
@@ -248,7 +244,7 @@ export default function AnnotationPlatformDetail() {
 
   return (
     <PageTransition className="pt-32 pb-24">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1080px] mx-auto px-4 sm:px-6 lg:px-8">
 
         <Link href="/projects" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors mb-12">
           <ArrowLeft className="w-4 h-4" /> {isZh ? "← 返回项目案例" : "← Back to Projects"}
