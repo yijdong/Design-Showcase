@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, ChevronLeft, ChevronRight, Database, ShieldCheck, Users2, LayoutGrid, RefreshCw, Network } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, LayoutGrid, RefreshCw, Network } from "lucide-react";
 import { PageTransition } from "@/components/layout/page-transition";
 import { Pill } from "@/components/ui/pill";
 import { useLanguage } from "@/lib/language-context";
