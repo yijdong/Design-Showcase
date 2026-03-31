@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Phone, Mail, Copy, Check, ArrowRight, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/lib/language-context";
+import { VIBE_PROJECTS } from "@/lib/data";
 import { SkillsSection } from "@/components/ui/skills-section";
 import {
   AnnotationIllustration,
@@ -423,38 +424,6 @@ function ProjectsSection({ lang }: { lang: "zh" | "en" }) {
   );
 }
 
-/* ═══════════════════════════════════════════
-   Vibe Coding & AI section
-   ═══════════════════════════════════════════ */
-const VIBE_ITEMS = [
-  {
-    id: "ai-phone-system",
-    titleZh: "AI手机系统竞品分析",
-    titleEn: "AI Mobile OS Competitive Analysis",
-    descZh: "主导北美市场 AI 手机桌面系统需求定义，完成竞品分析、原型设计。",
-    descEn: "Led requirements definition for an AI mobile desktop system targeting North American market, with competitor analysis and prototype design.",
-    tagsZh: ["终端设计", "手机桌面交互", "竞品分析报告"],
-    tagsEn: ["Terminal Design", "Mobile Desktop UX", "Competitor Analysis"],
-  },
-  {
-    id: "personal-website",
-    titleZh: "个人作品集主页",
-    titleEn: "Personal Portfolio Website",
-    descZh: "使用Vibe coding工具Replit完成个人主页的设计与上线部署全流程。",
-    descEn: "Designed and deployed this personal portfolio from scratch using Replit — a full end-to-end Vibe Coding experience.",
-    tagsZh: ["Vibe coding", "Replit", "网页设计"],
-    tagsEn: ["Vibe Coding", "Replit", "Web Design"],
-  },
-  {
-    id: "saddle-stitch-checker",
-    titleZh: "骑马钉排版小工具",
-    titleEn: "Saddle Stitch Layout Tool",
-    descZh: "使用Vibe coding工具AI Studio中的build功能开发，并实现了本地运行。",
-    descEn: "Built using AI Studio's build feature with local runtime support.",
-    tagsZh: ["Gemini Build", "本地运行小工具"],
-    tagsEn: ["Gemini Build", "Local Runtime Tool"],
-  },
-];
 
 /* ═══════════════════════════════════════════
    Main Home component
@@ -585,24 +554,24 @@ export default function Home() {
             </p>
           </div>
           <div className="space-y-0 divide-y divide-border/40">
-            {VIBE_ITEMS.map((item) => (
+            {VIBE_PROJECTS.map((item) => (
               <article
                 key={item.id}
                 data-fade
                 className="group py-8 flex flex-col gap-3 hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="flex flex-wrap gap-2">
-                  {(lang === "zh" ? item.tagsZh : item.tagsEn).map((tag) => (
+                  {(lang === "zh" ? (item.tagsZh ?? item.tags) : item.tags).map((tag) => (
                     <span key={tag} className="text-xs px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium uppercase tracking-wider">
                       {tag}
                     </span>
                   ))}
                 </div>
                 <h3 className="text-2xl font-display font-bold group-hover:text-primary transition-colors duration-200">
-                  {lang === "zh" ? item.titleZh : item.titleEn}
+                  {lang === "zh" ? item.titleZh : item.title}
                 </h3>
                 <p className="text-muted-foreground text-lg leading-relaxed max-w-3xl">
-                  {lang === "zh" ? item.descZh : item.descEn}
+                  {lang === "zh" ? item.descriptionZh : item.description}
                 </p>
               </article>
             ))}

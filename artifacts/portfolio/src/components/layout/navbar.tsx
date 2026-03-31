@@ -47,7 +47,7 @@ export function Navbar() {
           setActiveSection(visible[0].target.id as SectionId);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.5 }
     );
 
     SECTIONS.forEach((id) => {
