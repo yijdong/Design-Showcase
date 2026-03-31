@@ -1,0 +1,1221 @@
+个人主页整体布局调整
+
+#ai
+
+
+---
+导航调整
+
+移除“vibe coding”“商业项目”“洞察”“简历”四个标签页，保留中英文切换功能。
+
+页面布局调整为单屏展示形式，所有内容整合至同一页面呈现，无需跳转。
+
+右上角导航栏优化为锚点导航，包含“关于我”“项目案例”“Vibe coding&AI”三个选项；点击对应锚点可快速定位至页面对应内容区域，导航栏保持固定在页面顶部（fixed定位）。
+
+调整页面内容排序，具体顺序为：关于我 → 项目案例（原“商业项目”标签页内容，统一重命名为“项目案例”） → Vibe Coding&AI → 我使用的设计工具 → 页脚（footer）。
+
+删除首屏“我会做什么”相关内容模块。
+
+动效规范
+
+布局基础
+
+-  单页（One Page）结构 
+
+-  所有模块为纵向滚动 section
+
+-  每个 section 必须有唯一 id（用于锚点定位） 
+
+-  页面宽度：最大 1200px，居中 
+
+-  响应式：桌面优先，兼容平板 、
+
+全局滚动动效（统一规则）
+
+触发方式：Intersection Observer
+
+-  所有模块、文字、图片统一使用： 
+
+  -  初始状态： 
+
+    -  opacity: 0 
+
+    -  transform: translateY(24px) 
+
+  -  进入视口 20% 时触发： 
+
+    -  opacity: 1 
+
+    -  transform: translateY(0) 
+
+  -  动画： 
+
+    -  duration: 0.6s 
+
+    -  easing: ease-out 
+
+    -  支持 stagger（子元素间隔 80ms） 
+
+👉 适用于：
+
+-  标题 
+
+-  段落 
+
+-  图片 
+
+-  卡片 
+
+-  标签
+
+1. 导航（Header）
+
+结构
+
+-  固定顶部（position: fixed） 
+
+-  背景：半透明 + 模糊（backdrop-blur） 
+
+-  滚动时增加阴影（scrollY > 20） 
+
+导航项（锚点）
+
+点击行为：平滑滚动（scroll-behavior: smooth）
+
+-  关于我 → #about 
+
+-  项目案例 → #projects 
+
+-  Vibe coding & AI → #ai 
+
+当前 section 高亮规则
+
+-  使用 scroll spy： 
+
+  -  当前 section 占屏幕 50% 时，对应 nav 高亮 
+
+  -  高亮样式： 
+
+    -  字体加粗 
+
+    -  下边框动画（width 从 0 → 100%） 
+
+中英文切换
+
+-  右上角按钮 
+
+-  切换时： 
+
+  -  文案淡出 → 更新 → 淡入（200ms）
+
+
+---
+关于我（首屏）
+
+该板块为页面首屏内容，点击右上角“关于我”锚点，可快速定位至该区域。
+
+具体调整要求如下：
+
+1. 首屏介绍优化：将原有一句话介绍“专注设计复杂 B2B 系统与 AI 产品，让混乱变得清晰”，替换为个人优势滚动展示形式，采用文字动效，单次展示1条优势，实现自动滚动效果。
+
+  1. UI/UX全流程设计：深耕交互逻辑与用户体验，可主导需求分析、用户研究、交互设计、视觉设计、可用性测试全链路设计工作，确保设计流程闭环。
+
+  2. ToB复杂系统设计：擅长复杂系统的信息架构搭建与任务流程设计，具备华为、奔驰等大型客户ToB系统设计实战经验，可快速梳理多角色业务场景，输出高可用性设计解决方案。
+
+  3. AI产品设计：参与AI数据平台及AI终端系统相关产品设计，可将AI能力转化为清晰、可落地的交互方案，支撑多角色协作与复杂系统稳定运行；善于运用AI生图、Vibe coding等工具，辅助设计方案的构思与验证。
+
+  4. 设计规范与组件库：擅长企业级设计规范制定与标准化组件库搭建，可输出可复用的设计标准及清晰的交互文档，为复杂系统的落地提供支撑。
+
+2. 首屏新增联系方式模块，包含手机号与邮箱，具体信息如下：
+
+  1. 手机号：18092240354
+
+  2. 邮箱：yijdong@163.com
+
+UI结构：
+
+  手机号 + icon
+
+   邮箱 + icon
+
+交互：
+
+  点击 icon：
+
+  -  执行复制（clipboard API） 
+
+  -  Toast 提示： 
+
+    -  内容：已复制 
+
+    -  位置：底部居中 
+
+    -  动画：fade + upward（300ms） 
+
+    -  1.5s 自动消失
+
+3. 按钮优化：将原有按钮替换为“查看简历”“查看作品”两个按钮，功能如下：
+
+  1. 点击“查看简历”按钮，跳转至简历二级页面，页面展示原简历tab页全部内容；页面标题统一为“简历”，删除原有“我的职业经历与背景”简介，下载PDF按钮文案修改为“下载简历”，其余内容保持不变，文案语言与网页当前选中语言保持一致。
+
+  2. 点击“查看作品”按钮，页面平滑滚动至“项目案例”板块对应位置。
+
+4. 头像替换：将原有头像替换为photo_me素材。
+
+  头像周围需随机展示个人标签，标签内容包括：交互设计、视觉设计、用户研究、可用性测试、AI产品设计、ToB复杂系统设计、组件库搭建。
+
+  相关参考图片已提供。
+
+动效规则
+
+1、个人优势滚动展示：动效类型：Vertical Text Carousel（自动滚动）
+
+-  一次只显示一行 
+
+-  每 2.5s 自动切换 
+
+-  动画： 
+
+  -  当前行：向上滑出（-100%） 
+
+  -  下一行：从下进入 
+
+  -  duration: 400ms
+
+2、头像标签：随机浮动
+
+动效规则：
+
+-  初始随机分布在头像周围（absolute） 
+
+-  微浮动动画： 
+
+  -  translateY(-6px ~ +6px) 
+
+  -  duration: 3s 
+
+  -  infinite alternate ease-in-out 
+
+-  hover 标签： 
+
+  -  scale: 1.1 
+
+  -  提升阴影
+
+
+---
+项目案例
+
+1. 布局调整：
+
+左右结构：
+
+-  左：项目列表（固定宽度 320px） 
+
+-  右：项目展示区（自适应）
+
+- 去掉查看全部的按钮
+
+- 这个区域的高度以项目list高度为最大高度，项目附的html图片若超过最大高度，则允许滚动查看
+
+ 项目切换逻辑（重点交互）
+
+方式1：点击切换
+
+-  点击左侧项目 → 更新右侧内容 
+
+方式2：滚轮切换（核心体验）
+
+当鼠标在该区域：
+
+-  向下滚： 
+
+  -  切换到下一个项目 
+
+-  向上滚： 
+
+  -  切换上一个项目 
+
+细节：
+
+-  节流：500ms 
+
+-  切换动画： 
+
+  -  当前内容 fade out + scale(0.98) 
+
+  -  新内容 fade in + scale(1) 
+
+最后一个项目后：
+
+-  恢复页面正常滚动 
+
+项目列表样式
+
+选中态：
+
+-  左侧高亮条（4px） 
+
+-  背景浅色 
+
+-  字体加粗 
+
+非选中态：
+
+-  opacity: 0.7 
+
+-  hover： 
+
+  -  opacity: 1
+
+2. 项目List
+
+- AI数据标注平台（默认选中，同时右侧显示该项目的配图）
+
+  - 简介：作为平台核心交互设计师，负责标注端与管理端的关键体验设计，重点解决「专业人力难调度、复杂内容难标、质量难控」三类核心问题。
+
+  - 标签：交互设计，AI后台产品设计，交互文档输出
+
+  - 图片：html文件，已粘贴
+
+import React from 'react';
+import { Plus, CheckCircle, XCircle, ChevronDown } from 'lucide-react';
+
+const VerticalIllustration = () => {
+  // Browser Top Bar Component (Dark Version)
+  const BrowserBar = () => (
+    <div className="flex items-center px-4 py-2 border-b border-white/5 bg-white/5">
+      <div className="flex gap-1.5 mr-4">
+        <div className="w-2 h-2 rounded-full bg-white/20"></div>
+        <div className="w-2 h-2 rounded-full bg-white/10"></div>
+        <div className="w-2 h-2 rounded-full bg-white/10"></div>
+      </div>
+      <div className="flex-1 h-4 bg-white/5 rounded border border-white/5 flex items-center px-2">
+        <div className="w-16 h-1 bg-white/10 rounded-full"></div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="w-full min-h-screen bg-[#0a0c10] flex items-center justify-center p-12 font-sans select-none overflow-y-auto">
+      {/* Container for Vertical Flow */}
+      <div className="w-full max-w-4xl flex flex-col items-center gap-16 relative">
+        
+        {/* 背景装饰光效 */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full filter blur-[120px] pointer-events-none"></div>
+
+        {/* ==================== 01. 项目管理 ==================== */}
+        <div className="w-full flex items-center group">
+          <div className="flex-1 pr-12 text-right">
+            <h2 className="text-white/40 text-xs tracking-[0.2em] font-bold mb-1 uppercase">Step 01</h2>
+            <h3 className="text-white text-xl font-bold tracking-wide">项目管理</h3>
+            <p className="text-white/30 text-xs mt-2 leading-relaxed">高效创建与分配标注任务</p>
+          </div>
+          
+          <div className="relative">
+            {/* Connection Line Down */}
+            <div className="absolute top-full left-1/2 w-px h-16 bg-gradient-to-b from-blue-500/50 to-transparent -translate-x-1/2"></div>
+            
+            <div className="w-[420px] bg-[#161b22] rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden transform group-hover:-translate-y-1 transition-transform duration-500">
+              <BrowserBar />
+              <div className="p-5 flex justify-between items-center border-b border-white/5">
+                <div className="text-white/80 text-xs font-bold">标注项目管理</div>
+                <div className="px-2.5 py-1.5 bg-blue-600 rounded-lg flex items-center gap-1 shadow-lg shadow-blue-900/20 shrink-0">
+                  <Plus size={10} className="text-white" />
+                  <div className="text-white text-[10px] font-medium whitespace-nowrap">新建标注项目</div>
+                </div>
+              </div>
+              <div className="p-5 flex flex-col gap-3">
+                <div className="flex gap-4 mb-1 px-1">
+                  <div className="w-1/3 text-white/30 text-[10px] font-medium uppercase tracking-tighter">项目名称</div>
+                  <div className="w-1/3 text-white/20 text-[10px] font-medium uppercase tracking-tighter">XXX</div>
+                  <div className="w-1/3 text-white/20 text-[10px] font-medium uppercase tracking-tighter">XXX</div>
+                </div>
+                {[1, 2].map((i) => (
+                  <div key={i} className="flex gap-4 py-2.5 px-1 border-b border-white/5 last:border-0 items-center">
+                    <div className="w-1/3 h-2 bg-white/10 rounded-full"></div>
+                    <div className="w-1/3 h-2 bg-white/5 rounded-full"></div>
+                    <div className="w-1/3 h-2 bg-white/5 rounded-full"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ==================== 02. 数据标注 (Highlighted) ==================== */}
+        <div className="w-full flex items-center group">
+          <div className="flex-1 pr-12 text-right">
+            <h2 className="text-blue-500 text-xs tracking-[0.2em] font-bold mb-1 uppercase">Step 02</h2>
+            <h3 className="text-white text-xl font-bold tracking-wide">数据标注</h3>
+            <p className="text-white/30 text-xs mt-2 leading-relaxed">多维度的智能标注体验</p>
+          </div>
+          
+          <div className="relative scale-105 z-10">
+            {/* Connection Line Down */}
+            <div className="absolute top-full left-1/2 w-px h-16 bg-gradient-to-b from-blue-500/50 to-transparent -translate-x-1/2"></div>
+            
+            <div className="w-[460px] bg-[#1c2128] rounded-2xl shadow-[0_0_50px_rgba(59,130,246,0.1)] border border-blue-500/30 flex flex-col overflow-hidden transition-all duration-500">
+              <BrowserBar />
+              <div className="flex flex-row overflow-hidden h-[240px]">
+                <div className="w-[35%] bg-white/5 border-r border-white/5 p-4 flex flex-col">
+                   <div className="text-blue-400 text-[10px] font-bold border-b-2 border-blue-500 inline-block self-start pb-1 mb-4 whitespace-nowrap">参考文章/前文对话</div>
+                   <div className="space-y-3">
+                      <div className="w-full h-1.5 bg-white/10 rounded-full opacity-60"></div>
+                      <div className="w-3/4 h-1.5 bg-white/10 rounded-full opacity-40"></div>
+                      <div className="w-full h-1.5 bg-white/10 rounded-full opacity-30"></div>
+                   </div>
+                </div>
+                <div className="flex-1 p-5 flex flex-col gap-4">
+                   <div className="space-y-1.5">
+                      <div className="text-white/40 text-[10px] font-bold">Query</div>
+                      <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3">
+                         <div className="w-3/4 h-2 bg-emerald-500/20 rounded-full"></div>
+                      </div>
+                   </div>
+                   <div className="flex-1 space-y-1.5 flex flex-col">
+                      <div className="text-white/40 text-[10px] font-bold">答复</div>
+                      <div className="flex-1 bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                         <div className="w-full h-2 bg-blue-500/20 rounded-full mb-2"></div>
+                         <div className="w-5/6 h-2 bg-blue-500/20 rounded-full"></div>
+                      </div>
+                   </div>
+                   <div className="flex justify-between items-center pt-1">
+                      <div className="text-white/20 text-[9px] uppercase tracking-widest px-2 py-1 border border-white/5 rounded">Prev</div>
+                      <div className="text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 bg-blue-600 rounded shadow-md">Next</div>
+                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ==================== 03. 质检审核 ==================== */}
+        <div className="w-full flex items-center group">
+          <div className="flex-1 pr-12 text-right">
+            <h2 className="text-white/40 text-xs tracking-[0.2em] font-bold mb-1 uppercase">Step 03</h2>
+            <h3 className="text-white text-xl font-bold tracking-wide">数据质检/审核</h3>
+            <p className="text-white/30 text-xs mt-2 leading-relaxed">全方位的质量回溯与审核</p>
+          </div>
+          
+          <div className="relative">
+            <div className="w-[420px] bg-[#161b22] rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden transform group-hover:-translate-y-1 transition-transform duration-500">
+              <BrowserBar />
+              <div className="p-5 border-b border-white/5">
+                <div className="text-white/80 text-xs font-bold">任务概览</div>
+              </div>
+              <div className="p-5 flex flex-col gap-3 relative h-[200px]">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className={`flex items-center gap-3 ${i === 2 ? 'opacity-100' : 'opacity-30'}`}>
+                    <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${i === 2 ? 'bg-blue-500 border-blue-500 shadow-lg shadow-blue-500/20' : 'border-white/10'}`}>
+                        {i === 2 && <div className="text-white text-[8px]">✓</div>}
+                    </div>
+                    <div className="flex-1 h-2 bg-white/10 rounded-full"></div>
+                    <div className={`w-10 h-3.5 rounded-full shrink-0 ${i === 2 ? 'bg-orange-500/20 border border-orange-500/20' : 'bg-white/5'}`}></div>
+                  </div>
+                ))}
+
+                <div className="absolute bottom-6 left-0 w-full flex justify-center gap-3 px-6">
+                   <div className="flex-1 bg-red-500/10 text-red-400 py-2 rounded-lg flex justify-center items-center gap-2 border border-red-500/20 text-[10px] font-bold shadow-lg shadow-red-900/10">
+                      <span>批量打回</span>
+                   </div>
+                   <div className="flex-1 bg-emerald-500/10 text-emerald-400 py-2 rounded-lg flex justify-center items-center gap-2 border border-emerald-500/20 text-[10px] font-bold shadow-lg shadow-emerald-900/10">
+                       <span>批量通过</span>
+                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default VerticalIllustration;
+
+  - 查看详情按钮
+
+
+---
+- 全球化企业设备管理平台
+
+  - 简介：作为用户体验设计师的角色，独立负责企业设备管理平台的全流程设计工作，包括分析产品需求、交互设计、视觉设计以及后续跟进开发的工作
+
+  - 标签：ToB 复杂系统设计、0-1产品设计、场景化设计方法
+
+  - 图片：html文件，已粘贴
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极简科技风 UI 插画 - Enterprise Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* 玻璃拟态基础样式 */
+        .glass-window {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8);
+            position: relative;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 窗口装饰 */
+        .window-header {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .window-dots {
+            display: flex;
+            gap: 8px;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* 灰色块替代文字 */
+        .skeleton-text {
+            height: 7px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+        }
+
+        /* 动画效果：平稳的呼吸感 */
+        .float-center {
+            animation: floatCenter 8s ease-in-out infinite;
+        }
+        @keyframes floatCenter {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-12px) scale(1.005); }
+        }
+
+        /* 仅描边闪烁动效 */
+        .glow-border {
+            position: relative;
+            background: rgba(59, 130, 246, 0.08) !important;
+            animation: border-pulse 2.5s ease-in-out infinite;
+        }
+        
+        @keyframes border-pulse {
+            0% { 
+                border-color: rgba(59, 130, 246, 0.3);
+                box-shadow: inset 0 0 0px rgba(59, 130, 246, 0);
+            }
+            50% { 
+                border-color: rgba(59, 130, 246, 0.9);
+                box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.1);
+            }
+            100% { 
+                border-color: rgba(59, 130, 246, 0.3);
+                box-shadow: inset 0 0 0px rgba(59, 130, 246, 0);
+            }
+        }
+
+        /* 控制台图标样式 */
+        .console-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="relative w-full max-w-6xl flex items-center justify-center p-8">
+        
+        <!-- 企业控制台 (居中显示) -->
+        <div class="glass-window float-center w-full max-w-[860px] h-[560px]">
+            <div class="window-header">
+                <div class="window-dots">
+                    <div class="dot" style="background: rgba(239, 68, 68, 0.6);"></div>
+                    <div class="dot" style="background: rgba(245, 158, 11, 0.6);"></div>
+                    <div class="dot" style="background: rgba(34, 197, 94, 0.6);"></div>
+                </div>
+                <div class="ml-6 skeleton-text w-32 opacity-10"></div>
+            </div>
+
+            <div class="p-12">
+                <!-- 英文面包屑 -->
+                <div class="text-white/30 text-[11px] uppercase tracking-[0.2em] mb-2">Home > Enterprise Console</div>
+                <!-- 英文标题 -->
+                <div class="text-white text-3xl font-bold mb-12 tracking-tight">Enterprise Console</div>
+
+                <!-- 6宫格功能区 -->
+                <div class="grid grid-cols-3 gap-8">
+                    <!-- 项 1: 仅描边闪烁 (Device Deployment) -->
+                    <div class="console-card glow-border">
+                        <div class="w-12 h-12 mb-5 text-blue-400">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                            </svg>
+                        </div>
+                        <div class="text-blue-400 text-sm font-bold mb-3">Device Deployment</div>
+                        <div class="skeleton-text w-20 bg-blue-400/20"></div>
+                    </div>
+
+                    <!-- 其他常规项 -->
+                    <div class="console-card">
+                        <div class="w-12 h-12 mb-5 text-white/50">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                            </svg>
+                        </div>
+                        <div class="text-white/70 text-sm font-medium mb-3">Org Management</div>
+                        <div class="skeleton-text w-24 opacity-20"></div>
+                    </div>
+
+                    <div class="console-card">
+                        <div class="w-12 h-12 mb-5 text-white/50">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 3v18M3 12h18" />
+                                <circle cx="12" cy="12" r="9" />
+                            </svg>
+                        </div>
+                        <div class="text-white/70 text-sm font-medium mb-3">Device Control</div>
+                        <div class="skeleton-text w-20 opacity-20"></div>
+                    </div>
+
+                    <div class="console-card">
+                        <div class="w-12 h-12 mb-5 text-white/50">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <path d="M9 3v18M15 3v18" />
+                            </svg>
+                        </div>
+                        <div class="text-white/70 text-sm font-medium mb-3">App Market</div>
+                        <div class="skeleton-text w-24 opacity-20"></div>
+                    </div>
+
+                    <div class="console-card">
+                        <div class="w-12 h-12 mb-5 text-white/50">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                            </svg>
+                        </div>
+                        <div class="text-white/70 text-sm font-medium mb-3">Billing Center</div>
+                        <div class="skeleton-text w-20 opacity-20"></div>
+                    </div>
+
+                    <div class="console-card">
+                        <div class="w-12 h-12 mb-5 text-white/50">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94" />
+                            </svg>
+                        </div>
+                        <div class="text-white/70 text-sm font-medium mb-3">Support</div>
+                        <div class="skeleton-text w-20 opacity-20"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 装饰背景光晕 - 增强视觉深度 -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-blue-600/5 blur-[160px] rounded-full -z-10"></div>
+        <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-400/5 blur-[120px] rounded-full -z-10"></div>
+    </div>
+
+</body>
+</html>
+
+  - 查看详情按钮
+
+
+---
+- 汽车金融服务平台
+
+  - 简介：作为用户体验设计师的角色，参与汽车金融服务平台数字化全周期产品的交互设计、视觉设计工作，包括售前、售中、售后等各个阶段的多个数字化产品。
+
+  - 标签：体验重塑、用户旅程地图
+
+  - 图片：html文件，已粘贴
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极简科技风深色UI插画</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --accent-blue: #3b82f6;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #1a2a44 0%, #0d1117 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* 窗口容器及扫光动效 */
+        .mac-window {
+            width: 900px;
+            height: 600px;
+            background: rgba(23, 27, 34, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            animation: windowAppear 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .mac-window::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 45%,
+                rgba(255, 255, 255, 0.03) 50%,
+                transparent 55%
+            );
+            animation: shine 8s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-30%) translateY(-30%); }
+            100% { transform: translateX(30%) translateY(30%); }
+        }
+
+        @keyframes windowAppear {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .title-bar {
+            height: 44px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; transition: 0.3s; }
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+        .title-bar:hover .dot { transform: scale(1.1); }
+
+        .content {
+            padding: 28px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 占位符动效 */
+        .placeholder-line {
+            height: 8px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.08) 75%);
+            background-size: 200% 100%;
+            animation: loading 3s infinite linear;
+            border-radius: 4px;
+        }
+
+        @keyframes loading {
+            from { background-position: 200% 0; }
+            to { background-position: -200% 0; }
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+            filter: brightness(1.1);
+        }
+
+        /* 时间轴节点动效 */
+        .timeline-node {
+            width: 10px;
+            height: 10px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 15px var(--accent-blue);
+        }
+        .timeline-node::after {
+            content: "";
+            position: absolute;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        /* 侧边栏卡片交互 */
+        .offer-card {
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .offer-card:hover {
+            background: rgba(255, 255, 255, 0.03);
+            transform: translateX(4px);
+        }
+
+        /* 汽车起伏动效 */
+        .car-container {
+            width: 100%;
+            height: 220px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .car-svg-wrapper {
+            animation: carFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes carFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .car-platform {
+            animation: platformScale 4s ease-in-out infinite;
+            position: absolute;
+            bottom: 40px;
+            width: 80%;
+            height: 40px;
+            background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: scaleY(0.3);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        @keyframes platformScale {
+            0%, 100% { transform: scaleY(0.3) scaleX(1); opacity: 0.6; }
+            50% { transform: scaleY(0.3) scaleX(1.1); opacity: 0.3; }
+        }
+
+        /* 背景氛围灯漂移动效 */
+        .glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            animation: glowDrift 15s infinite alternate ease-in-out;
+        }
+        .glow-1 { 
+            width: 500px; height: 500px; 
+            background: rgba(59, 130, 246, 0.12);
+            top: -100px; left: -100px; 
+        }
+        .glow-2 { 
+            width: 400px; height: 400px; 
+            background: rgba(30, 64, 175, 0.15);
+            bottom: -50px; right: -50px; 
+            animation-delay: -5s;
+        }
+
+        @keyframes glowDrift {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(50px, 30px) scale(1.2); }
+        }
+
+        .btn-outline {
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
+    <div class="mac-window">
+        <!-- 标题栏 -->
+        <div class="title-bar">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+            <div class="ml-6 w-32 h-1 bg-white/5 rounded-full"></div>
+        </div>
+
+        <div class="content">
+            <!-- 客户头部：修正对齐 -->
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-5">
+                    <h1 class="text-white text-3xl font-bold tracking-tight">Wang Lin</h1>
+                    <div class="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 text-[10px] border border-blue-500/20 font-bold tracking-widest uppercase">VIP Client</div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="w-32 h-10 bg-white/5 border border-white/10 rounded-lg flex items-center px-3">
+                        <div class="w-2/3 h-1.5 bg-white/10 rounded"></div>
+                    </div>
+                    <button class="btn-primary h-10">Assign Manager</button>
+                </div>
+            </div>
+
+            <!-- 数据概览 -->
+            <div class="grid grid-cols-4 gap-8">
+                <div class="space-y-3">
+                    <div class="placeholder-line w-1/4 opacity-20"></div>
+                    <div class="placeholder-line w-4/5 h-2.5"></div>
+                </div>
+                <div class="space-y-3">
+                    <div class="placeholder-line w-1/4 opacity-20"></div>
+                    <div class="placeholder-line w-3/4 h-2.5"></div>
+                </div>
+                <div class="space-y-3">
+                    <div class="placeholder-line w-1/4 opacity-20"></div>
+                    <div class="placeholder-line w-2/3 h-2.5"></div>
+                </div>
+                <div class="space-y-3">
+                    <div class="placeholder-line w-1/4 opacity-20"></div>
+                    <div class="placeholder-line w-1/2 h-2.5"></div>
+                </div>
+            </div>
+
+            <!-- 时间轴 -->
+            <div class="relative h-12 flex items-center justify-center border-y border-white/5">
+                <div class="w-4/5 h-0.5 bg-white/5 relative">
+                    <div class="timeline-node" style="left: 20%;"></div>
+                    <div class="w-2 h-2 rounded-full bg-white/20 absolute left-[50%] top-1/2 -translate-y-1/2"></div>
+                    <div class="w-2 h-2 rounded-full bg-white/20 absolute left-[80%] top-1/2 -translate-y-1/2"></div>
+                </div>
+                <div class="absolute -top-1 px-3 bg-[#13171e] text-[9px] text-blue-400/50 uppercase tracking-[0.3em]">Customer Journey</div>
+            </div>
+
+            <!-- 主布局 -->
+            <div class="flex gap-8 flex-grow overflow-hidden">
+                <!-- 侧边栏 -->
+                <div class="w-64 flex flex-col gap-3">
+                    <div class="text-[10px] text-white/20 font-bold uppercase tracking-widest mb-2 pl-1">Configuration</div>
+                    <div class="offer-card active-card p-4 rounded-xl border border-blue-500/30 bg-blue-500/5 flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>
+                        </div>
+                        <div class="flex-grow space-y-2">
+                            <div class="placeholder-line w-full h-1.5"></div>
+                            <div class="placeholder-line w-1/2 h-1.5 opacity-30"></div>
+                        </div>
+                    </div>
+                    <div class="offer-card p-4 rounded-xl border border-white/5 bg-white/5 flex items-center gap-4 opacity-50">
+                        <div class="w-10 h-10 rounded-lg bg-white/5"></div>
+                        <div class="flex-grow space-y-2">
+                            <div class="placeholder-line w-3/4 h-1.5"></div>
+                            <div class="placeholder-line w-1/3 h-1.5 opacity-30"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 详情内容区：修正对齐 -->
+                <div class="flex-grow bg-black/20 rounded-2xl p-7 flex flex-col border border-white/5 relative">
+                    <!-- 顶部标题与金额 -->
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <div class="text-blue-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Technical Specification</div>
+                            <h2 class="text-white text-xl font-semibold">Mercedes-EQE SUV</h2>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-white/20 text-[10px] font-bold uppercase mb-1">Estimate</div>
+                            <div class="text-white text-3xl font-light tracking-tighter">¥ 486,000</div>
+                        </div>
+                    </div>
+
+                    <!-- 配置清单概览 -->
+                    <div class="space-y-3 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 rounded-full bg-blue-500/50"></div>
+                            <div class="placeholder-line w-40 opacity-30 h-1.5"></div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 rounded-full bg-blue-500/50"></div>
+                            <div class="placeholder-line w-32 opacity-30 h-1.5"></div>
+                        </div>
+                    </div>
+
+                    <!-- 汽车插画区：居中 -->
+                    <div class="car-container flex-grow">
+                        <div class="car-platform"></div>
+                        <div class="car-svg-wrapper">
+                            <svg class="w-[440px] filter drop-shadow(0 20px 30px rgba(0,0,0,0.5))" viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg">
+                                <!-- 轮毂细节 -->
+                                <circle cx="120" cy="120" r="22" fill="#0a0a0a" />
+                                <circle cx="120" cy="120" r="15" fill="#111" stroke="#3b82f6" stroke-width="0.5" />
+                                <circle cx="380" cy="120" r="22" fill="#0a0a0a" />
+                                <circle cx="380" cy="120" r="15" fill="#111" stroke="#3b82f6" stroke-width="0.5" />
+                                
+                                <!-- 渐变车身 -->
+                                <path d="M50,115 L80,115 C80,100 100,85 125,85 C150,85 170,100 170,115 L330,115 C330,100 350,85 375,85 C400,85 420,100 420,115 L460,115 C480,115 490,105 480,90 C460,60 400,35 320,30 C220,25 120,40 70,75 C50,90 40,105 50,115 Z" fill="url(#carGrad)" />
+                                
+                                <!-- 科技灯光效果 -->
+                                <path d="M465,92 L478,96" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" opacity="0.8">
+                                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" />
+                                </path>
+                                <path d="M455,90 C420,80 380,82 350,85" stroke="rgba(59, 130, 246, 0.2)" stroke-width="1" fill="none" />
+
+                                <defs>
+                                    <linearGradient id="carGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#1e293b;" />
+                                        <stop offset="50%" style="stop-color:#334155;" />
+                                        <stop offset="100%" style="stop-color:#1e293b;" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-500/5 text-8xl font-black italic select-none">ELECTRIC</div>
+                    </div>
+
+                    <!-- 底部按钮组：修正到右下角 -->
+                    <div class="flex justify-end gap-4 mt-auto pt-4">
+                        <button class="btn-outline">Save Draft</button>
+                        <button class="btn-primary">Finalize Offer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+  - 查看详情按钮
+
+
+---
+- 用户研究项目
+
+  - 简介：作为用户体验设计师加入到某新能源汽车用户研究项目中，参与了从用户访谈材料准备、用户跟拍、跟拍需求分析、用户访谈、访谈数据处理，到可用性测试的完整设计流程
+
+  - 标签：用户研究，用户访谈，可用性测试
+
+  - 图片：展示多个图片，一次展示一张，使用胶囊tab切换，胶囊tab位于图片的上面,切换要有微动效
+
+    - tab1标题：用户跟拍，图片：camera_1，camera_2，camera_3，camera_4；将这4张图片放在深色背景上，调整布局，可自由裁剪，确保视觉效果良好；camera_1，camera_2，给个小标题是安装固定摄像头，camera_3，camera_4给个小标题是跟拍录像截图
+
+    - tab2标题：用户访谈，图片：interview_1，interview_2，interview_3，interview_4；将这4张图片放在深色背景上，调整布局，可自由裁剪，确保视觉效果良好；
+
+      - interview_1，interview_2，给个小标题：用户访谈
+
+      - interview_3，给个小标题：用户旅程地图
+
+      - interview_4，给个小标题：价值矩阵
+
+    - tab3标题：可用性测试, 图片：usertest_1,usertest_2,usertest_3; 将这3张图片放在深色背景上，调整布局，可自由裁剪，确保视觉效果良好；
+
+Tab（胶囊）
+
+    -  切换动效： 
+
+      -  背景滑动（类似 segmented control） 
+
+      -  duration: 300ms 
+
+图片切换：
+
+    -  fade + slight zoom（1 → 1.05） 
+
+    -  duration: 400ms
+
+  - 无需查看详情
+
+- 视觉设计项目
+
+  - 简介：除擅长的交互设计项目外，也参与过插画设计、大屏设计、数字孪生组态图设计等视觉设计任务
+
+  - 标签：插画、大屏、数据可视化
+
+  - 图片：展示多个图片，一次展示一张，使用胶囊tab切换，胶囊tab位于图片的上面,切换要有微动效
+
+    - tab1标题：插画，图片：illustrator；这是一张很长很长的图，高度和项目list这个区域的高度一致，长度允许横向滚动，提供一个向右的箭头，点一次移动一段距离
+
+    - tab2标题：大屏，图片：datavisual_1
+
+    - tab3标题：数据可视化, 图片：datavisual_2
+
+插画（横向滚动）
+
+    -  横向 scroll 
+
+    -  提供右箭头按钮： 
+
+    点击：
+
+    -  scrollLeft += 300px 
+
+    -  平滑滚动
+
+  - 无需查看详情
+
+
+---
+Vibe coding&AI
+
+使用现在洞察tab页面下的文章的layout形式
+
+- AI手机系统竞品分析
+
+  - 简介：占位占位
+
+  - 标签：终端设计、手机桌面交互、竞品分析报告
+
+- 个人作品集主页
+
+  - 简介：占位占位
+
+  - 标签：Vibe coding，Replit，网页设计
+
+  - 图片：
+
+- 骑马钉排版小工具
+
+  - 简介：占位占位
+
+  - 标签：Gemini Build，本地运行小工具
+
+
+
+-  hover： 
+
+  -  上浮（translateY(-6px)） 
+
+  -  阴影增强 
+
+  -  图片轻微放大（scale 1.05） 
+
+
+---
+我使用的设计工具
+
+分成两行显示，一行显示两个
+
+进度条增加微动效
+
+
+---
+1. 微交互补充（全局）
+
+按钮
+
+-  hover： 
+
+  -  scale: 1.03 
+
+  -  阴影增强 
+
+图片
+
+-  hover： 
+
+  -  scale: 1.02 
+
+  -  平滑过渡 300ms 
+
+卡片
+
+-  hover： 
+
+  -  translateY(-4px) 
+
+页面加载（首屏）
+
+-  整体 fade in 
+
+-  duration: 0.8s 
+
+2. 技术实现建议（给 Replit AI）
+
+建议使用：
+
+-  React / Next.js 
+
+-  TailwindCSS 
+
+-  Framer Motion（动效核心） 
+
+-  Intersection Observer（滚动动画） 
+
+-  useState + useEffect（项目切换） 
+
+3. 优先级（重要）
+
+4.  项目滚轮切换（核心体验） 
+
+5.  首屏文字滚动动效 
+
+6.  滚动渐隐入 
+
+7.  Tab + 图片动效 
+
+8.  标签浮动
