@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/swiss-portfolio/"
+title = "Swiss Portfolio (方案A)"
+version = "1.0.0"
+id = "artifacts/swiss-portfolio"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/swiss-portfolio/" ]
+localPort = 3001
+
+[services.development]
+run = "PORT=3001 BASE_PATH=/swiss-portfolio/ pnpm --filter @workspace/swiss-portfolio run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/swiss-portfolio", "run", "build" ]
+publicDir = "artifacts/swiss-portfolio/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "3001"
+BASE_PATH = "/swiss-portfolio/"
