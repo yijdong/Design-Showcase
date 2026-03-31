@@ -386,11 +386,10 @@ export default function Resume() {
 
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-16 border-b border-border/50 pb-8">
         <div>
-          <h1 className="text-5xl font-display font-bold mb-4">{t("resume_title")}</h1>
-          <p className="text-lg text-muted-foreground">{t("resume_subtitle")}</p>
+          <h1 className="text-5xl font-display font-bold mb-4">{lang === "zh" ? "简历" : "Resume"}</h1>
         </div>
         <Button onClick={() => alert('Download functionality coming soon!')} className="gap-2 shrink-0 w-fit">
-          <Download className="w-4 h-4" /> {t("resume_download")}
+          <Download className="w-4 h-4" /> {lang === "zh" ? "下载简历" : "Download Resume"}
         </Button>
       </div>
 

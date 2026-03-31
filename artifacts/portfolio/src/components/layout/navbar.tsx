@@ -1,54 +1,108 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/language-context";
 
+const SECTIONS = ["about", "projects", "ai"] as const;
+type SectionId = typeof SECTIONS[number];
+
+const NAV_LABELS: Record<SectionId, { zh: string; en: string }> = {
+  about: { zh: "关于我", en: "About Me" },
+  projects: { zh: "项目案例", en: "Projects" },
+  ai: { zh: "Vibe Coding & AI", en: "Vibe Coding & AI" },
+};
+
+function scrollToSection(id: string) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
 export function Navbar() {
-  const [location] = useLocation();
-  const { lang, setLang, t } = useLanguage();
+  const [location, navigate] = useLocation();
+  const { lang, setLang } = useLanguage();
+  const [activeSection, setActiveSection] = useState<SectionId | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
-  const navLinks = [
-    { label: t("nav_about"), path: "/" },
-    { label: t("nav_projects"), path: "/projects" },
-    { label: t("nav_vibe"), path: "/vibe-coding" },
-    { label: t("nav_insight"), path: "/insight" },
-    { label: t("nav_resume"), path: "/resume" },
-  ];
+  const isHome = location === "/" || location === "";
 
-  const isCurrentPath = (path: string) => {
-    if (path === "/" && location === "/") return true;
-    if (path !== "/" && location.startsWith(path)) return true;
-    return false;
+  /* shadow on scroll */
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  /* scroll spy — highlight section that occupies ≥50% of viewport */
+  useEffect(() => {
+    if (!isHome) { setActiveSection(null); return; }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length > 0) {
+          setActiveSection(visible[0].target.id as SectionId);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    SECTIONS.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [isHome]);
+
+  const handleNavClick = (sectionId: SectionId) => {
+    if (isHome) {
+      scrollToSection(sectionId);
+    } else {
+      navigate("/");
+      setTimeout(() => scrollToSection(sectionId), 100);
+    }
   };
 
   return (
-    <header className="fixed top-0 inset-x-0 h-[72px] bg-background/80 backdrop-blur-md border-b border-border/50 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
-        <Link href="/" className="text-xl font-display font-bold tracking-tight text-foreground hover:opacity-80 transition-opacity">
+    <header
+      className={cn(
+        "fixed top-0 inset-x-0 h-[68px] bg-background/85 backdrop-blur-md border-b border-border/50 z-50 transition-shadow duration-300",
+        scrolled && "shadow-md shadow-black/10"
+      )}
+    >
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+        {/* Logo */}
+        <Link
+          href="/"
+          className="text-xl font-display font-bold tracking-tight text-foreground hover:opacity-80 transition-opacity"
+        >
           Yijun Dong
         </Link>
 
+        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => {
-            const active = isCurrentPath(link.path);
+          {SECTIONS.map((id) => {
+            const label = lang === "zh" ? NAV_LABELS[id].zh : NAV_LABELS[id].en;
+            const active = activeSection === id;
             return (
-              <Link
-                key={link.path}
-                href={link.path}
+              <button
+                key={id}
+                onClick={() => handleNavClick(id)}
                 className={cn(
-                  "relative text-sm font-medium transition-colors py-2",
-                  active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  "relative text-sm font-medium transition-colors py-2 cursor-pointer",
+                  active ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                {link.label}
-                {active && (
-                  <motion.div
-                    layoutId="navbar-indicator"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                )}
-              </Link>
+                {label}
+                <span
+                  className="absolute bottom-0 left-0 h-0.5 bg-primary rounded-full transition-all duration-300 ease-out"
+                  style={{ width: active ? "100%" : "0%" }}
+                />
+              </button>
             );
           })}
 
@@ -80,7 +134,7 @@ export function Navbar() {
           </div>
         </nav>
 
-        {/* Mobile: language toggle + menu */}
+        {/* Mobile */}
         <div className="md:hidden flex items-center gap-3 text-sm font-medium">
           <div className="flex items-center gap-1 border border-border rounded-full px-1 py-0.5">
             <button
@@ -103,7 +157,6 @@ export function Navbar() {
               EN
             </button>
           </div>
-          <Link href="/">Menu</Link>
         </div>
       </div>
     </header>

@@ -79,7 +79,7 @@ export function SkillsSection() {
 
   return (
     <div className="w-full py-14" style={{ backgroundColor: "hsl(42 88% 60%)" }}>
-      <div ref={ref} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div ref={ref} className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Column headers */}
         <div className="grid grid-cols-2 gap-8 md:gap-16 mb-5">
