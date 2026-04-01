@@ -1,0 +1,400 @@
+# 调整
+#ai
+
+导航条的宽度调整为和首屏这个卡片的宽度一致
+中文的字体就用pingfang SC 
+去掉「你好，我是怡君。」「UI/UX 全链路设计师。」这两句末尾的句号
+照片的比例调整为9:16
+英文页面 我没有提供英文的地方帮我翻译一下，我提供英文文本的就按我的来
+### 检查动效
+#### 1、「你好，我是怡君」「UI/UX 全链路设计师」的动效没有生效
+- 「你好, 我是怡君. UI/UX 全链路设计师.」增加字体动效：**Split Text**
+  - 动效代码参考：
+```
+import { useRef, useEffect, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText as GSAPSplitText } from 'gsap/SplitText';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(ScrollTrigger, GSAPSplitText, useGSAP);
+
+const SplitText = ({
+  text,
+  className = '',
+  delay = 50,
+  duration = 1.25,
+  ease = 'power3.out',
+  splitType = 'chars',
+  from = { opacity: 0, y: 40 },
+  to = { opacity: 1, y: 0 },
+  threshold = 0.1,
+  rootMargin = '-100px',
+  textAlign = 'center',
+  tag = 'p',
+  onLetterAnimationComplete
+}) => {
+  const ref = useRef(null);
+  const animationCompletedRef = useRef(false);
+  const onCompleteRef = useRef(onLetterAnimationComplete);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  // Keep callback ref updated
+  useEffect(() => {
+    onCompleteRef.current = onLetterAnimationComplete;
+  }, [onLetterAnimationComplete]);
+
+  useEffect(() => {
+    if (document.fonts.status === 'loaded') {
+      setFontsLoaded(true);
+    } else {
+      document.fonts.ready.then(() => {
+        setFontsLoaded(true);
+      });
+    }
+  }, []);
+
+  useGSAP(
+    () => {
+      if (!ref.current || !text || !fontsLoaded) return;
+      // Prevent re-animation if already completed
+      if (animationCompletedRef.current) return;
+      const el = ref.current;
+
+      if (el._rbsplitInstance) {
+        try {
+          el._rbsplitInstance.revert();
+        } catch (_) {
+          /* noop */
+        }
+        el._rbsplitInstance = null;
+      }
+
+      const startPct = (1 - threshold) * 100;
+      const marginMatch = /^(-?\d+(?:\.\d+)?)(px|em|rem|%)?$/.exec(rootMargin);
+      const marginValue = marginMatch ? parseFloat(marginMatch[1]) : 0;
+      const marginUnit = marginMatch ? marginMatch[2] || 'px' : 'px';
+      const sign =
+        marginValue === 0
+          ? ''
+          : marginValue < 0
+            ? `-=${Math.abs(marginValue)}${marginUnit}`
+            : `+=${marginValue}${marginUnit}`;
+      const start = `top ${startPct}%${sign}`;
+
+      let targets;
+      const assignTargets = self => {
+        if (splitType.includes('chars') && self.chars.length) targets = self.chars;
+        if (!targets && splitType.includes('words') && self.words.length) targets = self.words;
+        if (!targets && splitType.includes('lines') && self.lines.length) targets = self.lines;
+        if (!targets) targets = self.chars || self.words || self.lines;
+      };
+
+      const splitInstance = new GSAPSplitText(el, {
+        type: splitType,
+        smartWrap: true,
+        autoSplit: splitType === 'lines',
+        linesClass: 'split-line',
+        wordsClass: 'split-word',
+        charsClass: 'split-char',
+        reduceWhiteSpace: false,
+        onSplit: self => {
+          assignTargets(self);
+          const tween = gsap.fromTo(
+            targets,
+            { ...from },
+            {
+              ...to,
+              duration,
+              ease,
+              stagger: delay / 1000,
+              scrollTrigger: {
+                trigger: el,
+                start,
+                once: true,
+                fastScrollEnd: true,
+                anticipatePin: 0.4
+              },
+              onComplete: () => {
+                animationCompletedRef.current = true;
+                onCompleteRef.current?.();
+              },
+              willChange: 'transform, opacity',
+              force3D: true
+            }
+          );
+          return tween;
+        }
+      });
+
+      el._rbsplitInstance = splitInstance;
+
+      return () => {
+        ScrollTrigger.getAll().forEach(st => {
+          if (st.trigger === el) st.kill();
+        });
+        try {
+          splitInstance.revert();
+        } catch (_) {
+          /* noop */
+        }
+        el._rbsplitInstance = null;
+      };
+    },
+    {
+      dependencies: [
+        text,
+        delay,
+        duration,
+        ease,
+        splitType,
+        JSON.stringify(from),
+        JSON.stringify(to),
+        threshold,
+        rootMargin,
+        fontsLoaded
+      ],
+      scope: ref
+    }
+  );
+
+  const renderTag = () => {
+    const style = {
+      textAlign,
+      overflow: 'hidden',
+      display: 'inline-block',
+      whiteSpace: 'normal',
+      wordWrap: 'break-word',
+      willChange: 'transform, opacity'
+    };
+    const classes = `split-parent ${className}`;
+    const Tag = tag || 'p';
+
+    return (
+      <Tag ref={ref} style={style} className={classes}>
+        {text}
+      </Tag>
+    );
+  };
+  return renderTag();
+};
+
+export default SplitText;
+```
+
+#### 2、照片hover动效没有生效
+hover至照片时增加一个动效，代码参考
+```
+import { useRef } from 'react';
+import './SpotlightCard.css';
+
+const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba(255, 255, 255, 0.25)' }) => {
+  const divRef = useRef(null);
+
+  const handleMouseMove = e => {
+    const rect = divRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    divRef.current.style.setProperty('--mouse-x', `${x}px`);
+    divRef.current.style.setProperty('--mouse-y', `${y}px`);
+    divRef.current.style.setProperty('--spotlight-color', spotlightColor);
+  };
+
+  return (
+    <div ref={divRef} onMouseMove={handleMouseMove} className={`card-spotlight ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+export default SpotlightCard;
+```
+
+#### 3、全局元素在滚动到相应位置渐隐没有生效
+触发方式：Intersection Observer**
+* 所有模块、文字、图片统一使用： 
+  * 初始状态： 
+    * opacity: 0 
+    * transform: translateY(24px) 
+  * 进入视口 20% 时触发： 
+    * opacity: 1 
+    * transform: translateY(0) 
+  * 动画： 
+    * duration: 0.6s 
+    * easing: ease-out 
+    * 支持 stagger（子元素间隔 80ms） 
+#### 4. 交互设计  ✦  视觉设计  ✦  竞品分析  ✦  用户研究  ✦  可用性测试  ✦  Vibe Coding ✦  需求分析 ✦  部分的动效设置调整
+	- 速度 speed调整为1.5
+        -  Curve Amount调整为0
+        - 文字字号调整为 16
+
+### 查看简历
+点击查看简历按钮跳转至二级页面，支持返回，风格与首页保持一致，内容和我提供的内容严格保持一致，进行适当的可视化调整
+
+
+
+英文：
+
+# Yijun Dong
+**Job Objective: UI/UX Designer**
+* **Email**: yijdong@163.com
+* **Phone**: 18092240354
+
+⠀Profile
+* **End-to-End UI/UX Design**: Focus on interaction and user experience. Able to handle the full design process, including requirements, user research, interaction, visual design, and usability testing.
+* **Complex ToB System**: Experienced in enterprise system design (e.g., Huawei, Mercedes-Benz). Skilled in structuring multi-role workflows and turning complex business needs into clear and usable solutions.
+* **AI Product Design**: Worked on AI data platforms and AI systems. Able to translate AI capabilities into practical interaction designs for multi-role use. Familiar with AI tools (image generation, prototyping) for design exploration.
+* **Design System & Component Library**: Experienced in building design systems and reusable components. Able to define clear standards and documentation to support consistency and efficient development.
+
+⠀Work Experience
+Wicresoft | Interaction Designer
+**2025.05 - Present** *Join Baidu ERNIE Bot team (UX Applied Model Dept.) Responsible for interaction design of the Data Annotation Platform and Data Engineering Platform.*
+* **Requirement analysis**: clarify requirements and goals, identify key issues, and support solution delivery.
+* **Interaction design**: conduct competitor analysis and solution exploration; design core flows, key components.
+* **Collaboration**: work with PM and Devs, support design reviews, and follow implementation quality.
+
+⠀Luxshare Precision | Product Manager (Mobile OS Interaction)
+**2024.12 - 2025.03**
+* Responsible for AI mobile system design and competitor analysis. Also worked on AI development tools, defining requirements based on multiple rounds of user interviews.
+
+⠀Thoughtworks Xi'an | UX Designer
+**2019.10 - 2024.08** *Participated in projects for clients like Huawei and Mercedes-Benz, with responsibilities including:*
+* Used user research to find business goals and set the design direction.
+* Created interaction and visual designs and presented them to clients for approval.
+
+⠀Quanying Technology Co., Ltd. (Xi'an) | Interaction Designer
+**2018.04 - 2019.10**
+* Responsible for the interaction design of the Quanying Cloud product, covering both web and mobile platforms.
+
+⠀Beijing Wanxiu Tech (Gaea) | UI Designer
+**2017.03 - 2018.04**
+* Handled the design of "Lü Fa Shi Camp," encompassing interaction design, UI design, and motion design.
+
+⠀Newton Science Education Co., Ltd. | UI Designer
+**2016.03 - 2017.03**
+* Responsible for the UI design, H5 event interface design.
+
+⠀Project Experience
+ERNIE Data Annotation Platform & Data Engineering Platform
+**2025.05 - Present**
+* **Annotation Platform UX Improvements**: Designed workflows for part-time annotators and improved key features such as agent components, complex content comparison, and AI pre-check to enhance efficiency and quality control.
+* **Data Engineering Platform Redesign**: Led end-to-end interaction improvements. Rebuilt key workflows (data upload, QA, initial review, final review, release), making processes easier to understand and lowering the barrier for engineers.
+
+⠀Mercedes-Benz Financial Services Platform
+**2021.05 - 2024.07 | 0-1 Design | Design System**
+* **0-1 Design**: Led the 0-1 design for the Dealer Platform (DSS) and Agent Portal. Improved the user retention system and simplified complex workflows.
+* **Design System**: Built a design library with over 20 components to speed up development.
+
+⠀Huawei Enterprise Projects
+**2019.11 - 2021.04 | Multi-field ToB Design**
+* **Multi-field ToB Design**: Managed full design cycles for network management (OSS ISSTAR), device control (HEM), and ads. Served over 100,000 users.
+* **Cross-platform Consistency**: Created a design systems for Web and Mobile. Increased component reuse by 40% and cut development time by 25%.
+
+⠀EV User Research & Testing
+**2020.04 - 2024.03 | User Research & Usability Testing**
+* **User Interviews**: Found pain points and validated 20+ features through deep interviews.
+* **User Shadowing**: Used car cameras to record 7 days of real driving behavior to identify pain points.
+* **Usability Testing**: Tested 30+ core tasks. Used eye-tracking to analyze the interface and set feature priorities.
+
+⠀Quanying Cloud Platform
+**2018.04 - 2019.10 | Industrial Internet**
+* **Industrial Internet**: Designed core modules for energy monitoring, smart alerts, and digital twins.
+* **Data Visualization**: Designed interactive charts and data trends for Web and Big Screens.
+
+⠀Education
+* **Huaqiao University** | Bachelor's Degree in Industrial Design | 2012-2016
+* **Tatung University, Taiwan** | Exchange Student in Industrial Design | 2014-2015
+
+⠀Skills
+* **Figma/Sketch**: Expert
+* **AI-driven Prototyping**: Proficient
+* **Principal (动效)**: Proficient
+* **Adobe PS/AI**: Proficient
+
+⠀
+
+
+
+
+
+中文：
+
+
+# 董怡君 (Yijun Dong)
+**求职岗位：UI/UX设计师**
+* **邮箱**: yijdong@163.com
+* **电话**: 18092240354
+
+⠀个人优势
+* **UI/UX全流程设计**: 深耕交互逻辑与用户体验，能够主导需求分析、用户研究、交互设计、视觉设计、可用性测试全链路设计流程。
+* **ToB复杂系统设计**: 擅长复杂系统的信息架构与任务流程设计，具备华为、奔驰等客户的大型ToB系统实战经验，能快速梳理多角色业务场景并输出高可用性解决方案。
+* **AI产品设计**: 参与AI数据平台与AI终端系统相关产品设计，将AI能力转化为清晰、可落地的交互方案，支撑多角色协作与复杂系统运行。善用AI生图与原型 Demo 等工具辅助方案构思与验证。
+* **设计规范与组件库**: 擅长企业级设计规范制定与标准化组件库搭建，能够输出可复用的设计标准与清晰的交互文档，支撑复杂系统稳定落地。
+
+⠀工作经历
+微创软件 | 交互设计师
+**2025.05 – 至今** 加入百度文心一言项目组 *(*应用模型用户体验部*)*，负责一言标注平台与一言数据工程平台的交互设计工作。
+* **需求分析与决策**: 梳理需求与设计目标，澄清关键问题，推动方案落地。
+* **交互设计**: 进行竞品分析与方案探索，设计核心流程、关键组件及异常场景。
+* **跨角色协作落地**: 协同视觉与研发，推进设计评审并跟进实现效果。
+
+⠀立讯精密 | 产品经理 (手机系统交互)
+**2024.12 – 2025.03**
+* 负责 AI 手机系统设计与竞品分析，并开展 AI 研发工具设计，基于多轮用户访谈明确需求。
+
+⠀Thoughtworks (西安) | 用户体验设计师
+**2019.10 – 2024.08** 主要参与华为、奔驰等客户的项目，工作职责包括：
+* **需求与业务洞察**: 通过用户研究与需求分析，深入理解业务目标并明确设计方向。
+* **体验设计与协作落地**: 负责交互设计、视觉设计并对接客户评审，推动方案与业务目标一致落地。
+
+⠀上海全应科技有限公司 (西安) | 交互设计师
+**2018.04 – 2019.10**
+* 负责全应智慧热能云产品交互设计、视觉设计，聚焦 Web 与大屏数据可视化，提升产品操作效率。
+
+⠀北京丸秀科技有限公司 (北京盖娅互娱) | UI设计师
+**2017.03 – 2018.04**
+* 负责旅法师营地产品 App 端及 Web 端的交互设计、视觉设计及动效设计工作。
+
+⠀北京小牛顿科学启蒙教育科技有限公司 (北京) | UI设计实习生
+**2016.03 – 2017.03**
+* 负责小牛顿官网 UI 设计，公众号界面设计及运营活动 H5 界面设计，宣传物料设计等。
+
+⠀主要项目经历
+一言标注平台及数据工程平台
+**2025.05 – 至今 | 交互设计 | AI数据标注平台**
+* **标注平台体验升级**: 负责标注端与管理端体验优化，主导面向垂类兼职人员的标注流程设计，并升级智能体组件、复杂内容对比与 AI 预检等核心能力，提升标注效率与质量可控性。
+* **数据工程平台流程重构**: 负责数据工程平台全链路交互优化，重构数据上传、质检、初审、终审、封版等关键流程，提升工程能力可理解性，降低 RD 使用门槛。
+
+⠀奔驰金融服务平台
+**2021.05 – 2024.07 | 从0-1设计 | 设计规范**
+* **汽车金融全周期产品设计**: 主导 DSS 经销商平台与 Agent Portal 催收系统的 0-1 设计，重构金融用户留存系统体验，系统性优化复杂业务流程。
+* **设计系统与规范建设**: 制定全平台设计规范（覆盖 20+ 组件），推动开发过程中的组件复用。
+
+⠀华为交付项目
+**2019.11 – 2021.04 | 交互设计 | ToB复杂系统设计**
+* **多领域 ToB 系统设计**: 主导企业级复杂系统从需求到落地的全流程设计，覆盖网络管理 (OSS ISSTAR)、设备管控 (HEM)、广告营销三大领域，服务 10 万+ 级用户场景。
+* **跨平台一致性设计**: 制定并落地 HEM 解决方案多端 (Web/移动/响应式官网) 统一设计规范，组件复用率提升 40%，开发周期缩短 25%。
+
+⠀新能源车企用户研究
+**2020.04 – 2024.03 | 用户研究 | 可用性测试**
+* **用户访谈**: 通过深度访谈，挖掘用户典型用车场景与核心痛点，验证 20+ 功能假设并明确需求优先级。
+* **用户跟拍**: 安装车载摄像头记录用户 7 天真实用车行为，记录车机各应用使用频率与痛点。
+* **可用性测试**: 设计 30+ 核心任务，覆盖高频及边缘场景；利用眼动仪捕捉用户视觉焦点分布，分析界面信息层级合理性；记录定量数据与定性反馈，进行数据分析对需求进行优先级排序。
+
+⠀全应云平台微应用集群
+**2018.04 – 2019.10 | 交互设计 | 数据可视化设计**
+* **工业互联网云平台设计**: 基于热力能源行业特性，设计生产监控、智能预警、数字孪生等核心功能模块。
+* **数据可视化设计**: 基于示波器及行业 BI 系统的深度竞品分析，主导 Web 端与大屏数据可视化设计，设计数据趋势对比交互动效，明确交互逻辑。
+
+⠀教育经历
+* **华侨大学** | 工业设计 | 本科 | 2012 - 2016
+* **台湾大同大学** | 工业设计 | 交换生 | 2014 - 2015
+
+⠀工具技能
+* **Figma / Sketch**: 精通
+* **Gemini / Claude / Replit等Vibe Coding工具**: 熟练
+* **Principal (动效)**: 熟练
+* **Adobe PS / AI**: 熟练
+
+⠀
