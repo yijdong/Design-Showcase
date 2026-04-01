@@ -1,0 +1,462 @@
+# 风格调整
+#ai
+
+## 核心目标
+解决swiss-portfolio页面在大屏展示时「字体偏小、留白过多、质感不足、不够高级」的问题，在保留原有信息架构和品牌调性的基础上，提升视觉层级、信息密度和专业质感，打造符合B端UX设计师身份的高级感个人主页。
+
+## 具体优化要求
+### 功能缺失补充
+当前页面查看简历不能点击，中英文切换不能点击，请修复，具体要求和之前第一个版本中的内容一致
+
+
+### 页面配色：
+整体页面背景是是浅米白：#F9F6F1
+正文颜色为：#2E2E2E
+描述文本颜色为：#666666
+主按钮，填充色为：#2E2E2E；文字颜色为#F9F6F1；无描边；大弧度圆角
+次级按钮，填充色为：#F9F6F1；描边颜色为E1DAD1 ；   文字颜色为#2E2E2E；大弧度圆角
+按钮hover状态，增加微动效，从中心放大一点；颜色叠加一个20%透明度的白色
+Vibe coding&ai中卡片为大圆角风格，四边圆角是32px；描边颜色为E1DAD1
+
+### **全局滚动动效（统一规则）
+触发方式：Intersection Observer**
+* 所有模块、文字、图片统一使用： 
+  * 初始状态： 
+    * opacity: 0 
+    * transform: translateY(24px) 
+  * 进入视口 20% 时触发： 
+    * opacity: 1 
+    * transform: translateY(0) 
+  * 动画： 
+    * duration: 0.6s 
+    * easing: ease-out 
+    * 支持 stagger（子元素间隔 80ms） 
+
+⠀👉 适用于：
+* 标题 
+* 段落 
+* 图片 
+* 卡片 
+* 标签
+
+所有可点击的位置，hover后鼠标变成手
+
+
+### 🎨 导航栏样式详细描述
+变更成**极简轻奢风的顶部导航栏**，整体设计克制、高级，细节充满精致感，具体拆解如下：
+
+---
+#### 1. 整体容器与背景
+- 容器为**圆角矩形**，左右两端做了大弧度圆角处理，整体轮廓柔和不生硬
+- 圆角矩形填充色为：#FCFBF8，有一个1px的描边，描边颜色：#EFEBE4
+- 容器宽度与页面内容宽度等宽；距离页面顶部间距18px；导航悬浮在整个页面上方，固定在顶部显示；
+- 整体氛围干净、通透，符合现代极简设计语言
+
+#### 2. 左侧 Logo 区
+- 左侧是品牌标识：一个**黑色圆形图标**，内部是白色字母「Y」，搭配右侧的品牌名「Yijun Dong」
+- 字体采用**衬线字体（Serif）**，笔画有粗细变化，复古感与高级感兼具，提升品牌质感
+- Logo 与导航菜单之间留有充足留白，视觉呼吸感强
+
+#### 3. 中间导航菜单区
+- 关于我、项目案例、Vibe&AI、设计工具，四个tab放在中间，与页面居中对齐
+- 字体与 Logo 统一为**衬线字体**，字号适中，字间距宽松，排版舒展
+- 纯文字呈现，极简克制，hover 时可做颜色/下划线微动效
+- 菜单与右侧操作区之间
+
+#### 4. 右侧操作按钮区
+- 最右侧是中英文切换按钮
+- 按钮为**圆角胶囊形**，与导航栏整体圆角风格统一，视觉焦点突出
+- 默认选中中文，选中态颜色为黑色
+
+#### 5. 细节与风格总结
+- **核心风格**：极简主义、轻奢质感、现代感与复古感平衡
+- **视觉层次**：Logo（品牌）> 导航菜单（功能）> 中英文切换，层级清晰
+
+---
+
+### 1. 首屏内容排版与字体优化
+- 字体层级升级：
+  - 主标题「你好, 我是怡君.」，字号76px；一行展示完整；字重加粗，颜色：2E2E2E；「怡君」二字视觉权重强化，颜色：B7947A；提升视觉冲击力；
+  - 增加副标题：「UI/UX 全链路设计师」，字号字号76px；字重加粗，颜色：2E2E2E；
+  - 语言选择英文时显示：「Hi, I’m Yijun. 」「UI/UX DESIGNER.」
+  - 标点符号均使用英文标点符号
+  - 去掉最上面的小字 UX DESIGNER · 产品体验设计师
+  - 行高优化至1.6-1.8，提升可读性
+  - 「你好, 我是怡君. UI/UX 全链路设计师.」增加字体动效：**Split Text**
+  - 动效代码参考：
+```
+import { useRef, useEffect, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText as GSAPSplitText } from 'gsap/SplitText';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(ScrollTrigger, GSAPSplitText, useGSAP);
+
+const SplitText = ({
+  text,
+  className = '',
+  delay = 50,
+  duration = 1.25,
+  ease = 'power3.out',
+  splitType = 'chars',
+  from = { opacity: 0, y: 40 },
+  to = { opacity: 1, y: 0 },
+  threshold = 0.1,
+  rootMargin = '-100px',
+  textAlign = 'center',
+  tag = 'p',
+  onLetterAnimationComplete
+}) => {
+  const ref = useRef(null);
+  const animationCompletedRef = useRef(false);
+  const onCompleteRef = useRef(onLetterAnimationComplete);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  // Keep callback ref updated
+  useEffect(() => {
+    onCompleteRef.current = onLetterAnimationComplete;
+  }, [onLetterAnimationComplete]);
+
+  useEffect(() => {
+    if (document.fonts.status === 'loaded') {
+      setFontsLoaded(true);
+    } else {
+      document.fonts.ready.then(() => {
+        setFontsLoaded(true);
+      });
+    }
+  }, []);
+
+  useGSAP(
+    () => {
+      if (!ref.current || !text || !fontsLoaded) return;
+      // Prevent re-animation if already completed
+      if (animationCompletedRef.current) return;
+      const el = ref.current;
+
+      if (el._rbsplitInstance) {
+        try {
+          el._rbsplitInstance.revert();
+        } catch (_) {
+          /* noop */
+        }
+        el._rbsplitInstance = null;
+      }
+
+      const startPct = (1 - threshold) * 100;
+      const marginMatch = /^(-?\d+(?:\.\d+)?)(px|em|rem|%)?$/.exec(rootMargin);
+      const marginValue = marginMatch ? parseFloat(marginMatch[1]) : 0;
+      const marginUnit = marginMatch ? marginMatch[2] || 'px' : 'px';
+      const sign =
+        marginValue === 0
+          ? ''
+          : marginValue < 0
+            ? `-=${Math.abs(marginValue)}${marginUnit}`
+            : `+=${marginValue}${marginUnit}`;
+      const start = `top ${startPct}%${sign}`;
+
+      let targets;
+      const assignTargets = self => {
+        if (splitType.includes('chars') && self.chars.length) targets = self.chars;
+        if (!targets && splitType.includes('words') && self.words.length) targets = self.words;
+        if (!targets && splitType.includes('lines') && self.lines.length) targets = self.lines;
+        if (!targets) targets = self.chars || self.words || self.lines;
+      };
+
+      const splitInstance = new GSAPSplitText(el, {
+        type: splitType,
+        smartWrap: true,
+        autoSplit: splitType === 'lines',
+        linesClass: 'split-line',
+        wordsClass: 'split-word',
+        charsClass: 'split-char',
+        reduceWhiteSpace: false,
+        onSplit: self => {
+          assignTargets(self);
+          const tween = gsap.fromTo(
+            targets,
+            { ...from },
+            {
+              ...to,
+              duration,
+              ease,
+              stagger: delay / 1000,
+              scrollTrigger: {
+                trigger: el,
+                start,
+                once: true,
+                fastScrollEnd: true,
+                anticipatePin: 0.4
+              },
+              onComplete: () => {
+                animationCompletedRef.current = true;
+                onCompleteRef.current?.();
+              },
+              willChange: 'transform, opacity',
+              force3D: true
+            }
+          );
+          return tween;
+        }
+      });
+
+      el._rbsplitInstance = splitInstance;
+
+      return () => {
+        ScrollTrigger.getAll().forEach(st => {
+          if (st.trigger === el) st.kill();
+        });
+        try {
+          splitInstance.revert();
+        } catch (_) {
+          /* noop */
+        }
+        el._rbsplitInstance = null;
+      };
+    },
+    {
+      dependencies: [
+        text,
+        delay,
+        duration,
+        ease,
+        splitType,
+        JSON.stringify(from),
+        JSON.stringify(to),
+        threshold,
+        rootMargin,
+        fontsLoaded
+      ],
+      scope: ref
+    }
+  );
+
+  const renderTag = () => {
+    const style = {
+      textAlign,
+      overflow: 'hidden',
+      display: 'inline-block',
+      whiteSpace: 'normal',
+      wordWrap: 'break-word',
+      willChange: 'transform, opacity'
+    };
+    const classes = `split-parent ${className}`;
+    const Tag = tag || 'p';
+
+    return (
+      <Tag ref={ref} style={style} className={classes}>
+        {text}
+      </Tag>
+    );
+  };
+  return renderTag();
+};
+
+export default SplitText;
+```
+
+- 调整行间距与段间距，避免留白空洞，让信息排布更紧凑但不拥挤
+- 描述文本简化成：深耕交互设计与用户体验，擅长复杂 ToB 系统搭建，拥有百度、
+华为、奔驰等大型客户实战经验。字号：20px；字重：regular；颜色：#666666
+- 去掉描述文本下的标签显示：交互设计、视觉设计、用户研究、可用性测试、AI产品设计、ToB复杂系统设计
+
+### 2. 主屏幕布局优化
+- 容器
+  - 将首屏内容放在一个大的圆角矩形内，圆角32px；填充色：E8E2D9
+  - 照片也放在一个圆角矩形内，圆角32px，超出部分裁剪掉
+- 照片下3个内容删除
+- 手机号、邮箱复制按钮icon使用上传的icon，布局不变；手机号邮箱均支持复制
+  - 手机号：phone
+  - 邮箱：mail
+  - 复制：copy
+- 在主屏幕大卡片下显示：交互设计  ✦  视觉设计  ✦  竞品分析  ✦  用户研究  ✦  可用性测试  ✦  Vibe Coding ✦  需求分析 ✦  
+  - 使用动效**Curved Loop**
+  - 在整个屏幕宽度下滚动，字号：14px，颜色：#2E2E2E；无背景色；代码中与这个设置不一样的地方，以这个为准
+  - 动效代码参考：
+```
+import { useRef, useEffect, useState, useMemo, useId } from 'react';
+import './CurvedLoop.css';
+
+const CurvedLoop = ({
+  marqueeText = '',
+  speed = 2,
+  className,
+  curveAmount = 400,
+  direction = 'left',
+  interactive = true
+}) => {
+  const text = useMemo(() => {
+    const hasTrailing = /\s|\u00A0$/.test(marqueeText);
+    return (hasTrailing ? marqueeText.replace(/\s+$/, '') : marqueeText) + '\u00A0';
+  }, [marqueeText]);
+
+  const measureRef = useRef(null);
+  const textPathRef = useRef(null);
+  const pathRef = useRef(null);
+  const [spacing, setSpacing] = useState(0);
+  const [offset, setOffset] = useState(0);
+  const uid = useId();
+  const pathId = `curve-${uid}`;
+  const pathD = `M-100,40 Q500,${40 + curveAmount} 1540,40`;
+
+  const dragRef = useRef(false);
+  const lastXRef = useRef(0);
+  const dirRef = useRef(direction);
+  const velRef = useRef(0);
+
+  const textLength = spacing;
+  const totalText = textLength
+    ? Array(Math.ceil(1800 / textLength) + 2)
+        .fill(text)
+        .join('')
+    : text;
+  const ready = spacing > 0;
+
+  useEffect(() => {
+    if (measureRef.current) setSpacing(measureRef.current.getComputedTextLength());
+  }, [text, className]);
+
+  useEffect(() => {
+    if (!spacing) return;
+    if (textPathRef.current) {
+      const initial = -spacing;
+      textPathRef.current.setAttribute('startOffset', initial + 'px');
+      setOffset(initial);
+    }
+  }, [spacing]);
+
+  useEffect(() => {
+    if (!spacing || !ready) return;
+    let frame = 0;
+    const step = () => {
+      if (!dragRef.current && textPathRef.current) {
+        const delta = dirRef.current === 'right' ? speed : -speed;
+        const currentOffset = parseFloat(textPathRef.current.getAttribute('startOffset') || '0');
+        let newOffset = currentOffset + delta;
+
+        const wrapPoint = spacing;
+        if (newOffset <= -wrapPoint) newOffset += wrapPoint;
+        if (newOffset > 0) newOffset -= wrapPoint;
+
+        textPathRef.current.setAttribute('startOffset', newOffset + 'px');
+        setOffset(newOffset);
+      }
+      frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [spacing, speed, ready]);
+
+  const onPointerDown = e => {
+    if (!interactive) return;
+    dragRef.current = true;
+    lastXRef.current = e.clientX;
+    velRef.current = 0;
+    e.target.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = e => {
+    if (!interactive || !dragRef.current || !textPathRef.current) return;
+    const dx = e.clientX - lastXRef.current;
+    lastXRef.current = e.clientX;
+    velRef.current = dx;
+
+    const currentOffset = parseFloat(textPathRef.current.getAttribute('startOffset') || '0');
+    let newOffset = currentOffset + dx;
+
+    const wrapPoint = spacing;
+    if (newOffset <= -wrapPoint) newOffset += wrapPoint;
+    if (newOffset > 0) newOffset -= wrapPoint;
+
+    textPathRef.current.setAttribute('startOffset', newOffset + 'px');
+    setOffset(newOffset);
+  };
+
+  const endDrag = () => {
+    if (!interactive) return;
+    dragRef.current = false;
+    dirRef.current = velRef.current > 0 ? 'right' : 'left';
+  };
+
+  const cursorStyle = interactive ? (dragRef.current ? 'grabbing' : 'grab') : 'auto';
+
+  return (
+    <div
+      className="curved-loop-jacket"
+      style={{ visibility: ready ? 'visible' : 'hidden', cursor: cursorStyle }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerLeave={endDrag}
+    >
+      <svg className="curved-loop-svg" viewBox="0 0 1440 120">
+        <text ref={measureRef} xmlSpace="preserve" style={{ visibility: 'hidden', opacity: 0, pointerEvents: 'none' }}>
+          {text}
+        </text>
+        <defs>
+          <path ref={pathRef} id={pathId} d={pathD} fill="none" stroke="transparent" />
+        </defs>
+        {ready && (
+          <text fontWeight="bold" xmlSpace="preserve" className={className}>
+            <textPath ref={textPathRef} href={`#${pathId}`} startOffset={offset + 'px'} xmlSpace="preserve">
+              {totalText}
+            </textPath>
+          </text>
+        )}
+      </svg>
+    </div>
+  );
+};
+
+export default CurvedLoop;
+`
+```
+
+- hover至照片时增加一个动效，代码参考
+```
+import { useRef } from 'react';
+import './SpotlightCard.css';
+
+const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba(255, 255, 255, 0.25)' }) => {
+  const divRef = useRef(null);
+
+  const handleMouseMove = e => {
+    const rect = divRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    divRef.current.style.setProperty('--mouse-x', `${x}px`);
+    divRef.current.style.setProperty('--mouse-y', `${y}px`);
+    divRef.current.style.setProperty('--spotlight-color', spotlightColor);
+  };
+
+  return (
+    <div ref={divRef} onMouseMove={handleMouseMove} className={`card-spotlight ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+export default SpotlightCard;
+```
+
+### 3、项目案例、**VIBE CODING & AI**、**设计工具**
+- 项目案例、**VIBE CODING & AI**、**设计工具**的标题字号调整为：36px，颜色为正文颜色
+- 每个部分之间的间距增大一些，-全局遵循「呼吸感留白」原则，删除无效空白，保留关键视觉呼吸空间，打造疏密有致的高级排版
+- 这三个区域的文字大小调整：
+  - 标题字号：32px
+  - 正文字号：16px
+  - 颜色遵循上面提到的规则
+
+
+
+### 4. 保留项（禁止修改）
+- 完整保留所有原有文案、数据、联系方式、项目信息
+- 保留「查看简历」「查看作品」按钮的功能与跳转逻辑
+- 保留头像`photo_me.png`、整体布局结构（左文右图的Hero区、项目列表区）
+- 保留原有的品牌调性（简约、专业、克制），禁止过度设计
+
+### 5. 适配要求
+- 优化后需保证大屏（1920px+）展示效果最佳，同时兼容常规桌面端尺寸
+- 不影响原有响应式布局逻辑
