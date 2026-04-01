@@ -1,12 +1,6 @@
 import { useState, useEffect, useRef, CSSProperties, ReactNode } from "react";
 import { Mail, Phone, Copy, Check } from "lucide-react";
 import { useLocation } from "wouter";
-import { gsap } from "gsap";
-import { SplitText as GSAPSplitText } from "gsap/SplitText";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-
-gsap.registerPlugin(GSAPSplitText, ScrollTrigger, useGSAP);
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -80,14 +74,15 @@ const SANS = "'PingFang SC', 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSys
 
 // ─── HOOKS ─────────────────────────────────────────────────────────────────
 
-function useInView(threshold = 0.2, rootMargin = "0px") {
+// Repeats every time element enters/leaves viewport
+function useInView(threshold = 0.15, rootMargin = "-40px") {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      ([e]) => { setVisible(e.isIntersecting); },
       { threshold, rootMargin }
     );
     obs.observe(el);
@@ -96,131 +91,135 @@ function useInView(threshold = 0.2, rootMargin = "0px") {
   return { ref, visible };
 }
 
-// ─── GSAP SPLIT TEXT HERO ──────────────────────────────────────────────────
+// ─── PURE-REACT SPLIT TEXT (no DOM mutation, no GSAP conflict) ──────────────
 
-function HeroTitles({ isZh }: { isZh: boolean }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [fontsLoaded, setFontsLoaded] = useState(false);
+interface TitleSegment { text: string; accent?: boolean }
+
+function AnimatedTitleLine({
+  segments,
+  style,
+  startIndex = 0,
+}: {
+  segments: TitleSegment[];
+  style?: CSSProperties;
+  startIndex?: number;
+}) {
+  const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
-    if (document.fonts.status === "loaded") { setFontsLoaded(true); }
-    else { document.fonts.ready.then(() => setFontsLoaded(true)); }
-  }, []);
-
-  useGSAP(() => {
-    if (!containerRef.current || !fontsLoaded) return;
-    const lines = containerRef.current.querySelectorAll(".title-line");
-    if (!lines.length) return;
-
-    const splits: InstanceType<typeof GSAPSplitText>[] = [];
-    const allChars: Element[] = [];
-
-    lines.forEach(line => {
-      const split = new GSAPSplitText(line, { type: "chars", charsClass: "split-char" });
-      splits.push(split);
-      allChars.push(...split.chars);
+    setAnimate(false);
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setAnimate(true));
     });
+    return () => cancelAnimationFrame(raf);
+  }, [segments.map(s => s.text).join("")]);
 
-    gsap.set(allChars, { opacity: 0, y: 40, force3D: true });
+  const chars = segments.flatMap((seg) =>
+    [...seg.text].map((char, ci) => ({ char, accent: seg.accent, ci }))
+  );
 
-    gsap.to(allChars, {
-      opacity: 1,
-      y: 0,
-      duration: 1.25,
-      ease: "power3.out",
-      stagger: 0.035,
-      delay: 0.1,
-      willChange: "transform, opacity",
-      onComplete: () => splits.forEach(s => s.revert()),
-    });
+  return (
+    <span style={{ display: "block", overflow: "visible", ...style }}>
+      {chars.map((c, i) => (
+        <span
+          key={`${startIndex + i}-${c.char}`}
+          style={{
+            display: "inline-block",
+            color: c.accent ? C.accent : C.text,
+            opacity: animate ? 1 : 0,
+            transform: animate ? "translateY(0)" : "translateY(40px)",
+            transition: `opacity 1.25s cubic-bezier(0.16,1,0.3,1) ${(startIndex + i) * 35}ms, transform 1.25s cubic-bezier(0.16,1,0.3,1) ${(startIndex + i) * 35}ms`,
+            willChange: "transform, opacity",
+          }}
+        >
+          {c.char === " " ? "\u00A0" : c.char}
+        </span>
+      ))}
+    </span>
+  );
+}
 
-    return () => {
-      splits.forEach(s => { try { s.revert(); } catch {} });
-    };
-  }, { dependencies: [fontsLoaded, isZh], scope: containerRef });
-
+function HeroTitles({ isZh }: { isZh: boolean }) {
   const titleStyle: CSSProperties = {
     fontFamily: SERIF,
     fontSize: "clamp(42px, 5vw, 76px)",
     fontWeight: 700,
-    lineHeight: 1.12,
-    color: C.text,
+    lineHeight: 1.2,
     margin: 0,
-    display: "block",
-    overflow: "hidden",
   };
 
-  return (
-    <div ref={containerRef} style={{ lineHeight: 1.12 }}>
-      {isZh ? (
-        <>
-          <span className="title-line" style={{ ...titleStyle, marginBottom: 4 }}>
-            <span style={{ color: C.text }}>你好, 我是</span>
-            <span style={{ color: C.accent }}>怡君</span>
-          </span>
-          <span className="title-line" style={titleStyle}>UI/UX 全链路设计师</span>
-        </>
-      ) : (
-        <>
-          <span className="title-line" style={{ ...titleStyle, marginBottom: 4 }}>
-            <span style={{ color: C.text }}>{"Hi, I'm Yijun"}</span>
-          </span>
-          <span className="title-line" style={titleStyle}>
-            <span style={{ color: C.text }}>UI/UX DESIGNER</span>
-          </span>
-        </>
-      )}
-    </div>
-  );
+  if (isZh) {
+    const line1: TitleSegment[] = [
+      { text: "你好, 我是" },
+      { text: "怡君", accent: true },
+    ];
+    const line2: TitleSegment[] = [{ text: "UI/UX 全链路设计师" }];
+    const line1Len = line1.reduce((s, seg) => s + [...seg.text].length, 0);
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <AnimatedTitleLine segments={line1} style={titleStyle} startIndex={0} />
+        <AnimatedTitleLine segments={line2} style={titleStyle} startIndex={line1Len} />
+      </div>
+    );
+  } else {
+    const line1: TitleSegment[] = [{ text: "Hi, I'm Yijun" }];
+    const line2: TitleSegment[] = [{ text: "UI/UX DESIGNER" }];
+    const line1Len = line1.reduce((s, seg) => s + [...seg.text].length, 0);
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <AnimatedTitleLine segments={line1} style={titleStyle} startIndex={0} />
+        <AnimatedTitleLine segments={line2} style={titleStyle} startIndex={line1Len} />
+      </div>
+    );
+  }
 }
 
-// ─── STRAIGHT MARQUEE ────────────────────────────────────────────────────────
+// ─── MARQUEE (div-based, no SVG distortion) ──────────────────────────────────
 
-function StraightMarquee({ text, speed = 1.5, fontSize = 16 }: { text: string; speed?: number; fontSize?: number }) {
+function StraightMarquee({ text, speed = 1.3, fontSize = 16 }: { text: string; speed?: number; fontSize?: number }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const singleRef = useRef<HTMLSpanElement>(null);
   const offsetRef = useRef(0);
   const rafRef = useRef(0);
-  const textPathRef = useRef<SVGTextPathElement>(null);
-  const measureRef = useRef<SVGTextElement>(null);
-  const [spacing, setSpacing] = useState(0);
-  const uid = useRef(`m-${Math.random().toString(36).slice(2, 8)}`).current;
-  const pathD = "M-200,40 L1640,40";
+  const [textWidth, setTextWidth] = useState(0);
 
   useEffect(() => {
-    const el = measureRef.current;
-    if (!el) return;
-    const check = () => {
-      const len = el.getComputedTextLength();
-      if (len > 0) { setSpacing(len); } else { setTimeout(check, 60); }
+    const measure = () => {
+      const w = singleRef.current?.offsetWidth ?? 0;
+      if (w > 0) { setTextWidth(w); }
+      else { setTimeout(measure, 80); }
     };
-    setTimeout(check, 100);
+    setTimeout(measure, 80);
   }, [text, fontSize]);
 
   useEffect(() => {
-    if (!spacing || !textPathRef.current) return;
-    offsetRef.current = -spacing;
-    textPathRef.current.setAttribute("startOffset", `${-spacing}px`);
+    if (!trackRef.current || !textWidth) return;
+    offsetRef.current = 0;
     const step = () => {
       offsetRef.current -= speed;
-      if (offsetRef.current <= -spacing) offsetRef.current += spacing;
-      if (textPathRef.current) textPathRef.current.setAttribute("startOffset", `${offsetRef.current}px`);
+      if (offsetRef.current <= -textWidth) offsetRef.current += textWidth;
+      if (trackRef.current) trackRef.current.style.transform = `translateX(${offsetRef.current}px)`;
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [spacing, speed]);
+  }, [textWidth, speed]);
 
-  const repeats = spacing > 0 ? Math.ceil(1840 / spacing) + 3 : 6;
-  const totalText = Array(repeats).fill(text).join("");
+  const copies = textWidth > 0 ? Math.ceil((typeof window !== "undefined" ? window.innerWidth : 1440) * 2 / textWidth) + 3 : 8;
 
   return (
-    <div style={{ width: "100vw", marginLeft: "calc(50% - 50vw)", overflow: "hidden", height: 64 }}>
-      <svg viewBox="0 0 1440 64" preserveAspectRatio="none" style={{ width: "100%", height: "100%" }}>
-        <text ref={measureRef} style={{ visibility: "hidden", fontSize: `${fontSize}px` }} xmlSpace="preserve" fontFamily={SANS}>{text}</text>
-        <defs><path id={uid} d={pathD} fill="none" /></defs>
-        <text fontSize={fontSize} fill={C.text} xmlSpace="preserve" fontFamily={SANS} letterSpacing="0.06em">
-          <textPath ref={textPathRef} href={`#${uid}`} startOffset="0px" xmlSpace="preserve">{totalText}</textPath>
-        </text>
-      </svg>
+    <div style={{ overflow: "hidden", width: "100vw", marginLeft: "calc(50% - 50vw)", height: 56, display: "flex", alignItems: "center" }}>
+      <div ref={trackRef} style={{ display: "flex", whiteSpace: "nowrap", willChange: "transform", alignItems: "center" }}>
+        {Array.from({ length: copies }, (_, i) => (
+          <span
+            key={i}
+            ref={i === 0 ? singleRef : undefined}
+            style={{ fontSize, fontFamily: SANS, color: C.text, letterSpacing: "0.06em", lineHeight: "normal", flexShrink: 0 }}
+          >
+            {text}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -230,12 +229,16 @@ function StraightMarquee({ text, speed = 1.5, fontSize = 16 }: { text: string; s
 function ProgressBar({ pct, visible }: { pct: number; visible: boolean }) {
   return (
     <div style={{ height: 1, background: C.border, width: "100%", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", inset: "0 auto 0 0", background: C.text, width: visible ? `${pct}%` : "0%", transition: visible ? "width 1.1s ease-out" : "none" }} />
+      <div style={{
+        position: "absolute", inset: "0 auto 0 0", background: C.text,
+        width: visible ? `${pct}%` : "0%",
+        transition: visible ? "width 1.1s ease-out" : "width 0.3s ease-out",
+      }} />
     </div>
   );
 }
 
-// ─── FADE UP (INTERSECTION OBSERVER) ─────────────────────────────────────────
+// ─── FADE UP ─────────────────────────────────────────────────────────────────
 
 function FadeUp({ children, delay = 0, style }: { children: ReactNode; delay?: number; style?: CSSProperties }) {
   const { ref, visible } = useInView(0.15, "-40px");
@@ -266,31 +269,16 @@ function SpotlightCard({ children, style }: { children: ReactNode; style?: CSSPr
     overlayRef.current.style.background = `radial-gradient(300px circle at ${x}px ${y}px, rgba(255,255,255,0.22), transparent 65%)`;
   };
 
-  const handleMouseEnter = () => {
-    if (overlayRef.current) overlayRef.current.style.opacity = "1";
-  };
-
-  const handleMouseLeave = () => {
-    if (overlayRef.current) overlayRef.current.style.opacity = "0";
-  };
-
   return (
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => { if (overlayRef.current) overlayRef.current.style.opacity = "1"; }}
+      onMouseLeave={() => { if (overlayRef.current) overlayRef.current.style.opacity = "0"; }}
       style={{ position: "relative", overflow: "hidden", ...style }}
     >
       {children}
-      <div
-        ref={overlayRef}
-        style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "transparent", opacity: 0,
-          transition: "opacity 0.3s ease",
-        }}
-      />
+      <div ref={overlayRef} style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "transparent", opacity: 0, transition: "opacity 0.3s ease" }} />
     </div>
   );
 }
@@ -303,11 +291,7 @@ function CopyBtn({ value }: { value: string }) {
     navigator.clipboard.writeText(value).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   };
   return (
-    <button
-      onClick={copy}
-      title="点击复制"
-      style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: C.desc, display: "flex", alignItems: "center" }}
-    >
+    <button onClick={copy} title="点击复制" style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: C.desc, display: "flex", alignItems: "center" }}>
       {copied ? <Check size={14} color={C.accent} /> : <Copy size={14} />}
     </button>
   );
@@ -354,6 +338,10 @@ export default function Home() {
     return () => obs.disconnect();
   }, []);
 
+  // Hero card width = inner content of container with maxWidth 1200 and padding 24px each side
+  // => min(1152px, 100vw - 48px)
+  const CARD_WIDTH = "min(1152px, calc(100vw - 48px))";
+
   return (
     <div style={{ minHeight: "100vh", background: C.bg, fontFamily: SANS, color: C.text, overflowX: "hidden" }}>
       <style>{`
@@ -381,23 +369,20 @@ export default function Home() {
         .vibe-card { border: 1px solid ${C.border}; border-radius: 32px; transition: border-color 0.25s, transform 0.3s ease, box-shadow 0.3s ease; cursor: default; }
         .vibe-card:hover { border-color: ${C.accent}; transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.07); }
 
-        .btn-primary { background: ${C.text}; color: ${C.bg}; border: none; border-radius: 100px; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; padding: 12px 28px; cursor: pointer; transition: transform 0.2s ease, opacity 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-family: ${SANS}; }
+        .btn-primary { background: ${C.text}; color: ${C.bg}; border: none; border-radius: 100px; font-size: 18px; font-weight: 600; letter-spacing: 0.03em; padding: 14px 32px; cursor: pointer; transition: transform 0.2s ease, opacity 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-family: ${SANS}; }
         .btn-primary:hover { transform: scale(1.04); opacity: 0.88; }
-        .btn-secondary { background: ${C.bg}; color: ${C.text}; border: 1px solid ${C.border}; border-radius: 100px; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; padding: 12px 28px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s; font-family: ${SANS}; }
+        .btn-secondary { background: ${C.bg}; color: ${C.text}; border: 1px solid ${C.border}; border-radius: 100px; font-size: 18px; font-weight: 600; letter-spacing: 0.03em; padding: 14px 32px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s; font-family: ${SANS}; }
         .btn-secondary:hover { transform: scale(1.04); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
 
         .photo-img { transition: transform 0.7s cubic-bezier(.16,1,.3,1); display: block; }
         .photo-wrap:hover .photo-img { transform: scale(1.04); }
-
-        .split-char { display: inline-block; will-change: transform, opacity; }
-        .title-line { display: block; }
       `}</style>
 
-      {/* ── FLOATING NAVBAR ── */}
+      {/* ── FLOATING NAVBAR — same width as hero card ── */}
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, display: "flex", justifyContent: "center", paddingTop: 18, pointerEvents: "none" }}>
         <nav style={{
           pointerEvents: "all",
-          width: "min(1200px, calc(100vw - 48px))",
+          width: CARD_WIDTH,
           height: 54,
           background: C.navBg,
           border: `1px solid ${C.navBorder}`,
@@ -482,8 +467,8 @@ export default function Home() {
               </FadeUp>
             </div>
 
-            {/* Photo — 9:16 */}
-            <div style={{ flexShrink: 0, width: "clamp(160px, 18vw, 240px)" }}>
+            {/* Photo — 9:16, width 286px */}
+            <div style={{ flexShrink: 0, width: 286 }}>
               <SpotlightCard style={{ borderRadius: 32, overflow: "hidden", aspectRatio: "9/16", background: "#CFC9C2" }}>
                 <div className="photo-wrap" style={{ width: "100%", height: "100%" }}>
                   <img
@@ -498,8 +483,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Straight marquee */}
-        <StraightMarquee text={MARQUEE} speed={1.5} fontSize={16} />
+        {/* Marquee — 100px gap from card, speed 1.3, 16px */}
+        <div style={{ marginTop: 100 }}>
+          <StraightMarquee text={MARQUEE} speed={1.3} fontSize={16} />
+        </div>
       </section>
 
       {/* ── PROJECTS ── */}
