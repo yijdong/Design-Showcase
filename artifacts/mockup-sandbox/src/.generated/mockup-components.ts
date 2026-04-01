@@ -7,8 +7,8 @@ export const modules: ModuleMap = {
   "./components/mockups/portfolio-home/EditorialSplit.tsx": () => import("../components/mockups/portfolio-home/EditorialSplit.tsx"),
   "./components/mockups/portfolio-home/HomeElevated.tsx": () => import("../components/mockups/portfolio-home/HomeElevated.tsx"),
   "./components/mockups/portfolio-home/HomeRefined.tsx": () => import("../components/mockups/portfolio-home/HomeRefined.tsx"),
-  "./components/mockups/portfolio-home/SwissGrid.tsx": () => import("../components/mockups/portfolio-home/SwissGrid.tsx"),
+  "./components/mockups/portfolio-home/OneScreen.tsx": () => import("../components/mockups/portfolio-home/OneScreen.tsx"),
   "./components/mockups/portfolio-home/SplitFixed.tsx": () => import("../components/mockups/portfolio-home/SplitFixed.tsx"),
-  "./components/mockups/portfolio-home/WorkFirst.tsx": () => import("../components/mockups/portfolio-home/WorkFirst.tsx"),
-  "./components/mockups/portfolio-home/OneScreen.tsx": () => import("../components/mockups/portfolio-home/OneScreen.tsx")
+  "./components/mockups/portfolio-home/SwissGrid.tsx": () => import("../components/mockups/portfolio-home/SwissGrid.tsx"),
+  "./components/mockups/portfolio-home/WorkFirst.tsx": () => import("../components/mockups/portfolio-home/WorkFirst.tsx")
 };
