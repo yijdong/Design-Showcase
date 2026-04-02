@@ -68,6 +68,17 @@ const NAV_EN = [
 
 const MARQUEE = " 交互设计  ✦  视觉设计  ✦  竞品分析  ✦  用户研究  ✦  可用性测试  ✦  Vibe Coding  ✦  需求分析  ✦  ";
 
+const SECTION_DESC = {
+  projects: {
+    zh: "呈现 ToB 复杂系统等真实项目，从需求拆解到产品落地的全流程 UI/UX 设计实践与落地成果",
+    en: "Real-world UI/UX projects spanning complex ToB systems — from requirement breakdown to final delivery.",
+  },
+  vibe: {
+    zh: "基于多类 AI 工具，探索 AI 辅助设计、快速原型制作与设计效率提升的前沿实践",
+    en: "Exploring AI-assisted design, rapid prototyping, and design efficiency gains across multiple AI tools.",
+  },
+};
+
 // ─── COLORS ────────────────────────────────────────────────────────────────
 const C = {
   bg: "#F9F6F1",
@@ -388,9 +399,10 @@ function StraightMarquee({
 
 function ProgressBar({ pct, visible }: { pct: number; visible: boolean }) {
   return (
-    <div style={{ height: 1, background: C.border, width: "100%", position: "relative", overflow: "hidden" }}>
+    <div style={{ height: 2, background: C.border, width: "100%", position: "relative", overflow: "hidden" }}>
       <div style={{
         position: "absolute", inset: "0 auto 0 0", background: C.text,
+        height: "100%",
         width: visible ? `${pct}%` : "0%",
         transition: visible ? "width 1.1s ease-out" : "width 0.3s ease-out",
       }} />
@@ -706,11 +718,14 @@ export default function Home() {
       </section>
 
       {/* ── PROJECTS ── */}
-      <section id="projects" style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ marginBottom: 40, display: "flex", alignItems: "center", gap: 20 }}>
-          <ScrollFloat text={isZh ? "项目案例" : "Projects"} triggerId="projects" />
-          <div style={{ flex: 1, height: 1, background: C.border }} />
-          <span style={{ fontSize: 13, color: "#aaa", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{PROJECTS.length} projects</span>
+      <section id="projects" style={{ padding: "100px 24px", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <ScrollFloat text={isZh ? "项目案例" : "Projects"} triggerId="projects" style={{ fontSize: 60, display: "block" }} />
+          <FadeUp delay={100} style={{ marginTop: 24 }}>
+            <p style={{ fontSize: 24, color: C.desc, lineHeight: 1.7, margin: 0 }}>
+              {isZh ? SECTION_DESC.projects.zh : SECTION_DESC.projects.en}
+            </p>
+          </FadeUp>
         </div>
 
         <div ref={projSection.ref}>
@@ -753,10 +768,14 @@ export default function Home() {
       </section>
 
       {/* ── VIBE CODING ── */}
-      <section id="vibe" ref={vibeSection.ref} style={{ padding: "80px 24px", borderTop: `1px solid ${C.border}`, maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ marginBottom: 40, display: "flex", alignItems: "center", gap: 20 }}>
-          <ScrollFloat text="Vibe Coding & AI" triggerId="vibe" />
-          <div style={{ flex: 1, height: 1, background: C.border }} />
+      <section id="vibe" ref={vibeSection.ref} style={{ padding: "100px 24px", borderTop: `1px solid ${C.border}`, maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <ScrollFloat text="Vibe Coding & AI" triggerId="vibe" style={{ fontSize: 60, display: "block" }} />
+          <FadeUp delay={100} style={{ marginTop: 24 }}>
+            <p style={{ fontSize: 24, color: C.desc, lineHeight: 1.7, margin: 0 }}>
+              {isZh ? SECTION_DESC.vibe.zh : SECTION_DESC.vibe.en}
+            </p>
+          </FadeUp>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
           {VIBE.map((v, i) => (
@@ -772,11 +791,10 @@ export default function Home() {
       </section>
 
       {/* ── TOOLS ── */}
-      <section id="tools" ref={toolsSection.ref} style={{ borderTop: `1px solid ${C.border}`, background: C.toolsBg, padding: "80px 0" }}>
+      <section id="tools" ref={toolsSection.ref} style={{ borderTop: `1px solid ${C.border}`, background: C.toolsBg, padding: "100px 0" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
-          <div style={{ marginBottom: 48, display: "flex", alignItems: "center", gap: 20 }}>
-            <ScrollFloat text={isZh ? "设计工具" : "Design Tools"} triggerId="tools" />
-            <div style={{ flex: 1, height: 1, background: "#D5CDBF" }} />
+          <div style={{ textAlign: "center", marginBottom: 64 }}>
+            <ScrollFloat text={isZh ? "设计工具" : "Design Tools"} triggerId="tools" style={{ fontSize: 60, display: "block" }} />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px 64px" }}>
             {TOOLS.map((t, i) => (
