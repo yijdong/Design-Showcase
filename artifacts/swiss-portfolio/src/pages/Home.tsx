@@ -26,13 +26,13 @@ const PROJECTS_EN = [
   { num: "05", title: "Visual Design Projects", en: "Illustration & Data Viz", tags: ["Illustration", "Big Screen", "Data Visualization"], href: false, desc: "Brand illustration, data visualization big screens, and UI visual specifications — demonstrating full visual design and execution capability across diverse project types." },
 ];
 
-// Project hover images (gradient placeholders — replace src with actual image paths)
-const PROJECT_IMG_BG: Record<string, string> = {
-  "01": "linear-gradient(150deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
-  "02": "linear-gradient(150deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-  "03": "linear-gradient(150deg, #1a1a1a 0%, #2d2d2d 40%, #4a4a4a 100%)",
-  "04": "linear-gradient(150deg, #B7947A 0%, #E8E2D9 100%)",
-  "05": "linear-gradient(150deg, #f093fb 0%, #f5576c 50%, #fda085 100%)",
+// Project hover images — actual files in public/images/home/
+const PROJECT_IMGS: Record<string, string> = {
+  "01": "AI Annotation Platform.png",
+  "02": "Global Device Management.png",
+  "03": "Automotive Finance Platform.png",
+  "04": "User Research Project.png",
+  "05": "Visual Design Projects.png",
 };
 
 const TOOLS = [
@@ -152,7 +152,10 @@ function GradientAccentText({
         backgroundClip: "text",
         opacity: animate ? 1 : 0,
         transform: animate ? "translateY(0)" : "translateY(40px)",
-        transition: `opacity 1.25s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 1.25s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+        // No transition when resetting (instant hide), transition only when animating in
+        transition: animate
+          ? `opacity 1.25s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 1.25s cubic-bezier(0.16,1,0.3,1) ${delay}ms`
+          : "none",
         willChange: "transform, opacity",
       }}
     >
@@ -180,10 +183,9 @@ function AnimatedTitleLine({
 
   useEffect(() => {
     setAnimate(false);
-    const raf = requestAnimationFrame(() => {
-      requestAnimationFrame(() => setAnimate(true));
-    });
-    return () => cancelAnimationFrame(raf);
+    // setTimeout ensures one render with animate=false (instant hide) before animating in
+    const id = setTimeout(() => setAnimate(true), 40);
+    return () => clearTimeout(id);
   }, [animKey]);
 
   let charIdx = startIndex;
@@ -207,7 +209,10 @@ function AnimatedTitleLine({
               color: C.text,
               opacity: animate ? 1 : 0,
               transform: animate ? "translateY(0)" : "translateY(40px)",
-              transition: `opacity 1.25s cubic-bezier(0.16,1,0.3,1) ${idx * 35}ms, transform 1.25s cubic-bezier(0.16,1,0.3,1) ${idx * 35}ms`,
+              // No transition when resetting — instant hide, then animate in with stagger
+              transition: animate
+                ? `opacity 1.25s cubic-bezier(0.16,1,0.3,1) ${idx * 35}ms, transform 1.25s cubic-bezier(0.16,1,0.3,1) ${idx * 35}ms`
+                : "none",
               willChange: "transform, opacity",
             }}
           >
@@ -509,8 +514,8 @@ export default function Home() {
         .project-row:hover .proj-num { color: ${C.accent}; }
         .project-row .proj-desc { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.35s ease, margin-top 0.3s ease; }
         .project-row:hover .proj-desc { max-height: 150px; opacity: 1; margin-top: 10px; }
-        .project-row .proj-img-wrap { width: 0; overflow: hidden; flex-shrink: 0; transition: width 0.4s cubic-bezier(.16,1,.3,1); }
-        .project-row:hover .proj-img-wrap { width: 360px; }
+        .project-row .proj-img-wrap { display: none; flex-shrink: 0; }
+        .project-row:hover .proj-img-wrap { display: block; }
 
         .vibe-card { border: 1px solid ${C.border}; border-radius: 32px; transition: border-color 0.25s, transform 0.3s ease, box-shadow 0.3s ease; cursor: default; }
         .vibe-card:hover { border-color: ${C.accent}; transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.07); }
@@ -628,7 +633,7 @@ export default function Home() {
               <SpotlightCard style={{ borderRadius: "32px 32px 0 0", overflow: "hidden", aspectRatio: "3/4", background: "#CFC9C2" }}>
                 <div className="photo-wrap" style={{ width: "100%", height: "100%" }}>
                   <img
-                    src={`${BASE}images/photo_me.png`}
+                    src={`${BASE}images/home/photo_me.png`}
                     alt="怡君"
                     className="photo-img"
                   />
@@ -683,22 +688,20 @@ export default function Home() {
                 </div>
                 <div className="proj-desc" style={{ fontSize: 15, color: C.desc, lineHeight: 1.75 }}>{p.desc}</div>
               </div>
-              {/* Hover image — 360px wide, 3:4, border-radius 32px */}
-              <div className="proj-img-wrap">
+              {/* Hover image — 360px wide, 16:9 ratio, no animation */}
+              <div className="proj-img-wrap" style={{ paddingLeft: 20 }}>
                 <div style={{
                   width: 360,
-                  aspectRatio: "3/4",
-                  borderRadius: 32,
+                  aspectRatio: "16/9",
+                  borderRadius: 20,
                   overflow: "hidden",
-                  background: PROJECT_IMG_BG[p.num],
-                  display: "flex",
-                  alignItems: "flex-end",
-                  justifyContent: "center",
-                  padding: "0 0 24px",
+                  background: "#E8E2D9",
                 }}>
-                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 600 }}>
-                    {p.en}
-                  </span>
+                  <img
+                    src={`${BASE}images/home/${PROJECT_IMGS[p.num]}`}
+                    alt={p.en}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
                 </div>
               </div>
             </div>
