@@ -285,14 +285,17 @@ function ScrollFloat({ text, triggerId, style }: { text: string; triggerId?: str
     const chars = el.querySelectorAll(".sf-char");
     const triggerEl = (triggerId ? document.getElementById(triggerId) : null) ?? el;
 
-    // Use direct fromTo (not gsap.context) so external trigger element is handled correctly
+    // Use direct fromTo (not gsap.context) so external trigger element is handled correctly.
+    // No opacity in start state — overflow:hidden on inner span already clips chars at yPercent:120.
+    // end:"top 40%" completes the animation well before the section center, so heading appears
+    // promptly and never lags behind the description FadeUp.
     const anim = gsap.fromTo(
       chars,
-      { willChange: "opacity, transform", opacity: 0, yPercent: 120, scaleY: 2.3, scaleX: 0.7, transformOrigin: "50% 0%" },
+      { willChange: "transform", yPercent: 120, scaleY: 2.3, scaleX: 0.7, transformOrigin: "50% 0%" },
       {
-        opacity: 1, yPercent: 0, scaleY: 1, scaleX: 1,
+        yPercent: 0, scaleY: 1, scaleX: 1,
         stagger: 0.03, duration: 1, ease: "back.inOut(2)",
-        scrollTrigger: { trigger: triggerEl, start: "top bottom", end: "center center", scrub: true },
+        scrollTrigger: { trigger: triggerEl, start: "top bottom", end: "top 40%", scrub: true },
       }
     );
 
@@ -648,7 +651,7 @@ export default function Home() {
       </div>
 
       {/* ── HERO ── */}
-      <section id="about" style={{ paddingTop: 98 }}>
+      <section id="about" style={{ paddingTop: 100 }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
           <div style={{ background: C.card, borderRadius: 32, padding: "52px 52px 52px 56px", display: "grid", gridTemplateColumns: "1fr auto", gap: 32, alignItems: "center" }}>
 
@@ -824,7 +827,7 @@ export default function Home() {
             <span>·</span>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}><Phone size={13} />18092240354</span>
           </div>
-          <span style={{ fontSize: 12, color: "#bbb" }}>© 2024 · UX Designer</span>
+          <span style={{ fontSize: 12, color: "#bbb" }}>© 2026 · UX Designer</span>
         </div>
       </footer>
     </div>
