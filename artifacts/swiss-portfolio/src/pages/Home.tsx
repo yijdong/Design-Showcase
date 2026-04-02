@@ -66,7 +66,7 @@ const NAV_EN = [
   { label: "Vibe & AI", href: "#vibe" },
 ];
 
-const MARQUEE = "交互设计  ✦  视觉设计  ✦  竞品分析  ✦  用户研究  ✦  可用性测试  ✦  Vibe Coding  ✦  需求分析  ✦  ";
+const MARQUEE = " 交互设计  ✦  视觉设计  ✦  竞品分析  ✦  用户研究  ✦  可用性测试  ✦  Vibe Coding  ✦  需求分析  ✦  ";
 
 // ─── COLORS ────────────────────────────────────────────────────────────────
 const C = {
@@ -265,13 +265,15 @@ function HeroTitles({ isZh }: { isZh: boolean }) {
 
 // ─── SCROLL FLOAT (GSAP, per-char scroll-scrub animation) ────────────────────
 
-function ScrollFloat({ text, style }: { text: string; style?: CSSProperties }) {
+function ScrollFloat({ text, triggerId, style }: { text: string; triggerId?: string; style?: CSSProperties }) {
   const ref = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const chars = el.querySelectorAll(".sf-char");
+    // Use the whole section as trigger if triggerId provided — animation spans the full group
+    const triggerEl = (triggerId ? document.getElementById(triggerId) : null) ?? el;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -280,13 +282,13 @@ function ScrollFloat({ text, style }: { text: string; style?: CSSProperties }) {
         {
           opacity: 1, yPercent: 0, scaleY: 1, scaleX: 1,
           stagger: 0.03, duration: 1, ease: "back.inOut(2)",
-          scrollTrigger: { trigger: el, start: "center bottom+=50%", end: "bottom bottom-=40%", scrub: true },
+          scrollTrigger: { trigger: triggerEl, start: "top bottom", end: "center center", scrub: true },
         }
       );
     }, el);
 
     return () => ctx.revert();
-  }, [text]);
+  }, [text, triggerId]);
 
   // overflow: hidden clips chars that start at yPercent:120 — they reveal upward as you scroll
   return (
@@ -473,6 +475,23 @@ function ProjTag({ children }: { children: string }) {
   );
 }
 
+// ─── PROJECT IMAGE WITH SKELETON ────────────────────────────────────────────
+
+function ProjectImg({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div style={{ position: "relative", width: 360, aspectRatio: "16/9", borderRadius: 20, overflow: "hidden", background: "#E8E2D9" }}>
+      {!loaded && <div className="img-skeleton" />}
+      <img
+        src={src}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: loaded ? 1 : 0, transition: "opacity 0.3s ease" }}
+      />
+    </div>
+  );
+}
+
 // ─── HOME ───────────────────────────────────────────────────────────────────
 
 export default function Home() {
@@ -525,7 +544,7 @@ export default function Home() {
 
         .project-row { border-bottom: 1px solid ${C.border}; position: relative; cursor: default; }
         .project-row:first-child { border-top: 1px solid ${C.border}; }
-        .project-row::before { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 1px; background: #B2957E; transform: scaleX(0); transform-origin: left; transition: transform 0.38s cubic-bezier(.16,1,.3,1); z-index: 1; }
+        .project-row::before { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: #B2957E; transform: scaleX(0); transform-origin: left; transition: transform 0.38s cubic-bezier(.16,1,.3,1); z-index: 1; }
         .project-row:hover::before { transform: scaleX(1); }
         .project-row .proj-num { transition: color 0.2s; }
         .project-row:hover .proj-num { color: ${C.accent}; }
@@ -549,6 +568,17 @@ export default function Home() {
           to   { clip-path: inset(0 0 0%   0 round 20px); }
         }
         .proj-img-reveal { animation: sp-imgReveal 0.38s cubic-bezier(.16,1,.3,1) forwards; }
+
+        @keyframes skeleton-shimmer {
+          0%   { background-position: -600px 0; }
+          100% { background-position:  600px 0; }
+        }
+        .img-skeleton {
+          position: absolute; inset: 0;
+          background: linear-gradient(90deg, #E8E2D9 25%, #F0EBE4 50%, #E8E2D9 75%);
+          background-size: 1200px 100%;
+          animation: skeleton-shimmer 1.4s infinite linear;
+        }
       `}</style>
 
       {/* ── NAVBAR ── */}
@@ -668,7 +698,7 @@ export default function Home() {
                 padding: "4px 0",
                 backdropFilter: "blur(2px)",
               }}>
-                <StraightMarquee text={MARQUEE} speed={1.3} fontSize={13} contained color="rgba(255,255,255,0.88)" />
+                <StraightMarquee text={MARQUEE} speed={1.2} fontSize={13} contained color="rgba(255,255,255,0.88)" />
               </div>
             </div>
           </div>
@@ -678,7 +708,7 @@ export default function Home() {
       {/* ── PROJECTS ── */}
       <section id="projects" style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ marginBottom: 40, display: "flex", alignItems: "center", gap: 20 }}>
-          <ScrollFloat text={isZh ? "项目案例" : "Projects"} />
+          <ScrollFloat text={isZh ? "项目案例" : "Projects"} triggerId="projects" />
           <div style={{ flex: 1, height: 1, background: C.border }} />
           <span style={{ fontSize: 13, color: "#aaa", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{PROJECTS.length} projects</span>
         </div>
@@ -711,22 +741,10 @@ export default function Home() {
                 {/* Description — tags→desc gap is 24px (set via CSS hover) */}
                 <div className="proj-desc" style={{ fontSize: 15, color: C.desc, lineHeight: 1.75 }}>{p.desc}</div>
               </div>
-              {/* Hover image — 360px wide, 16:9, top-to-bottom reveal animation */}
+              {/* Hover image — 360px wide, 16:9, top-to-bottom reveal + skeleton loading */}
               {hoveredProj === p.num && (
                 <div className="proj-img-reveal" style={{ flexShrink: 0, paddingLeft: 20 }}>
-                  <div style={{
-                    width: 360,
-                    aspectRatio: "16/9",
-                    borderRadius: 20,
-                    overflow: "hidden",
-                    background: "#E8E2D9",
-                  }}>
-                    <img
-                      src={`${BASE}images/home/${PROJECT_IMGS[p.num]}`}
-                      alt={p.en}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    />
-                  </div>
+                  <ProjectImg src={`${BASE}images/home/${PROJECT_IMGS[p.num]}`} alt={p.en} />
                 </div>
               )}
             </div>
@@ -737,7 +755,7 @@ export default function Home() {
       {/* ── VIBE CODING ── */}
       <section id="vibe" ref={vibeSection.ref} style={{ padding: "80px 24px", borderTop: `1px solid ${C.border}`, maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ marginBottom: 40, display: "flex", alignItems: "center", gap: 20 }}>
-          <ScrollFloat text="Vibe Coding & AI" />
+          <ScrollFloat text="Vibe Coding & AI" triggerId="vibe" />
           <div style={{ flex: 1, height: 1, background: C.border }} />
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
@@ -757,7 +775,7 @@ export default function Home() {
       <section id="tools" ref={toolsSection.ref} style={{ borderTop: `1px solid ${C.border}`, background: C.toolsBg, padding: "80px 0" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
           <div style={{ marginBottom: 48, display: "flex", alignItems: "center", gap: 20 }}>
-            <ScrollFloat text={isZh ? "设计工具" : "Design Tools"} />
+            <ScrollFloat text={isZh ? "设计工具" : "Design Tools"} triggerId="tools" />
             <div style={{ flex: 1, height: 1, background: "#D5CDBF" }} />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px 64px" }}>
