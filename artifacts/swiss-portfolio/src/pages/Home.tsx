@@ -1,6 +1,10 @@
-import { useState, useEffect, useRef, CSSProperties, ReactNode } from "react";
-import { Mail, Phone, Copy, Check } from "lucide-react";
+import { useState, useEffect, useRef, useCallback, CSSProperties, ReactNode } from "react";
+import { Mail, Phone, Copy, Check, FileText, ChevronsDown } from "lucide-react";
 import { useLocation } from "wouter";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -22,6 +26,15 @@ const PROJECTS_EN = [
   { num: "05", title: "Visual Design Projects", en: "Illustration & Data Viz", tags: ["Illustration", "Big Screen", "Data Visualization"], href: false, desc: "Brand illustration, data visualization big screens, and UI visual specifications — demonstrating full visual design and execution capability across diverse project types." },
 ];
 
+// Project hover images (gradient placeholders — replace src with actual image paths)
+const PROJECT_IMG_BG: Record<string, string> = {
+  "01": "linear-gradient(150deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
+  "02": "linear-gradient(150deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+  "03": "linear-gradient(150deg, #1a1a1a 0%, #2d2d2d 40%, #4a4a4a 100%)",
+  "04": "linear-gradient(150deg, #B7947A 0%, #E8E2D9 100%)",
+  "05": "linear-gradient(150deg, #f093fb 0%, #f5576c 50%, #fda085 100%)",
+};
+
 const TOOLS = [
   { name: "Figma / Sketch", pct: 90 },
   { name: "Gemini / Claude / Replit", pct: 70 },
@@ -41,17 +54,16 @@ const VIBE_EN = [
   { title: "Saddle Stitch Layout Checker", en: "AI Studio Tool", tags: ["AI Studio", "Gemini"], desc: "Built a print layout verification tool using Google AI Studio's build feature, enabling local execution and intelligent print checking." },
 ];
 
+// Removed "设计工具" from nav tabs (section still shows on page)
 const NAV_ZH = [
   { label: "关于我", href: "#about" },
   { label: "项目案例", href: "#projects" },
   { label: "Vibe & AI", href: "#vibe" },
-  { label: "设计工具", href: "#tools" },
 ];
 const NAV_EN = [
   { label: "About", href: "#about" },
   { label: "Projects", href: "#projects" },
   { label: "Vibe & AI", href: "#vibe" },
-  { label: "Tools", href: "#tools" },
 ];
 
 const MARQUEE = "交互设计  ✦  视觉设计  ✦  竞品分析  ✦  用户研究  ✦  可用性测试  ✦  Vibe Coding  ✦  需求分析  ✦  ";
@@ -62,7 +74,7 @@ const C = {
   card: "#E8E2D9",
   text: "#2E2E2E",
   desc: "#666666",
-  accent: "#B7947A",
+  accent: "#B2957E",
   border: "#E1DAD1",
   navBg: "rgba(252,251,248,0.97)",
   navBorder: "#EFEBE4",
@@ -74,7 +86,6 @@ const SANS = "'PingFang SC', 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSys
 
 // ─── HOOKS ─────────────────────────────────────────────────────────────────
 
-// Repeats every time element enters/leaves viewport
 function useInView(threshold = 0.15, rootMargin = "-40px") {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -91,7 +102,66 @@ function useInView(threshold = 0.15, rootMargin = "-40px") {
   return { ref, visible };
 }
 
-// ─── PURE-REACT SPLIT TEXT (no DOM mutation, no GSAP conflict) ──────────────
+// ─── GRADIENT TEXT (animated, no external lib) ────────────────────────────────
+
+function GradientAccentText({
+  text,
+  delay,
+  animate,
+}: {
+  text: string;
+  delay: number;
+  animate: boolean;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const colors = ["#E8E2D9", "#B2957E", "#402B0D", "#E8E2D9"];
+
+  useEffect(() => {
+    let elapsed = 0;
+    let lastTime: number | null = null;
+    let dir = 1;
+    const duration = 8000;
+    let raf = 0;
+
+    const frame = (time: number) => {
+      if (lastTime === null) { lastTime = time; }
+      const delta = time - lastTime;
+      lastTime = time;
+      elapsed += delta * dir;
+      if (elapsed >= duration) { elapsed = duration; dir = -1; }
+      if (elapsed <= 0) { elapsed = 0; dir = 1; }
+      const p = (elapsed / duration) * 100;
+      if (ref.current) { ref.current.style.backgroundPosition = `${p}% 50%`; }
+      raf = requestAnimationFrame(frame);
+    };
+
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <span
+      ref={ref}
+      style={{
+        display: "inline-block",
+        backgroundImage: `linear-gradient(to right, ${colors.join(", ")})`,
+        backgroundSize: "300% 100%",
+        backgroundPosition: "0% 50%",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        backgroundClip: "text",
+        opacity: animate ? 1 : 0,
+        transform: animate ? "translateY(0)" : "translateY(40px)",
+        transition: `opacity 1.25s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 1.25s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+        willChange: "transform, opacity",
+      }}
+    >
+      {text}
+    </span>
+  );
+}
+
+// ─── PURE-REACT CHAR ANIMATION ─────────────────────────────────────────────
 
 interface TitleSegment { text: string; accent?: boolean }
 
@@ -99,10 +169,12 @@ function AnimatedTitleLine({
   segments,
   style,
   startIndex = 0,
+  animKey,
 }: {
   segments: TitleSegment[];
   style?: CSSProperties;
   startIndex?: number;
+  animKey: number;
 }) {
   const [animate, setAnimate] = useState(false);
 
@@ -112,71 +184,131 @@ function AnimatedTitleLine({
       requestAnimationFrame(() => setAnimate(true));
     });
     return () => cancelAnimationFrame(raf);
-  }, [segments.map(s => s.text).join("")]);
+  }, [animKey]);
 
-  const chars = segments.flatMap((seg) =>
-    [...seg.text].map((char, ci) => ({ char, accent: seg.accent, ci }))
-  );
+  let charIdx = startIndex;
+  const items: ReactNode[] = [];
+
+  for (const seg of segments) {
+    if (seg.accent) {
+      const idx = charIdx;
+      charIdx += [...seg.text].length;
+      items.push(
+        <GradientAccentText key={`accent-${idx}`} text={seg.text} delay={idx * 35} animate={animate} />
+      );
+    } else {
+      for (const char of [...seg.text]) {
+        const idx = charIdx++;
+        items.push(
+          <span
+            key={`c-${idx}`}
+            style={{
+              display: "inline-block",
+              color: C.text,
+              opacity: animate ? 1 : 0,
+              transform: animate ? "translateY(0)" : "translateY(40px)",
+              transition: `opacity 1.25s cubic-bezier(0.16,1,0.3,1) ${idx * 35}ms, transform 1.25s cubic-bezier(0.16,1,0.3,1) ${idx * 35}ms`,
+              willChange: "transform, opacity",
+            }}
+          >
+            {char === " " ? "\u00A0" : char}
+          </span>
+        );
+      }
+    }
+  }
 
   return (
     <span style={{ display: "block", overflow: "visible", ...style }}>
-      {chars.map((c, i) => (
-        <span
-          key={`${startIndex + i}-${c.char}`}
-          style={{
-            display: "inline-block",
-            color: c.accent ? C.accent : C.text,
-            opacity: animate ? 1 : 0,
-            transform: animate ? "translateY(0)" : "translateY(40px)",
-            transition: `opacity 1.25s cubic-bezier(0.16,1,0.3,1) ${(startIndex + i) * 35}ms, transform 1.25s cubic-bezier(0.16,1,0.3,1) ${(startIndex + i) * 35}ms`,
-            willChange: "transform, opacity",
-          }}
-        >
-          {c.char === " " ? "\u00A0" : c.char}
-        </span>
-      ))}
+      {items}
     </span>
   );
 }
 
 function HeroTitles({ isZh }: { isZh: boolean }) {
+  const [animKey, setAnimKey] = useState(0);
+  const triggerAnim = useCallback(() => setAnimKey(k => k + 1), []);
+
+  // Trigger on mount and lang change
+  useEffect(() => { triggerAnim(); }, [isZh]);
+
   const titleStyle: CSSProperties = {
     fontFamily: SERIF,
-    fontSize: "clamp(42px, 5vw, 76px)",
+    fontSize: "clamp(40px, 4.8vw, 72px)",
     fontWeight: 700,
-    lineHeight: 1.2,
+    lineHeight: 1.18,
     margin: 0,
   };
 
-  if (isZh) {
-    const line1: TitleSegment[] = [
-      { text: "你好, 我是" },
-      { text: "怡君", accent: true },
-    ];
-    const line2: TitleSegment[] = [{ text: "UI/UX 全链路设计师" }];
-    const line1Len = line1.reduce((s, seg) => s + [...seg.text].length, 0);
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <AnimatedTitleLine segments={line1} style={titleStyle} startIndex={0} />
-        <AnimatedTitleLine segments={line2} style={titleStyle} startIndex={line1Len} />
-      </div>
-    );
-  } else {
-    const line1: TitleSegment[] = [{ text: "Hi, I'm Yijun" }];
-    const line2: TitleSegment[] = [{ text: "UI/UX DESIGNER" }];
-    const line1Len = line1.reduce((s, seg) => s + [...seg.text].length, 0);
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <AnimatedTitleLine segments={line1} style={titleStyle} startIndex={0} />
-        <AnimatedTitleLine segments={line2} style={titleStyle} startIndex={line1Len} />
-      </div>
-    );
-  }
+  const line1ZH: TitleSegment[] = [{ text: "你好, 我是" }, { text: "怡君", accent: true }];
+  const line2ZH: TitleSegment[] = [{ text: "UI/UX 全链路设计师" }];
+  const line1EN: TitleSegment[] = [{ text: "Hi, I'm " }, { text: "Yijun", accent: true }];
+  const line2EN: TitleSegment[] = [{ text: "UI/UX DESIGNER" }];
+
+  const l1 = isZh ? line1ZH : line1EN;
+  const l2 = isZh ? line2ZH : line2EN;
+  const l1Len = l1.reduce((s, seg) => s + [...seg.text].length, 0);
+
+  return (
+    // hover triggers re-animation
+    <div onMouseEnter={triggerAnim} style={{ cursor: "default", userSelect: "none" }}>
+      <AnimatedTitleLine segments={l1} style={{ ...titleStyle, marginBottom: 2 }} startIndex={0} animKey={animKey} />
+      <AnimatedTitleLine segments={l2} style={titleStyle} startIndex={l1Len} animKey={animKey} />
+    </div>
+  );
 }
 
-// ─── MARQUEE (div-based, no SVG distortion) ──────────────────────────────────
+// ─── SCROLL FLOAT (GSAP, per-char scroll-scrub animation) ────────────────────
 
-function StraightMarquee({ text, speed = 1.3, fontSize = 16 }: { text: string; speed?: number; fontSize?: number }) {
+function ScrollFloat({ text, style }: { text: string; style?: CSSProperties }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const chars = el.querySelectorAll(".sf-char");
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        chars,
+        { willChange: "opacity, transform", opacity: 0, yPercent: 120, scaleY: 2.3, scaleX: 0.7, transformOrigin: "50% 0%" },
+        {
+          opacity: 1, yPercent: 0, scaleY: 1, scaleX: 1,
+          stagger: 0.03, duration: 1, ease: "back.inOut(2)",
+          scrollTrigger: { trigger: el, start: "center bottom+=50%", end: "bottom bottom-=40%", scrub: true },
+        }
+      );
+    }, el);
+
+    return () => ctx.revert();
+  }, [text]);
+
+  return (
+    <div ref={ref} style={{ overflow: "visible", ...style }}>
+      {[...text].map((char, i) => (
+        <span key={i} className="sf-char" style={{ display: "inline-block", willChange: "opacity, transform" }}>
+          {char === " " ? "\u00A0" : char}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// ─── MARQUEE ─────────────────────────────────────────────────────────────────
+
+function StraightMarquee({
+  text,
+  speed = 1.3,
+  fontSize = 16,
+  contained = false,
+  color = C.text,
+}: {
+  text: string;
+  speed?: number;
+  fontSize?: number;
+  contained?: boolean;
+  color?: string;
+}) {
   const trackRef = useRef<HTMLDivElement>(null);
   const singleRef = useRef<HTMLSpanElement>(null);
   const offsetRef = useRef(0);
@@ -186,8 +318,7 @@ function StraightMarquee({ text, speed = 1.3, fontSize = 16 }: { text: string; s
   useEffect(() => {
     const measure = () => {
       const w = singleRef.current?.offsetWidth ?? 0;
-      if (w > 0) { setTextWidth(w); }
-      else { setTimeout(measure, 80); }
+      if (w > 0) { setTextWidth(w); } else { setTimeout(measure, 80); }
     };
     setTimeout(measure, 80);
   }, [text, fontSize]);
@@ -205,16 +336,22 @@ function StraightMarquee({ text, speed = 1.3, fontSize = 16 }: { text: string; s
     return () => cancelAnimationFrame(rafRef.current);
   }, [textWidth, speed]);
 
-  const copies = textWidth > 0 ? Math.ceil((typeof window !== "undefined" ? window.innerWidth : 1440) * 2 / textWidth) + 3 : 8;
+  const copies = textWidth > 0 ? Math.ceil((typeof window !== "undefined" ? window.innerWidth * 2 : 2880) / textWidth) + 3 : 8;
 
   return (
-    <div style={{ overflow: "hidden", width: "100vw", marginLeft: "calc(50% - 50vw)", height: 56, display: "flex", alignItems: "center" }}>
+    <div style={{
+      overflow: "hidden",
+      ...(contained ? {} : { width: "100vw", marginLeft: "calc(50% - 50vw)" }),
+      height: 48,
+      display: "flex",
+      alignItems: "center",
+    }}>
       <div ref={trackRef} style={{ display: "flex", whiteSpace: "nowrap", willChange: "transform", alignItems: "center" }}>
         {Array.from({ length: copies }, (_, i) => (
           <span
             key={i}
             ref={i === 0 ? singleRef : undefined}
-            style={{ fontSize, fontFamily: SANS, color: C.text, letterSpacing: "0.06em", lineHeight: "normal", flexShrink: 0 }}
+            style={{ fontSize, fontFamily: SANS, color, letterSpacing: "0.06em", lineHeight: "normal", flexShrink: 0 }}
           >
             {text}
           </span>
@@ -264,9 +401,7 @@ function SpotlightCard({ children, style }: { children: ReactNode; style?: CSSPr
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current || !overlayRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    overlayRef.current.style.background = `radial-gradient(300px circle at ${x}px ${y}px, rgba(255,255,255,0.22), transparent 65%)`;
+    overlayRef.current.style.background = `radial-gradient(300px circle at ${e.clientX - rect.left}px ${e.clientY - rect.top}px, rgba(255,255,255,0.22), transparent 65%)`;
   };
 
   return (
@@ -297,11 +432,24 @@ function CopyBtn({ value }: { value: string }) {
   );
 }
 
-// ─── SCROLL HELPER ───────────────────────────────────────────────────────────
-
 function scrollTo(href: string) {
   const el = document.getElementById(href.replace("#", ""));
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ─── PROJECT TAG ─────────────────────────────────────────────────────────────
+
+function ProjTag({ children }: { children: string }) {
+  return (
+    <span style={{
+      fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
+      padding: "4px 10px", borderRadius: 100,
+      background: "rgba(178,149,126,0.12)", color: "#96614A",
+      display: "inline-block",
+    }}>
+      {children}
+    </span>
+  );
 }
 
 // ─── HOME ───────────────────────────────────────────────────────────────────
@@ -338,8 +486,6 @@ export default function Home() {
     return () => obs.disconnect();
   }, []);
 
-  // Hero card width = inner content of container with maxWidth 1200 and padding 24px each side
-  // => min(1152px, 100vw - 48px)
   const CARD_WIDTH = "min(1152px, calc(100vw - 48px))";
 
   return (
@@ -348,42 +494,44 @@ export default function Home() {
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400&display=swap');
         html { scroll-behavior: smooth; }
         * { box-sizing: border-box; }
-        button, a, [role=button] { cursor: pointer; }
 
-        .sp-nav-link { position: relative; padding-bottom: 2px; background: none; border: none; }
-        .sp-nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px; background: ${C.text}; transition: width 0.3s ease; }
+        .sp-nav-link { position: relative; padding-bottom: 2px; background: none; border: none; font-family: ${SERIF}; font-size: 14px; font-weight: 500; letter-spacing: 0.03em; color: #999; transition: color 0.25s; cursor: pointer; }
+        .sp-nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; border-radius: 2px; background: #B2957E; transition: width 0.3s ease; }
         .sp-nav-link:hover::after, .sp-nav-link.active::after { width: 100%; }
         .sp-nav-link.active { color: ${C.text} !important; }
+        .sp-nav-link:hover { color: ${C.text}; }
 
         .project-row { border-bottom: 1px solid ${C.border}; position: relative; cursor: default; }
         .project-row:first-child { border-top: 1px solid ${C.border}; }
-        .project-row::before { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 1px; background: ${C.text}; transform: scaleX(0); transform-origin: left; transition: transform 0.38s cubic-bezier(.16,1,.3,1); z-index: 1; }
+        .project-row::before { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 1px; background: #B2957E; transform: scaleX(0); transform-origin: left; transition: transform 0.38s cubic-bezier(.16,1,.3,1); z-index: 1; }
         .project-row:hover::before { transform: scaleX(1); }
         .project-row .proj-num { transition: color 0.2s; }
         .project-row:hover .proj-num { color: ${C.accent}; }
-        .project-row .proj-arrow { opacity: 0; transform: translateX(-8px); transition: opacity 0.25s, transform 0.25s; }
-        .project-row:hover .proj-arrow { opacity: 1; transform: translateX(0); }
         .project-row .proj-desc { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.35s ease, margin-top 0.3s ease; }
         .project-row:hover .proj-desc { max-height: 150px; opacity: 1; margin-top: 10px; }
+        .project-row .proj-img-wrap { width: 0; overflow: hidden; flex-shrink: 0; transition: width 0.4s cubic-bezier(.16,1,.3,1); }
+        .project-row:hover .proj-img-wrap { width: 360px; }
 
         .vibe-card { border: 1px solid ${C.border}; border-radius: 32px; transition: border-color 0.25s, transform 0.3s ease, box-shadow 0.3s ease; cursor: default; }
         .vibe-card:hover { border-color: ${C.accent}; transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.07); }
 
-        .btn-primary { background: ${C.text}; color: ${C.bg}; border: none; border-radius: 100px; font-size: 18px; font-weight: 600; letter-spacing: 0.03em; padding: 14px 32px; cursor: pointer; transition: transform 0.2s ease, opacity 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-family: ${SANS}; }
+        .btn-primary { background: ${C.text}; color: ${C.bg}; border: none; border-radius: 100px; font-size: 16px; font-weight: 600; letter-spacing: 0.03em; padding: 13px 28px; cursor: pointer; transition: transform 0.2s ease, opacity 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; font-family: ${SANS}; }
         .btn-primary:hover { transform: scale(1.04); opacity: 0.88; }
-        .btn-secondary { background: ${C.bg}; color: ${C.text}; border: 1px solid ${C.border}; border-radius: 100px; font-size: 18px; font-weight: 600; letter-spacing: 0.03em; padding: 14px 32px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s; font-family: ${SANS}; }
+        .btn-secondary { background: ${C.bg}; color: ${C.text}; border: 1px solid ${C.border}; border-radius: 100px; font-size: 16px; font-weight: 600; letter-spacing: 0.03em; padding: 13px 28px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s; font-family: ${SANS}; display: inline-flex; align-items: center; gap: 7px; }
         .btn-secondary:hover { transform: scale(1.04); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
 
-        .photo-img { transition: transform 0.7s cubic-bezier(.16,1,.3,1); display: block; }
-        .photo-wrap:hover .photo-img { transform: scale(1.04); }
+        .photo-img { transition: transform 0.7s cubic-bezier(.16,1,.3,1); display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+        .photo-wrap:hover .photo-img { transform: scale(1.03); }
+
+        .sf-char { display: inline-block; will-change: opacity, transform; font-family: ${SERIF}; font-size: 36px; font-weight: 600; color: ${C.text}; }
       `}</style>
 
-      {/* ── FLOATING NAVBAR — same width as hero card ── */}
+      {/* ── NAVBAR ── */}
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, display: "flex", justifyContent: "center", paddingTop: 18, pointerEvents: "none" }}>
         <nav style={{
           pointerEvents: "all",
           width: CARD_WIDTH,
-          height: 54,
+          height: 60,
           background: C.navBg,
           border: `1px solid ${C.navBorder}`,
           borderRadius: 100,
@@ -394,26 +542,29 @@ export default function Home() {
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "0 20px 0 16px", gap: 16,
         }}>
+          {/* Logo */}
           <div onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", userSelect: "none", flexShrink: 0 }}>
-            <div style={{ width: 30, height: 30, borderRadius: "50%", background: C.text, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <span style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 15, color: C.bg, lineHeight: 1 }}>Y</span>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: C.text, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 16, color: C.bg, lineHeight: 1 }}>Y</span>
             </div>
-            <span style={{ fontFamily: SERIF, fontSize: 15, fontWeight: 600, color: C.text }}>Yijun Dong</span>
+            {/* Bold 18px */}
+            <span style={{ fontFamily: SERIF, fontSize: 18, fontWeight: 700, color: C.text }}>Yijun Dong</span>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+          {/* Nav tabs (no 设计工具) */}
+          <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
             {NAV.map(l => (
               <button
                 key={l.label}
                 className={`sp-nav-link ${activeSection === l.href.slice(1) ? "active" : ""}`}
                 onClick={() => scrollTo(l.href)}
-                style={{ fontFamily: SERIF, fontSize: 14, fontWeight: 500, letterSpacing: "0.03em", color: activeSection === l.href.slice(1) ? C.text : "#999", transition: "color 0.25s", padding: "0 0 2px 0" }}
               >
                 {l.label}
               </button>
             ))}
           </div>
 
+          {/* Lang toggle */}
           <div style={{ display: "flex", alignItems: "center", background: "#EDE8E0", borderRadius: 100, padding: 3, gap: 2, flexShrink: 0 }}>
             {(["zh", "en"] as const).map(l => (
               <div key={l} onClick={() => setLangPersist(l)} style={{ padding: "4px 14px", borderRadius: 100, fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", cursor: "pointer", transition: "background 0.2s, color 0.2s", background: lang === l ? C.text : "transparent", color: lang === l ? C.bg : "#999", userSelect: "none" }}>
@@ -425,15 +576,16 @@ export default function Home() {
       </div>
 
       {/* ── HERO ── */}
-      <section id="about" style={{ paddingTop: 92 }}>
+      <section id="about" style={{ paddingTop: 98 }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
-          <div style={{ background: C.card, borderRadius: 32, padding: "56px 64px", display: "grid", gridTemplateColumns: "1fr auto", gap: 56, alignItems: "center" }}>
-            {/* Left content */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+          <div style={{ background: C.card, borderRadius: 32, padding: "52px 52px 52px 56px", display: "grid", gridTemplateColumns: "1fr auto", gap: 32, alignItems: "center" }}>
+
+            {/* Left */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 28, minWidth: 0 }}>
               <HeroTitles isZh={isZh} />
 
               <FadeUp delay={0}>
-                <p style={{ fontSize: 20, color: C.desc, lineHeight: 1.75, fontWeight: 400, maxWidth: 540, margin: 0 }}>
+                <p style={{ fontSize: 18, color: C.desc, lineHeight: 1.75, fontWeight: 400, maxWidth: 520, margin: 0 }}>
                   {isZh
                     ? "深耕交互设计与用户体验，擅长复杂 ToB 系统搭建，拥有百度、华为、奔驰等大型客户实战经验"
                     : "Specialized in interaction design and UX. Expert in complex ToB systems. Hands-on experience with Baidu, Huawei, and Mercedes-Benz."}
@@ -441,14 +593,14 @@ export default function Home() {
               </FadeUp>
 
               <FadeUp delay={80}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 15, color: C.desc }}>
-                    <Mail size={16} style={{ color: C.accent, flexShrink: 0 }} />
+                    <Mail size={15} style={{ color: C.accent, flexShrink: 0 }} />
                     <span>yijdong@163.com</span>
                     <CopyBtn value="yijdong@163.com" />
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 15, color: C.desc }}>
-                    <Phone size={16} style={{ color: C.accent, flexShrink: 0 }} />
+                    <Phone size={15} style={{ color: C.accent, flexShrink: 0 }} />
                     <span>18092240354</span>
                     <CopyBtn value="18092240354" />
                   </div>
@@ -457,49 +609,54 @@ export default function Home() {
 
               <FadeUp delay={160}>
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                  {/* resume-detail icon = FileText, circle-double-down = ChevronsDown */}
                   <button className="btn-primary" onClick={() => navigate("/resume")}>
+                    <FileText size={16} />
                     {isZh ? "查看简历" : "View Resume"}
                   </button>
                   <button className="btn-secondary" onClick={() => scrollTo("#projects")}>
-                    {isZh ? "查看作品 →" : "View Work →"}
+                    <ChevronsDown size={16} />
+                    {isZh ? "查看作品" : "View Work"}
                   </button>
                 </div>
               </FadeUp>
             </div>
 
-            {/* Photo — 9:16, width 286px */}
-            <div style={{ flexShrink: 0, width: 286 }}>
-              <SpotlightCard style={{ borderRadius: 32, overflow: "hidden", aspectRatio: "9/16", background: "#CFC9C2" }}>
+            {/* Right — photo (3:4, bottom corners 0) + dark marquee strip */}
+            <div style={{ flexShrink: 0, width: 286, display: "flex", flexDirection: "column" }}>
+              {/* Photo with flat bottom corners */}
+              <SpotlightCard style={{ borderRadius: "32px 32px 0 0", overflow: "hidden", aspectRatio: "3/4", background: "#CFC9C2" }}>
                 <div className="photo-wrap" style={{ width: "100%", height: "100%" }}>
                   <img
                     src={`${BASE}images/photo_me.png`}
                     alt="怡君"
                     className="photo-img"
-                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
                   />
                 </div>
               </SpotlightCard>
+
+              {/* Dark strip below photo with scrolling white text */}
+              <div style={{
+                borderRadius: "0 0 32px 32px",
+                background: "rgba(36,24,16,0.88)",
+                overflow: "hidden",
+                padding: "4px 0",
+                backdropFilter: "blur(2px)",
+              }}>
+                <StraightMarquee text={MARQUEE} speed={1.3} fontSize={13} contained color="rgba(255,255,255,0.88)" />
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Marquee — 100px gap from card, speed 1.3, 16px */}
-        <div style={{ marginTop: 100 }}>
-          <StraightMarquee text={MARQUEE} speed={1.3} fontSize={16} />
         </div>
       </section>
 
       {/* ── PROJECTS ── */}
       <section id="projects" style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto" }}>
-        <FadeUp style={{ marginBottom: 40 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-            <span style={{ fontFamily: SERIF, fontSize: 36, fontWeight: 600, color: C.text, whiteSpace: "nowrap" }}>
-              {isZh ? "项目案例" : "Projects"}
-            </span>
-            <div style={{ flex: 1, height: 1, background: C.border }} />
-            <span style={{ fontSize: 13, color: "#aaa", fontVariantNumeric: "tabular-nums" }}>{PROJECTS.length} projects</span>
-          </div>
-        </FadeUp>
+        <div style={{ marginBottom: 40, display: "flex", alignItems: "center", gap: 20 }}>
+          <ScrollFloat text={isZh ? "项目案例" : "Projects"} />
+          <div style={{ flex: 1, height: 1, background: C.border }} />
+          <span style={{ fontSize: 13, color: "#aaa", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{PROJECTS.length} projects</span>
+        </div>
 
         <div ref={projSection.ref}>
           {PROJECTS.map((p, i) => (
@@ -514,18 +671,36 @@ export default function Home() {
                 transition: `opacity 0.6s ease-out ${i * 80}ms, transform 0.6s ease-out ${i * 80}ms`,
               }}
             >
-              <span className="proj-num" style={{ fontSize: 14, fontWeight: 700, color: "#ccc", width: 32, flexShrink: 0, paddingTop: 5, fontVariantNumeric: "tabular-nums" }}>{p.num}</span>
+              <span className="proj-num" style={{ fontSize: 13, fontWeight: 700, color: "#ccc", width: 32, flexShrink: 0, paddingTop: 8, fontVariantNumeric: "tabular-nums" }}>{p.num}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-                  <span style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 700, color: C.text, lineHeight: 1.2 }}>{p.title}</span>
-                  <span style={{ fontSize: 14, color: "#aaa", fontWeight: 300 }}>{p.en}</span>
+                  <span style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 700, color: C.text, lineHeight: 1.2 }}>{p.title}</span>
+                  <span style={{ fontSize: 13, color: "#aaa", fontWeight: 300 }}>{p.en}</span>
                 </div>
-                <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
-                  {p.tags.map(t => <span key={t} style={{ fontSize: 12, color: "#aaa", letterSpacing: "0.1em", textTransform: "uppercase" }}>{t}</span>)}
+                {/* Tags: pill style matching vibe cards */}
+                <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                  {p.tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}
                 </div>
-                <div className="proj-desc" style={{ fontSize: 16, color: C.desc, lineHeight: 1.75 }}>{p.desc}</div>
+                <div className="proj-desc" style={{ fontSize: 15, color: C.desc, lineHeight: 1.75 }}>{p.desc}</div>
               </div>
-              {p.href && <span className="proj-arrow" style={{ color: "#aaa", fontSize: 18, flexShrink: 0, paddingTop: 8 }}>→</span>}
+              {/* Hover image — 360px wide, 3:4, border-radius 32px */}
+              <div className="proj-img-wrap">
+                <div style={{
+                  width: 360,
+                  aspectRatio: "3/4",
+                  borderRadius: 32,
+                  overflow: "hidden",
+                  background: PROJECT_IMG_BG[p.num],
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "center",
+                  padding: "0 0 24px",
+                }}>
+                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 600 }}>
+                    {p.en}
+                  </span>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -533,20 +708,18 @@ export default function Home() {
 
       {/* ── VIBE CODING ── */}
       <section id="vibe" ref={vibeSection.ref} style={{ padding: "80px 24px", borderTop: `1px solid ${C.border}`, maxWidth: 1200, margin: "0 auto" }}>
-        <FadeUp style={{ marginBottom: 40 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-            <span style={{ fontFamily: SERIF, fontSize: 36, fontWeight: 600, color: C.text, whiteSpace: "nowrap" }}>Vibe Coding &amp; AI</span>
-            <div style={{ flex: 1, height: 1, background: C.border }} />
-          </div>
-        </FadeUp>
+        <div style={{ marginBottom: 40, display: "flex", alignItems: "center", gap: 20 }}>
+          <ScrollFloat text="Vibe Coding & AI" />
+          <div style={{ flex: 1, height: 1, background: C.border }} />
+        </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
           {VIBE.map((v, i) => (
             <div key={v.title} className="vibe-card" style={{ padding: 36, opacity: vibeSection.visible ? 1 : 0, transform: vibeSection.visible ? "translateY(0)" : "translateY(24px)", transition: `opacity 0.6s ease-out ${i * 80}ms, transform 0.6s ease-out ${i * 80}ms` }}>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
-                {v.tags.map(t => <span key={t} style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 100, background: "rgba(183,148,122,0.12)", color: "#96614A" }}>{t}</span>)}
+                {v.tags.map(t => <span key={t} style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 100, background: "rgba(178,149,126,0.12)", color: "#96614A" }}>{t}</span>)}
               </div>
-              <h3 style={{ fontFamily: SERIF, fontSize: 28, fontWeight: 700, color: C.text, lineHeight: 1.25, margin: "0 0 14px" }}>{v.title}</h3>
-              <p style={{ fontSize: 16, color: C.desc, lineHeight: 1.75, margin: 0 }}>{v.desc}</p>
+              <h3 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 700, color: C.text, lineHeight: 1.25, margin: "0 0 14px" }}>{v.title}</h3>
+              <p style={{ fontSize: 15, color: C.desc, lineHeight: 1.75, margin: 0 }}>{v.desc}</p>
             </div>
           ))}
         </div>
@@ -555,18 +728,16 @@ export default function Home() {
       {/* ── TOOLS ── */}
       <section id="tools" ref={toolsSection.ref} style={{ borderTop: `1px solid ${C.border}`, background: C.toolsBg, padding: "80px 0" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
-          <FadeUp style={{ marginBottom: 48 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-              <span style={{ fontFamily: SERIF, fontSize: 36, fontWeight: 600, color: C.text, whiteSpace: "nowrap" }}>{isZh ? "设计工具" : "Design Tools"}</span>
-              <div style={{ flex: 1, height: 1, background: "#D5CDBF" }} />
-            </div>
-          </FadeUp>
+          <div style={{ marginBottom: 48, display: "flex", alignItems: "center", gap: 20 }}>
+            <ScrollFloat text={isZh ? "设计工具" : "Design Tools"} />
+            <div style={{ flex: 1, height: 1, background: "#D5CDBF" }} />
+          </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px 64px" }}>
             {TOOLS.map((t, i) => (
               <div key={t.name} style={{ opacity: toolsSection.visible ? 1 : 0, transform: toolsSection.visible ? "translateY(0)" : "translateY(24px)", transition: `opacity 0.6s ease-out ${i * 80}ms, transform 0.6s ease-out ${i * 80}ms` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-                  <span style={{ fontSize: 16, fontWeight: 500, color: C.text }}>{t.name}</span>
-                  <span style={{ fontSize: 14, color: "#aaa", fontVariantNumeric: "tabular-nums" }}>{t.pct}%</span>
+                  <span style={{ fontSize: 15, fontWeight: 500, color: C.text }}>{t.name}</span>
+                  <span style={{ fontSize: 13, color: "#aaa", fontVariantNumeric: "tabular-nums" }}>{t.pct}%</span>
                 </div>
                 <ProgressBar pct={t.pct} visible={toolsSection.visible} />
               </div>
@@ -576,7 +747,7 @@ export default function Home() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ borderTop: `1px solid ${C.border}`, padding: "40px 24px", maxWidth: 1200, margin: "0 auto" }}>
+      <footer style={{ borderTop: `1px solid ${C.border}`, padding: "36px 24px", maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <span style={{ fontFamily: SERIF, fontSize: 18, color: C.text, fontWeight: 600 }}>Yijun Dong</span>
           <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 13, color: "#999" }}>

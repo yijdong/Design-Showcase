@@ -1,0 +1,215 @@
+# 调整
+#ai
+
+一、首屏及导航的调整
+1、去掉导航条上的设计工具这一项，注意只是去掉导航条上的这个，页面中的设计工具正常显示
+2、导航条调整：
+导航条左边YijunDong，字体加粗，字号调整为18px
+导航条中间tab文字下的横线位置往下移2px；横线高度变为2px，增加横线圆角2px;横线颜色调整为：B2957E
+调整导航条的高度为60px
+3、调整查看简历、查看作品按钮
+	- 文字大小为16px；
+        -  查看简历左新增一个icon：resume-detail；颜色与文字颜色一致
+        -  查看作品左新增一个icon：circle-double-down；颜色与文字颜色一致；删除右边的icon
+4、调整照片比例为3:4；高度不变；调整照片与左侧文字的间距，确保文字：UI/UX全链路设计师能再一行展示完整；原来的照片我删除了，上传了一个新的照片，照片名字没有变：photo_me
+5、调整「你好，我是怡君」「UI/UX 全链路设计师」的动效生效方式，除首次进入页面时动效生效，再补充一个生效时机：鼠标hover至这两个文字区域时，也触发这个动效生效
+-给怡君这两个字增加一个动效：**Gradient Text**
+- 颜色：E8E2D9、B2957E、402B0D
+- 代码参考：
+```
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { motion, useMotionValue, useAnimationFrame, useTransform } from 'motion/react';
+import './GradientText.css';
+
+export default function GradientText({
+  children,
+  className = '',
+  colors = ['#E8E2D9', '#B2957E', '#402B0D'],
+  animationSpeed = 8,
+  showBorder = false,
+  direction = 'horizontal',
+  pauseOnHover = false,
+  yoyo = true
+}) {
+  const [isPaused, setIsPaused] = useState(false);
+  const progress = useMotionValue(0);
+  const elapsedRef = useRef(0);
+  const lastTimeRef = useRef(null);
+
+  const animationDuration = animationSpeed * 1000;
+
+  useAnimationFrame(time => {
+    if (isPaused) {
+      lastTimeRef.current = null;
+      return;
+    }
+
+    if (lastTimeRef.current === null) {
+      lastTimeRef.current = time;
+      return;
+    }
+
+    const deltaTime = time - lastTimeRef.current;
+    lastTimeRef.current = time;
+    elapsedRef.current += deltaTime;
+
+    if (yoyo) {
+      const fullCycle = animationDuration * 2;
+      const cycleTime = elapsedRef.current % fullCycle;
+
+      if (cycleTime < animationDuration) {
+        progress.set((cycleTime / animationDuration) * 100);
+      } else {
+        progress.set(100 - ((cycleTime - animationDuration) / animationDuration) * 100);
+      }
+    } else {
+      // Continuously increase position for seamless looping
+      progress.set((elapsedRef.current / animationDuration) * 100);
+    }
+  });
+
+  useEffect(() => {
+    elapsedRef.current = 0;
+    progress.set(0);
+  }, [animationSpeed, progress, yoyo]);
+
+  const backgroundPosition = useTransform(progress, p => {
+    if (direction === 'horizontal') {
+      return `${p}% 50%`;
+    } else if (direction === 'vertical') {
+      return `50% ${p}%`;
+    } else {
+      // For diagonal, move only horizontally to avoid interference patterns
+      return `${p}% 50%`;
+    }
+  });
+
+  const handleMouseEnter = useCallback(() => {
+    if (pauseOnHover) setIsPaused(true);
+  }, [pauseOnHover]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (pauseOnHover) setIsPaused(false);
+  }, [pauseOnHover]);
+
+  const gradientAngle =
+    direction === 'horizontal' ? 'to right' : direction === 'vertical' ? 'to bottom' : 'to bottom right';
+  // Duplicate first color at the end for seamless looping
+  const gradientColors = [...colors, colors[0]].join(', ');
+
+  const gradientStyle = {
+    backgroundImage: `linear-gradient(${gradientAngle}, ${gradientColors})`,
+    backgroundSize: direction === 'horizontal' ? '300% 100%' : direction === 'vertical' ? '100% 300%' : '300% 300%',
+    backgroundRepeat: 'repeat'
+  };
+
+  return (
+    <motion.div
+      className={`animated-gradient-text ${showBorder ? 'with-border' : ''} ${className}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {showBorder && <motion.div className="gradient-overlay" style={{ ...gradientStyle, backgroundPosition }} />}
+      <motion.div className="text-content" style={{ ...gradientStyle, backgroundPosition }}>
+        {children}
+      </motion.div>
+    </motion.div>
+  );
+}
+```
+
+
+6、交互设计  ✦  视觉设计  ✦  竞品分析  ✦  用户研究  ✦  可用性测试  ✦  Vibe Coding ✦  需求分析 ✦  的位置调整：
+	- 将照片容器的左下角、右下角圆角调整为0
+	- 在照片下拼接一个矩形容器，这个矩形容器的左上角、右上角圆角为0；左下角、右下角圆角为32px
+	- 交互设计  ✦  视觉设计  ✦  竞品分析  ✦  用户研究  ✦  可用性测试  ✦  Vibe Coding ✦  需求分析 ✦  的位置调整 至这个新增的矩形容器内，注意预留左右上下边距，文字颜色更改为白色
+
+二、其他部分的调整
+1、项目案例、Vibe Coding & AI、设计工具出现动效调整为：**Scroll Float**
+ 代码参考：
+```
+import { useEffect, useMemo, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+import './ScrollFloat.css';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const ScrollFloat = ({
+  children,
+  scrollContainerRef,
+  containerClassName = '',
+  textClassName = '',
+  animationDuration = 1,
+  ease = 'back.inOut(2)',
+  scrollStart = 'center bottom+=50%',
+  scrollEnd = 'bottom bottom-=40%',
+  stagger = 0.03
+}) => {
+  const containerRef = useRef(null);
+
+  const splitText = useMemo(() => {
+    const text = typeof children === 'string' ? children : '';
+    return text.split('').map((char, index) => (
+      <span className="char" key={index}>
+        {char === ' ' ? '\u00A0' : char}
+      </span>
+    ));
+  }, [children]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const scroller = scrollContainerRef && scrollContainerRef.current ? scrollContainerRef.current : window;
+
+    const charElements = el.querySelectorAll('.char');
+
+    gsap.fromTo(
+      charElements,
+      {
+        willChange: 'opacity, transform',
+        opacity: 0,
+        yPercent: 120,
+        scaleY: 2.3,
+        scaleX: 0.7,
+        transformOrigin: '50% 0%'
+      },
+      {
+        duration: animationDuration,
+        ease: ease,
+        opacity: 1,
+        yPercent: 0,
+        scaleY: 1,
+        scaleX: 1,
+        stagger: stagger,
+        scrollTrigger: {
+          trigger: el,
+          scroller,
+          start: scrollStart,
+          end: scrollEnd,
+          scrub: true
+        }
+      }
+    );
+  }, [scrollContainerRef, animationDuration, ease, scrollStart, scrollEnd, stagger]);
+
+  return (
+    <h2 ref={containerRef} className={`scroll-float ${containerClassName}`}>
+      <span className={`scroll-float-text ${textClassName}`}>{splitText}</span>
+    </h2>
+  );
+};
+
+export default ScrollFloat;
+```
+
+2、hover至每个项目时的高亮的黑色横线颜色变更为：B2957E；
+3、每个项目下的标签文字改为标签样式，样式和**Vibe Coding & AI**部分的小标签样式保持一致
+4、hover至每个项目时，在右侧显示一张图片，图片容器为圆角矩形，比例为3:4，圆角为32px；图片超出比例进行裁剪；图片宽度360px；hover后和简介一起出现
+- AI数据标注平台的图片：AI Annotation Platform
+- 全球化企业设备管理平台的图片：Global Device Management
+- 汽车金融服务平台的图片：Automotive Finance Platform
+- 用户研究项目的图片：User Research Project
+- 视觉设计项目的图片：Visual Design Projects
