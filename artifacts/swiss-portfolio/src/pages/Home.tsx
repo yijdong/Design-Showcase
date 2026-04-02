@@ -665,7 +665,7 @@ export default function Home() {
       </div>
 
       {/* ── HERO ── */}
-      <section id="about" style={{ paddingTop: 180 }}>
+      <section id="about" style={{ paddingTop: 160 }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
           <div style={{ background: C.card, borderRadius: 32, padding: "52px 52px 52px 56px", display: "grid", gridTemplateColumns: "1fr auto", gap: 32, alignItems: "center" }}>
 
@@ -696,7 +696,7 @@ export default function Home() {
                 </div>
               </FadeUp>
 
-              <FadeUp delay={160}>
+              <FadeUp delay={160} style={{ marginTop: 30 }}>
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                   {/* resume-detail icon = FileText, circle-double-down = ChevronsDown */}
                   <button className="btn-primary" onClick={() => navigate("/resume")}>
