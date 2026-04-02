@@ -283,30 +283,34 @@ function ScrollFloat({ text, triggerId, style }: { text: string; triggerId?: str
     const el = ref.current;
     if (!el) return;
     const chars = el.querySelectorAll(".sf-char");
-    // Use the whole section as trigger if triggerId provided — animation spans the full group
     const triggerEl = (triggerId ? document.getElementById(triggerId) : null) ?? el;
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        chars,
-        { willChange: "opacity, transform", opacity: 0, yPercent: 120, scaleY: 2.3, scaleX: 0.7, transformOrigin: "50% 0%" },
-        {
-          opacity: 1, yPercent: 0, scaleY: 1, scaleX: 1,
-          stagger: 0.03, duration: 1, ease: "back.inOut(2)",
-          scrollTrigger: { trigger: triggerEl, start: "top bottom", end: "center center", scrub: true },
-        }
-      );
-    }, el);
+    // Use direct fromTo (not gsap.context) so external trigger element is handled correctly
+    const anim = gsap.fromTo(
+      chars,
+      { willChange: "opacity, transform", opacity: 0, yPercent: 120, scaleY: 2.3, scaleX: 0.7, transformOrigin: "50% 0%" },
+      {
+        opacity: 1, yPercent: 0, scaleY: 1, scaleX: 1,
+        stagger: 0.03, duration: 1, ease: "back.inOut(2)",
+        scrollTrigger: { trigger: triggerEl, start: "top bottom", end: "center center", scrub: true },
+      }
+    );
 
-    return () => ctx.revert();
+    // Refresh after layout settles to fix "sometimes invisible" race condition
+    const tid = setTimeout(() => ScrollTrigger.refresh(), 120);
+
+    return () => {
+      clearTimeout(tid);
+      if (anim.scrollTrigger) anim.scrollTrigger.kill();
+      anim.kill();
+    };
   }, [text, triggerId]);
 
-  // overflow: hidden clips chars that start at yPercent:120 — they reveal upward as you scroll
+  // overflow:hidden on the INNER span so it clips chars in y without restricting h2 width
   return (
     <h2
       ref={ref}
       style={{
-        overflow: "hidden",
         margin: 0,
         padding: 0,
         fontFamily: SERIF,
@@ -314,10 +318,11 @@ function ScrollFloat({ text, triggerId, style }: { text: string; triggerId?: str
         fontWeight: 600,
         color: C.text,
         lineHeight: 1.3,
+        whiteSpace: "nowrap",
         ...style,
       }}
     >
-      <span style={{ display: "block" }}>
+      <span style={{ display: "block", overflow: "hidden", paddingBottom: "0.1em" }}>
         {[...text].map((char, i) => (
           <span key={i} className="sf-char" style={{ display: "inline-block", willChange: "opacity, transform" }}>
             {char === " " ? "\u00A0" : char}
@@ -682,8 +687,8 @@ export default function Home() {
                     {isZh ? "查看简历" : "View Resume"}
                   </button>
                   <button className="btn-secondary" onClick={() => scrollTo("#projects")}>
-                    <ChevronsDown size={16} />
                     {isZh ? "查看作品" : "View Work"}
+                    <ChevronsDown size={16} />
                   </button>
                 </div>
               </FadeUp>
@@ -719,10 +724,10 @@ export default function Home() {
 
       {/* ── PROJECTS ── */}
       <section id="projects" style={{ padding: "100px 24px", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 48 }}>
+        <div style={{ textAlign: "center", marginBottom: 100 }}>
           <ScrollFloat text={isZh ? "项目案例" : "Projects"} triggerId="projects" style={{ fontSize: 60, display: "block" }} />
-          <FadeUp delay={100} style={{ marginTop: 24 }}>
-            <p style={{ fontSize: 24, color: C.desc, lineHeight: 1.7, margin: 0 }}>
+          <FadeUp delay={100} style={{ marginTop: 28 }}>
+            <p style={{ fontSize: 24, color: C.desc, lineHeight: 1.7, margin: "0 auto", maxWidth: 540 }}>
               {isZh ? SECTION_DESC.projects.zh : SECTION_DESC.projects.en}
             </p>
           </FadeUp>
@@ -769,10 +774,10 @@ export default function Home() {
 
       {/* ── VIBE CODING ── */}
       <section id="vibe" ref={vibeSection.ref} style={{ padding: "100px 24px", borderTop: `1px solid ${C.border}`, maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 48 }}>
+        <div style={{ textAlign: "center", marginBottom: 100 }}>
           <ScrollFloat text="Vibe Coding & AI" triggerId="vibe" style={{ fontSize: 60, display: "block" }} />
-          <FadeUp delay={100} style={{ marginTop: 24 }}>
-            <p style={{ fontSize: 24, color: C.desc, lineHeight: 1.7, margin: 0 }}>
+          <FadeUp delay={100} style={{ marginTop: 28 }}>
+            <p style={{ fontSize: 24, color: C.desc, lineHeight: 1.7, margin: "0 auto", maxWidth: 540 }}>
               {isZh ? SECTION_DESC.vibe.zh : SECTION_DESC.vibe.en}
             </p>
           </FadeUp>
@@ -793,7 +798,7 @@ export default function Home() {
       {/* ── TOOLS ── */}
       <section id="tools" ref={toolsSection.ref} style={{ borderTop: `1px solid ${C.border}`, background: C.toolsBg, padding: "100px 0" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
-          <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <div style={{ textAlign: "center", marginBottom: 100 }}>
             <ScrollFloat text={isZh ? "设计工具" : "Design Tools"} triggerId="tools" style={{ fontSize: 60, display: "block" }} />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px 64px" }}>
