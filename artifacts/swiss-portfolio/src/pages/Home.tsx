@@ -476,8 +476,14 @@ function CopyBtn({ value }: { value: string }) {
 }
 
 function scrollTo(href: string) {
-  const el = document.getElementById(href.replace("#", ""));
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  const id = href.replace("#", "");
+  // "about" always scrolls to absolute top — scrollIntoView can be a no-op if already partially visible
+  if (id === "about") { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+  const el = document.getElementById(id);
+  if (el) {
+    const top = el.getBoundingClientRect().top + window.scrollY - 64;
+    window.scrollTo({ top, behavior: "smooth" });
+  }
 }
 
 // ─── PROJECT TAG ─────────────────────────────────────────────────────────────
@@ -538,13 +544,21 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // Scroll-position–based active section: more reliable than IntersectionObserver
+    // for sections with very different heights (e.g. short hero vs long projects list).
     const ids = ["about", "projects", "vibe", "tools"];
-    const obs = new IntersectionObserver(
-      (entries) => { entries.forEach(e => { if (e.isIntersecting) setActiveSection(e.target.id); }); },
-      { threshold: 0.35 }
-    );
-    ids.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
-    return () => obs.disconnect();
+    const update = () => {
+      const y = window.scrollY + 120; // 120px offset accounts for fixed navbar
+      let active = ids[0];
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= y) active = id;
+      }
+      setActiveSection(active);
+    };
+    window.addEventListener("scroll", update, { passive: true });
+    update(); // run once on mount to set initial state
+    return () => window.removeEventListener("scroll", update);
   }, []);
 
   const CARD_WIDTH = "min(1152px, calc(100vw - 48px))";
@@ -651,7 +665,7 @@ export default function Home() {
       </div>
 
       {/* ── HERO ── */}
-      <section id="about" style={{ paddingTop: 100 }}>
+      <section id="about" style={{ paddingTop: 180 }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
           <div style={{ background: C.card, borderRadius: 32, padding: "52px 52px 52px 56px", display: "grid", gridTemplateColumns: "1fr auto", gap: 32, alignItems: "center" }}>
 
