@@ -266,7 +266,7 @@ function HeroTitles({ isZh }: { isZh: boolean }) {
 // ─── SCROLL FLOAT (GSAP, per-char scroll-scrub animation) ────────────────────
 
 function ScrollFloat({ text, style }: { text: string; style?: CSSProperties }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -288,14 +288,30 @@ function ScrollFloat({ text, style }: { text: string; style?: CSSProperties }) {
     return () => ctx.revert();
   }, [text]);
 
+  // overflow: hidden clips chars that start at yPercent:120 — they reveal upward as you scroll
   return (
-    <div ref={ref} style={{ overflow: "visible", ...style }}>
-      {[...text].map((char, i) => (
-        <span key={i} className="sf-char" style={{ display: "inline-block", willChange: "opacity, transform" }}>
-          {char === " " ? "\u00A0" : char}
-        </span>
-      ))}
-    </div>
+    <h2
+      ref={ref}
+      style={{
+        overflow: "hidden",
+        margin: 0,
+        padding: 0,
+        fontFamily: SERIF,
+        fontSize: 36,
+        fontWeight: 600,
+        color: C.text,
+        lineHeight: 1.3,
+        ...style,
+      }}
+    >
+      <span style={{ display: "block" }}>
+        {[...text].map((char, i) => (
+          <span key={i} className="sf-char" style={{ display: "inline-block", willChange: "opacity, transform" }}>
+            {char === " " ? "\u00A0" : char}
+          </span>
+        ))}
+      </span>
+    </h2>
   );
 }
 
@@ -463,6 +479,7 @@ export default function Home() {
   const [lang, setLang] = useState<"zh" | "en">(() => (localStorage.getItem("sp-lang") as "zh" | "en") || "zh");
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
+  const [hoveredProj, setHoveredProj] = useState<string | null>(null);
   const toolsSection = useInView(0.15);
   const vibeSection = useInView(0.15);
   const projSection = useInView(0.08);
@@ -513,10 +530,7 @@ export default function Home() {
         .project-row .proj-num { transition: color 0.2s; }
         .project-row:hover .proj-num { color: ${C.accent}; }
         .project-row .proj-desc { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.35s ease, margin-top 0.3s ease; }
-        .project-row:hover .proj-desc { max-height: 150px; opacity: 1; margin-top: 10px; }
-        .project-row .proj-img-wrap { display: none; flex-shrink: 0; }
-        .project-row:hover .proj-img-wrap { display: block; }
-
+        .project-row:hover .proj-desc { max-height: 150px; opacity: 1; margin-top: 24px; }
         .vibe-card { border: 1px solid ${C.border}; border-radius: 32px; transition: border-color 0.25s, transform 0.3s ease, box-shadow 0.3s ease; cursor: default; }
         .vibe-card:hover { border-color: ${C.accent}; transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.07); }
 
@@ -528,7 +542,13 @@ export default function Home() {
         .photo-img { transition: transform 0.7s cubic-bezier(.16,1,.3,1); display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
         .photo-wrap:hover .photo-img { transform: scale(1.03); }
 
-        .sf-char { display: inline-block; will-change: opacity, transform; font-family: ${SERIF}; font-size: 36px; font-weight: 600; color: ${C.text}; }
+        .sf-char { display: inline-block; will-change: opacity, transform; }
+
+        @keyframes sp-imgReveal {
+          from { clip-path: inset(0 0 100% 0 round 20px); }
+          to   { clip-path: inset(0 0 0%   0 round 20px); }
+        }
+        .proj-img-reveal { animation: sp-imgReveal 0.38s cubic-bezier(.16,1,.3,1) forwards; }
       `}</style>
 
       {/* ── NAVBAR ── */}
@@ -668,6 +688,8 @@ export default function Home() {
             <div
               key={p.num}
               className="project-row"
+              onMouseEnter={() => setHoveredProj(p.num)}
+              onMouseLeave={() => setHoveredProj(null)}
               style={{
                 padding: "24px 0",
                 display: "flex", alignItems: "flex-start", gap: 20,
@@ -682,28 +704,31 @@ export default function Home() {
                   <span style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 700, color: C.text, lineHeight: 1.2 }}>{p.title}</span>
                   <span style={{ fontSize: 13, color: "#aaa", fontWeight: 300 }}>{p.en}</span>
                 </div>
-                {/* Tags: pill style matching vibe cards */}
-                <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                {/* Tags — marginTop 16 (title→tags gap) */}
+                <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
                   {p.tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}
                 </div>
+                {/* Description — tags→desc gap is 24px (set via CSS hover) */}
                 <div className="proj-desc" style={{ fontSize: 15, color: C.desc, lineHeight: 1.75 }}>{p.desc}</div>
               </div>
-              {/* Hover image — 360px wide, 16:9 ratio, no animation */}
-              <div className="proj-img-wrap" style={{ paddingLeft: 20 }}>
-                <div style={{
-                  width: 360,
-                  aspectRatio: "16/9",
-                  borderRadius: 20,
-                  overflow: "hidden",
-                  background: "#E8E2D9",
-                }}>
-                  <img
-                    src={`${BASE}images/home/${PROJECT_IMGS[p.num]}`}
-                    alt={p.en}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                  />
+              {/* Hover image — 360px wide, 16:9, top-to-bottom reveal animation */}
+              {hoveredProj === p.num && (
+                <div className="proj-img-reveal" style={{ flexShrink: 0, paddingLeft: 20 }}>
+                  <div style={{
+                    width: 360,
+                    aspectRatio: "16/9",
+                    borderRadius: 20,
+                    overflow: "hidden",
+                    background: "#E8E2D9",
+                  }}>
+                    <img
+                      src={`${BASE}images/home/${PROJECT_IMGS[p.num]}`}
+                      alt={p.en}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           ))}
         </div>
