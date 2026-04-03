@@ -515,6 +515,16 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // Restore scroll position when returning from a detail page
+    const saved = sessionStorage.getItem("sp-scroll");
+    if (saved) {
+      const y = parseInt(saved, 10);
+      sessionStorage.removeItem("sp-scroll");
+      if (!isNaN(y)) window.scrollTo({ top: y, behavior: "instant" as ScrollBehavior });
+    }
+  }, []);
+
+  useEffect(() => {
     // Scroll-position–based active section: more reliable than IntersectionObserver
     // for sections with very different heights (e.g. short hero vs long projects list).
     const ids = ["about", "projects", "vibe", "tools"];
@@ -731,7 +741,7 @@ export default function Home() {
               className="project-row"
               onMouseEnter={() => setHoveredProj(p.num)}
               onMouseLeave={() => setHoveredProj(null)}
-              onClick={p.href ? () => navigate(`/project/${p.num}`) : undefined}
+              onClick={p.href ? () => { sessionStorage.setItem("sp-scroll", String(window.scrollY)); navigate(`/project/${p.num}`); } : undefined}
               style={{
                 padding: "24px 0",
                 display: "flex", alignItems: "flex-start", gap: 20,
@@ -786,7 +796,7 @@ export default function Home() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
           {VIBE.map((v, i) => (
-            <div key={v.title} className="vibe-card" onClick={() => navigate(`/vibe/${v.id}`)} style={{ padding: 36, cursor: "pointer", opacity: vibeSection.visible ? 1 : 0, transform: vibeSection.visible ? "translateY(0)" : "translateY(24px)", transition: `opacity 0.6s ease-out ${i * 80}ms, transform 0.6s ease-out ${i * 80}ms` }}>
+            <div key={v.title} className="vibe-card" onClick={() => { sessionStorage.setItem("sp-scroll", String(window.scrollY)); navigate(`/vibe/${v.id}`); }} style={{ padding: 36, cursor: "pointer", opacity: vibeSection.visible ? 1 : 0, transform: vibeSection.visible ? "translateY(0)" : "translateY(24px)", transition: `opacity 0.6s ease-out ${i * 80}ms, transform 0.6s ease-out ${i * 80}ms` }}>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
                 {v.tags.map(t => <span key={t} style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 100, background: "rgba(178,149,126,0.12)", color: "#96614A" }}>{t}</span>)}
               </div>

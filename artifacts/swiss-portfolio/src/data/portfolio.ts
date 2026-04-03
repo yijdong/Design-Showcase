@@ -42,3 +42,19 @@ export const VIBE_EN: VibeItem[] = [
   { id: "1", title: "Personal Portfolio Website", en: "This site", tags: ["Vibe Coding", "Replit"], desc: "Designed and shipped this portfolio entirely with Replit Vibe coding — from design concept to live interactive product in one continuous flow." },
   { id: "2", title: "Saddle Stitch Layout Checker", en: "AI Studio Tool", tags: ["AI Studio", "Gemini"], desc: "Built a print layout verification tool using Google AI Studio's build feature, enabling local execution and intelligent print checking." },
 ];
+
+export type SeqItem = { kind: "project" | "vibe"; id: string };
+
+// Unified navigation sequence across all detail-able items
+export const DETAIL_SEQUENCE: SeqItem[] = [
+  { kind: "project", id: "01" },
+  { kind: "project", id: "02" },
+  { kind: "project", id: "03" },
+  { kind: "vibe",    id: "0"  },
+  { kind: "vibe",    id: "1"  },
+  { kind: "vibe",    id: "2"  },
+];
+
+export function seqPath(item: SeqItem) {
+  return item.kind === "project" ? `/project/${item.id}` : `/vibe/${item.id}`;
+}
