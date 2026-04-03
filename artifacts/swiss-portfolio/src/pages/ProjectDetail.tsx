@@ -141,6 +141,15 @@ function DetailLayout({
 }) {
   const [currentSection, setCurrentSection] = useState(0);
 
+  // Enable full-screen block scrolling while on detail page; remove on exit
+  useEffect(() => {
+    const html = document.documentElement;
+    html.style.scrollSnapType = "y mandatory";
+    return () => {
+      html.style.scrollSnapType = "";
+    };
+  }, []);
+
   // Reset to top on mount AND whenever navigating to a different item (prev/next)
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
@@ -267,6 +276,7 @@ function DetailLayout({
         height: "100vh", width: "100%",
         background: SECTIONS[0].bg,
         display: "flex", alignItems: "center", justifyContent: "center",
+        scrollSnapAlign: "start",
         zIndex: 1,
       }}>
         <div style={{ maxWidth: 960, width: "100%", padding: "0 60px", paddingTop: 80 }}>
@@ -292,6 +302,7 @@ function DetailLayout({
           height: "100vh", width: "100%",
           background: sec.bg,
           display: "flex", alignItems: "center", justifyContent: "center",
+          scrollSnapAlign: "start",
           zIndex: i + 2,
         }}>
           {/* Content to be added later */}
