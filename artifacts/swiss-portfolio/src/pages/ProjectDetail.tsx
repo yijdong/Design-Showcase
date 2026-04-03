@@ -53,11 +53,12 @@ function NotFound({ navigate }: { navigate: (to: string) => void }) {
 
 // ── Page-indicator with hover-reveal menu ──────────────────────────────────
 function PageIndicator({
-  total, current, textColor,
+  total, current, textColor, onGoTo,
 }: {
   total: number;
   current: number;
   textColor: string;
+  onGoTo: (i: number) => void;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -81,19 +82,22 @@ function PageIndicator({
       {/* ── slide-in menu panel ── */}
       <div
         style={{
-          marginRight: 16,
+          marginRight: 20,
           background: menuBg,
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderRadius: 12,
-          padding: "14px 20px",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderRadius: 16,
+          padding: "22px 28px",
           display: "flex",
           flexDirection: "column",
-          gap: 6,
+          gap: 18,
           opacity: open ? 1 : 0,
-          transform: open ? "translateX(0)" : "translateX(10px)",
+          transform: open ? "translateX(0)" : "translateX(12px)",
           transition: "opacity 0.28s ease, transform 0.28s ease",
           pointerEvents: open ? "auto" : "none",
+          boxShadow: isDark
+            ? "0 24px 60px rgba(0,0,0,0.55), 0 8px 20px rgba(0,0,0,0.35)"
+            : "0 24px 60px rgba(46,46,46,0.18), 0 8px 20px rgba(46,46,46,0.10)",
         }}
       >
         {Array.from({ length: total }).map((_, i) => (
@@ -101,17 +105,18 @@ function PageIndicator({
             key={i}
             initial="initial"
             whileHover="hover"
+            onClick={() => onGoTo(i)}
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 6,
-              cursor: "default",
+              gap: 10,
+              cursor: "pointer",
               fontFamily: SANS,
-              fontSize: 13,
+              fontSize: 15,
               fontWeight: current === i ? 700 : 400,
               color: current === i ? accent : menuText,
-              lineHeight: 1.4,
-              minWidth: 120,
+              lineHeight: 1.5,
+              minWidth: 140,
               whiteSpace: "nowrap",
             }}
           >
@@ -382,7 +387,7 @@ function DetailLayout({
       </div>
 
       {/* ── DOT INDICATOR + hover menu ── */}
-      <PageIndicator total={SLIDES.length} current={current} textColor={textColor} />
+      <PageIndicator total={SLIDES.length} current={current} textColor={textColor} onGoTo={goTo} />
 
       {/* ── FULL-SCREEN SLIDES ── */}
       {SLIDES.map((slide, i) => (
