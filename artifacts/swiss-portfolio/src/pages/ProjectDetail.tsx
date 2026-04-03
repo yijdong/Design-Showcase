@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Layers, RefreshCw, Users } from "lucide-react";
+import annotPlatformImg from "@assets/image_1775204637528.png";
 import {
   PROJECTS_ZH, PROJECTS_EN, VIBE_ZH, VIBE_EN,
   DETAIL_SEQUENCE, seqPath,
@@ -13,9 +14,10 @@ const C = {
   desc: "#666666",
   accent: "#B2957E",
   border: "#E1DAD1",
+  card: "#E8E2D9",
 };
 const SERIF = "'Playfair Display', 'DM Serif Display', serif";
-const SANS = "'PingFang SC', 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+const SANS  = "'PingFang SC', 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
 
 const SLIDES = [
   { bg: "#F9F6F1", text: "#2E2E2E" },
@@ -51,33 +53,222 @@ function NotFound({ navigate }: { navigate: (to: string) => void }) {
   );
 }
 
+// ── Avatar placeholder (until actual user images are available) ─────────────
+function UserAvatar({ label }: { label: string }) {
+  const colors: Record<string, { bg: string; fg: string }> = {
+    "管": { bg: "#E8DDD3", fg: "#7A5C4A" },
+    "标": { bg: "#D8E4DC", fg: "#3D6650" },
+    "质": { bg: "#D9DCE8", fg: "#3D4A66" },
+  };
+  const key = label[0] as keyof typeof colors;
+  const { bg, fg } = colors[key] || { bg: C.card, fg: C.text };
+  return (
+    <div style={{
+      width: 44, height: 44, borderRadius: "50%",
+      background: bg, color: fg,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: 15, fontWeight: 700, fontFamily: SANS,
+      flexShrink: 0,
+      border: `1.5px solid ${C.border}`,
+    }}>
+      {label[0]}
+    </div>
+  );
+}
+
+// ── Slide 0 content for project 01 ─────────────────────────────────────────
+function Project01Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
+  const NAVBAR_H = 57;
+
+  const users = [
+    { name: "管理人员",     role: "配置任务、规则与人员体系" },
+    { name: "标注人员",     role: "完成具体数据标注任务" },
+    { name: "质检/审核人员", role: "对标注结果进行多级质量把控" },
+  ];
+
+  const caps = [
+    { icon: <Layers size={15} strokeWidth={1.8} />, name: "多模态标注能力", note: "覆盖文本、多模态、智能体等复杂题型" },
+    { icon: <RefreshCw size={15} strokeWidth={1.8} />, name: "完整质量闭环",  note: "标注-质检-审核-返修-数据入库" },
+    { icon: <Users size={15} strokeWidth={1.8} />,  name: "规模化人力调度", note: "支持场内+垂类兼职+专家人员协同作业" },
+  ];
+
+  return (
+    <div style={{
+      width: "100%", height: "100vh",
+      display: "flex", alignItems: "center",
+      paddingTop: NAVBAR_H + 24,
+      paddingBottom: 24,
+      paddingLeft: 60,
+      paddingRight: 60,
+      gap: "5%",
+      boxSizing: "border-box",
+    }}>
+
+      {/* ── LEFT COLUMN ─────────────────── */}
+      <div style={{ flex: "0 0 50%", display: "flex", flexDirection: "column", gap: 0, minWidth: 0, overflow: "hidden" }}>
+        <h1 style={{
+          fontFamily: SERIF,
+          fontSize: "clamp(32px, 4vw, 60px)",
+          fontWeight: 700,
+          color: C.text,
+          lineHeight: 1.15,
+          marginBottom: 18,
+        }}>
+          {title}
+        </h1>
+
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 22 }}>
+          {tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}
+        </div>
+
+        <p style={{
+          fontFamily: SANS,
+          fontSize: 15,
+          color: C.desc,
+          lineHeight: 1.85,
+          marginBottom: 22,
+          maxWidth: 560,
+        }}>
+          {desc}
+        </p>
+
+        {/* Screenshot image */}
+        <div style={{
+          flex: 1,
+          minHeight: 0,
+          maxHeight: "32vh",
+          borderRadius: 32,
+          border: `1px solid #F0EAE4`,
+          overflow: "hidden",
+          background: "#FAFAFA",
+        }}>
+          <img
+            src={annotPlatformImg}
+            alt="AI数据标注平台截图"
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+        </div>
+      </div>
+
+      {/* ── RIGHT COLUMN ────────────────── */}
+      <div style={{
+        flex: 1,
+        minWidth: 0,
+        display: "flex",
+        flexDirection: "column",
+        gap: 0,
+        background: "#EFEBE5",
+        borderRadius: 20,
+        padding: "28px 28px 24px",
+        overflow: "hidden",
+        alignSelf: "stretch",
+      }}>
+
+        {/* Users section */}
+        <p style={{
+          fontFamily: SANS, fontSize: 13, fontWeight: 700,
+          color: C.text, letterSpacing: "0.06em",
+          marginBottom: 18,
+        }}>
+          用户
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
+          {users.map(u => (
+            <div key={u.name} style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <UserAvatar label={u.name} />
+              <div>
+                <div style={{ fontFamily: SANS, fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.3 }}>{u.name}</div>
+                <div style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.5, marginTop: 2 }}>{u.role}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: 1, background: C.border, marginBottom: 24 }} />
+
+        {/* Core capabilities */}
+        <p style={{
+          fontFamily: SANS, fontSize: 13, fontWeight: 700,
+          color: C.text, letterSpacing: "0.06em",
+          marginBottom: 16,
+        }}>
+          核心能力
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {caps.map(cap => (
+            <div key={cap.name} style={{
+              display: "flex", alignItems: "flex-start", gap: 12,
+              background: "rgba(255,255,255,0.55)",
+              borderRadius: 12,
+              padding: "12px 14px",
+              border: `1px solid rgba(255,255,255,0.8)`,
+            }}>
+              <div style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: "rgba(178,149,126,0.15)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: C.accent, flexShrink: 0,
+              }}>
+                {cap.icon}
+              </div>
+              <div>
+                <div style={{ fontFamily: SANS, fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.3 }}>{cap.name}</div>
+                <div style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.5, marginTop: 3 }}>{cap.note}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Default Slide 0 (generic, used by all other projects) ──────────────────
+function DefaultSlide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
+  return (
+    <div style={{ maxWidth: 960, width: "100%", padding: "80px 60px 0" }}>
+      <h1 style={{
+        fontFamily: SERIF,
+        fontSize: "clamp(38px, 5vw, 72px)",
+        fontWeight: 700, color: C.text,
+        lineHeight: 1.15, marginBottom: 32,
+      }}>
+        {title}
+      </h1>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 36 }}>
+        {tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}
+      </div>
+      <p style={{ fontSize: "clamp(16px, 1.4vw, 22px)", color: C.desc, lineHeight: 1.85, maxWidth: 680 }}>
+        {desc}
+      </p>
+    </div>
+  );
+}
+
 // ── Page-indicator with hover-reveal menu ──────────────────────────────────
 function PageIndicator({
-  total, current, textColor, onGoTo,
+  total, current, textColor, labels, onGoTo,
 }: {
   total: number;
   current: number;
   textColor: string;
+  labels?: string[];
   onGoTo: (i: number) => void;
 }) {
   const [open, setOpen] = useState(false);
 
-  // Panel is always light — fixed fill regardless of current slide
   const menuBg   = "rgba(249,246,241,0.97)";
   const menuText = C.text;
   const accent   = C.accent;
 
   return (
     <div
-      style={{
-        position: "fixed", right: 28, top: "50%",
-        transform: "translateY(-50%)",
-        zIndex: 400,
-      }}
+      style={{ position: "fixed", right: 28, top: "50%", transform: "translateY(-50%)", zIndex: 400 }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      {/* ── dots column — always visible ── */}
+      {/* dots column */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
         {Array.from({ length: total }).map((_, i) => (
           <div key={i} style={{
@@ -90,27 +281,19 @@ function PageIndicator({
         ))}
       </div>
 
-      {/* ── slide-in menu panel — absolute, right-aligned so it covers the dots ── */}
-      <div
-        style={{
-          position: "absolute",
-          right: 0,
-          top: "50%",
-          transform: `translateY(-50%) translateX(${open ? 0 : 14}px)`,
-          opacity: open ? 1 : 0,
-          transition: "opacity 0.28s ease, transform 0.28s ease",
-          pointerEvents: open ? "auto" : "none",
-          background: menuBg,
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          borderRadius: 16,
-          padding: "22px 28px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 18,
-          boxShadow: "0 24px 60px rgba(46,46,46,0.18), 0 8px 20px rgba(46,46,46,0.10)",
-        }}
-      >
+      {/* slide-in menu panel — absolute, right-aligned (covers dots) */}
+      <div style={{
+        position: "absolute", right: 0, top: "50%",
+        transform: `translateY(-50%) translateX(${open ? 0 : 14}px)`,
+        opacity: open ? 1 : 0,
+        transition: "opacity 0.28s ease, transform 0.28s ease",
+        pointerEvents: open ? "auto" : "none",
+        background: menuBg,
+        backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+        borderRadius: 16, padding: "22px 28px",
+        display: "flex", flexDirection: "column", gap: 18,
+        boxShadow: "0 24px 60px rgba(46,46,46,0.18), 0 8px 20px rgba(46,46,46,0.10)",
+      }}>
         {Array.from({ length: total }).map((_, i) => (
           <motion.div
             key={i}
@@ -118,42 +301,30 @@ function PageIndicator({
             whileHover="hover"
             onClick={() => onGoTo(i)}
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              cursor: "pointer",
-              fontFamily: SANS,
-              fontSize: 15,
+              display: "flex", alignItems: "center", gap: 10,
+              cursor: "pointer", fontFamily: SANS, fontSize: 15,
               fontWeight: current === i ? 700 : 400,
               color: current === i ? accent : menuText,
-              lineHeight: 1.5,
-              minWidth: 140,
-              whiteSpace: "nowrap",
+              lineHeight: 1.5, minWidth: 140, whiteSpace: "nowrap",
             }}
           >
-            {/* Arrow — clips from left, then slides in */}
+            {/* arrow — clips from left */}
             <div style={{ width: 14, height: 14, overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center" }}>
               <motion.div
-                variants={{
-                  initial: { x: "-100%", opacity: 0 },
-                  hover:   { x: 0,       opacity: 1 },
-                }}
+                variants={{ initial: { x: "-100%", opacity: 0 }, hover: { x: 0, opacity: 1 } }}
                 transition={{ duration: 0.25, ease: "easeOut" }}
                 style={{ display: "flex", alignItems: "center", color: accent }}
               >
                 <ArrowRight size={11} strokeWidth={2.5} />
               </motion.div>
             </div>
-
-            {/* Number + title — slides right; accent on hover */}
+            {/* number + label */}
             <motion.span
-              variants={{
-                initial: { x: -10 },
-                hover:   { x: 0, color: accent },
-              }}
+              variants={{ initial: { x: -10 }, hover: { x: 0, color: accent } }}
               transition={{ duration: 0.25, ease: "easeOut" }}
             >
               {String(i + 1).padStart(2, "0")}
+              {labels?.[i] ? `  ${labels[i]}` : ""}
             </motion.span>
           </motion.div>
         ))}
@@ -162,7 +333,7 @@ function PageIndicator({
   );
 }
 
-// ── Page components ────────────────────────────────────────────────────────
+// ── Page exports ───────────────────────────────────────────────────────────
 
 export function ProjectDetailPage() {
   const params = useParams<{ num: string }>();
@@ -178,16 +349,26 @@ export function ProjectDetailPage() {
 
   if (!item) return <NotFound navigate={navigate} />;
 
+  // Project-specific slide labels (tooltip menu only)
+  const slideLabels = params.num === "01"
+    ? ["背景介绍", "", "", "", ""]
+    : undefined;
+
+  // Project-specific slide 0 content
+  const slide0 = params.num === "01"
+    ? <Project01Slide0 title={item.title} tags={item.tags} desc={item.desc} />
+    : <DefaultSlide0   title={item.title} tags={item.tags} desc={item.desc} />;
+
   return (
     <DetailLayout
       isZh={isZh}
       navigate={navigate}
-      title={item.title}
-      tags={item.tags}
-      desc={item.desc}
       sectionLabel={isZh ? "项目案例" : "Projects"}
       prevPath={prevItem ? seqPath(prevItem) : null}
       nextPath={nextItem ? seqPath(nextItem) : null}
+      slideLabels={slideLabels}
+      slide0={slide0}
+      titleForReset={item.title}
     />
   );
 }
@@ -210,33 +391,33 @@ export function VibeDetailPage() {
     <DetailLayout
       isZh={isZh}
       navigate={navigate}
-      title={item.title}
-      tags={item.tags}
-      desc={item.desc}
       sectionLabel="Vibe Coding & AI"
       prevPath={prevItem ? seqPath(prevItem) : null}
       nextPath={nextItem ? seqPath(nextItem) : null}
+      slide0={<DefaultSlide0 title={item.title} tags={item.tags} desc={item.desc} />}
+      titleForReset={item.title}
     />
   );
 }
 
-// ── Main layout ────────────────────────────────────────────────────────────
+// ── Core layout engine ─────────────────────────────────────────────────────
 
 function DetailLayout({
-  isZh, navigate, title, tags, desc, sectionLabel, prevPath, nextPath,
+  isZh, navigate, sectionLabel, prevPath, nextPath,
+  slideLabels, slide0, titleForReset,
 }: {
   isZh: boolean;
   navigate: (to: string) => void;
-  title: string;
-  tags: string[];
-  desc: string;
   sectionLabel: string;
   prevPath: string | null;
   nextPath: string | null;
+  slideLabels?: string[];
+  slide0: React.ReactNode;
+  titleForReset: string;
 }) {
   const [current, setCurrent] = useState(0);
   const currentRef = useRef(0);
-  const busyRef = useRef(false);
+  const busyRef    = useRef(false);
 
   const goTo = (index: number) => {
     if (busyRef.current) return;
@@ -251,7 +432,7 @@ function DetailLayout({
     currentRef.current = 0;
     setCurrent(0);
     busyRef.current = false;
-  }, [title]);
+  }, [titleForReset]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -310,44 +491,36 @@ function DetailLayout({
         .back-btn {
           display: inline-flex; align-items: center; gap: 6px;
           background: none; border: none; font-family: ${SANS};
-          font-size: 14px; font-weight: 500;
-          cursor: pointer; padding: 0; transition: opacity 0.2s;
-          white-space: nowrap;
+          font-size: 14px; font-weight: 500; cursor: pointer; padding: 0;
+          transition: opacity 0.2s; white-space: nowrap;
         }
         .back-btn:hover { opacity: 0.55; }
         .nav-btn {
           display: inline-flex; align-items: center; gap: 4px;
-          border-radius: 100px;
-          font-family: ${SANS}; font-size: 13px; font-weight: 500;
-          padding: 0 14px; height: 34px; cursor: pointer;
-          transition: opacity 0.2s;
-          white-space: nowrap; background: transparent;
+          border-radius: 100px; font-family: ${SANS}; font-size: 13px;
+          font-weight: 500; padding: 0 14px; height: 34px; cursor: pointer;
+          transition: opacity 0.2s; white-space: nowrap; background: transparent;
         }
         .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
         .nav-btn:not(:disabled):hover { opacity: 0.65; }
       `}</style>
 
-      {/* ── FIXED NAVBAR ── */}
+      {/* ── NAVBAR ── */}
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 500,
         display: "flex", alignItems: "center",
         paddingLeft: 60, paddingRight: 60,
         paddingTop: 14, paddingBottom: 14,
         background: navBg,
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
+        backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
         borderBottom: `1px solid ${navBorder}`,
         transition: `background ${DURATION}ms ease, border-color ${DURATION}ms ease`,
       }}>
-
-        {/* LEFT — back button (60px from left edge via parent padding) */}
         <button className="back-btn" style={{ color: textColor }} onClick={() => navigate("/")}>
           <ArrowLeft size={15} />
           {isZh ? "返回主页" : "Back to Home"}
         </button>
 
-        {/* CENTER — absolutely positioned so it is always truly centred;
-            z-index 1 above the buttons on either side */}
         <div style={{
           position: "absolute", left: "50%", transform: "translateX(-50%)",
           zIndex: 1, pointerEvents: "none",
@@ -361,7 +534,6 @@ function DetailLayout({
           </span>
         </div>
 
-        {/* RIGHT — prev/next, pushed to the right via margin-left: auto */}
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
           <button
             className="nav-btn"
@@ -384,51 +556,30 @@ function DetailLayout({
         </div>
       </div>
 
-      {/* ── DOT INDICATOR + hover menu ── */}
-      <PageIndicator total={SLIDES.length} current={current} textColor={textColor} onGoTo={goTo} />
+      {/* ── INDICATOR ── */}
+      <PageIndicator
+        total={SLIDES.length}
+        current={current}
+        textColor={textColor}
+        labels={slideLabels}
+        onGoTo={goTo}
+      />
 
-      {/* ── FULL-SCREEN SLIDES ── */}
+      {/* ── SLIDES ── */}
       {SLIDES.map((slide, i) => (
         <div
           key={i}
           style={{
-            position: "fixed",
-            top: 0, left: 0,
+            position: "fixed", top: 0, left: 0,
             width: "100vw", height: "100vh",
             background: slide.bg,
             transform: `translateY(${i <= current ? 0 : 100}vh)`,
             transition: `transform ${DURATION}ms cubic-bezier(0.76, 0, 0.24, 1)`,
             zIndex: i + 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
+            display: "flex", alignItems: "center", justifyContent: "flex-start",
           }}
         >
-          {i === 0 && (
-            <div style={{ maxWidth: 960, width: "100%", padding: "80px 60px 0" }}>
-              <h1 style={{
-                fontFamily: SERIF,
-                fontSize: "clamp(38px, 5vw, 72px)",
-                fontWeight: 700,
-                color: slide.text,
-                lineHeight: 1.15,
-                marginBottom: 32,
-              }}>
-                {title}
-              </h1>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 36 }}>
-                {tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}
-              </div>
-              <p style={{
-                fontSize: "clamp(16px, 1.4vw, 22px)",
-                color: C.desc,
-                lineHeight: 1.85,
-                maxWidth: 680,
-              }}>
-                {desc}
-              </p>
-            </div>
-          )}
+          {i === 0 && slide0}
         </div>
       ))}
     </>
