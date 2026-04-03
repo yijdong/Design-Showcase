@@ -16,7 +16,7 @@ export type VibeItem = {
 };
 
 export const PROJECTS_ZH: Project[] = [
-  { num: "01", title: "AI数据标注平台", en: "AI Annotation Platform", tags: ["交互设计", "AI后台产品", "交互文档"], href: true, desc: "面向 AI 训练数据生产的全流程标注工作台，覆盖从项目管理、数据标注到质量审核的完整链路，为 AI 模型训练提供高质量数据支撑。" },
+  { num: "01", title: "AI数据标注平台", en: "AI Annotation Platform", tags: ["交互设计", "AI后台产品", "交互文档"], href: true, desc: "面向 AI 训练数据生产的全流程标注工作台，覆盖从项目管理、数据标注到质量审核的完整链路。支持高效创建与分配标注任务，提供多维度智能标注能力，并实现全方位质量校验与可追溯审核，为 AI 模型训练提供稳定、高质量的数据支撑。" },
   { num: "02", title: "全球化企业设备管理平台", en: "Global Device Management", tags: ["ToB复杂系统", "0-1产品设计", "场景化设计"], href: true, desc: "为华为大型企业客户设计的全球化IT设备全生命周期管理系统。深度参与需求挖掘与信息架构设计，打造适配多角色、多场景的复杂B端系统体验。" },
   { num: "03", title: "汽车金融服务平台", en: "Automotive Finance Platform", tags: ["体验重塑", "用户旅程地图"], href: true, desc: "梅赛德斯-奔驰金融服务数字化平台体验重塑项目。通过用户旅程地图与深度访谈，识别核心痛点，重新定义申请流程与核心交互模型。" },
   { num: "04", title: "用户研究项目", en: "User Research Project", tags: ["用户访谈", "可用性测试"], href: false, desc: "系统性用户研究项目，包含定性访谈、可用性测试及问卷调研。输出用户画像、旅程地图与设计洞察报告，为产品决策提供数据支撑。" },

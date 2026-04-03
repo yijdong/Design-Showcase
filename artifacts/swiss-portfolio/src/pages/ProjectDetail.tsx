@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Layers, RefreshCw, Users } from "lucide-react";
-import annotPlatformImg from "@assets/image_1775204637528.png";
 import {
   PROJECTS_ZH, PROJECTS_EN, VIBE_ZH, VIBE_EN,
   DETAIL_SEQUENCE, seqPath,
@@ -53,131 +52,123 @@ function NotFound({ navigate }: { navigate: (to: string) => void }) {
   );
 }
 
-// ── Avatar placeholder (until actual user images are available) ─────────────
-function UserAvatar({ label }: { label: string }) {
-  const colors: Record<string, { bg: string; fg: string }> = {
-    "管": { bg: "#E8DDD3", fg: "#7A5C4A" },
-    "标": { bg: "#D8E4DC", fg: "#3D6650" },
-    "质": { bg: "#D9DCE8", fg: "#3D4A66" },
-  };
-  const key = label[0] as keyof typeof colors;
-  const { bg, fg } = colors[key] || { bg: C.card, fg: C.text };
-  return (
-    <div style={{
-      width: 44, height: 44, borderRadius: "50%",
-      background: bg, color: fg,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: 15, fontWeight: 700, fontFamily: SANS,
-      flexShrink: 0,
-      border: `1.5px solid ${C.border}`,
-    }}>
-      {label[0]}
-    </div>
-  );
-}
+const BASE = import.meta.env.BASE_URL;
+const ANNOT_IMG    = `${BASE}details/annotation-platform/cover.png`;
+const USER_IMGS    = [
+  `${BASE}details/annotation-platform/user01.png`,
+  `${BASE}details/annotation-platform/user02.png`,
+  `${BASE}details/annotation-platform/user03.png`,
+];
 
 // ── Slide 0 content for project 01 ─────────────────────────────────────────
 function Project01Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
   const NAVBAR_H = 57;
 
   const users = [
-    { name: "管理人员",     role: "配置任务、规则与人员体系" },
-    { name: "标注人员",     role: "完成具体数据标注任务" },
-    { name: "质检/审核人员", role: "对标注结果进行多级质量把控" },
+    { img: USER_IMGS[0], name: "管理人员",      role: "配置任务、规则与人员体系" },
+    { img: USER_IMGS[1], name: "标注人员",      role: "完成具体数据标注任务" },
+    { img: USER_IMGS[2], name: "质检/审核人员", role: "对标注结果进行多级质量把控" },
   ];
 
   const caps = [
-    { icon: <Layers size={15} strokeWidth={1.8} />, name: "多模态标注能力", note: "覆盖文本、多模态、智能体等复杂题型" },
-    { icon: <RefreshCw size={15} strokeWidth={1.8} />, name: "完整质量闭环",  note: "标注-质检-审核-返修-数据入库" },
-    { icon: <Users size={15} strokeWidth={1.8} />,  name: "规模化人力调度", note: "支持场内+垂类兼职+专家人员协同作业" },
+    { icon: <Layers size={16} strokeWidth={1.7} />, name: "多模态标注能力", note: "覆盖文本、多模态、智能体等复杂题型" },
+    { icon: <RefreshCw size={16} strokeWidth={1.7} />, name: "完整质量闭环",  note: "标注-质检-审核-返修-数据入库" },
+    { icon: <Users size={16} strokeWidth={1.7} />,  name: "规模化人力调度", note: "支持场内+垂类兼职+专家人员协同作业" },
   ];
 
   return (
     <div style={{
       width: "100%", height: "100vh",
       display: "flex", alignItems: "center",
-      paddingTop: NAVBAR_H + 24,
-      paddingBottom: 24,
+      paddingTop: NAVBAR_H + 28,
+      paddingBottom: 28,
       paddingLeft: 60,
       paddingRight: 60,
-      gap: "5%",
+      gap: "4%",
       boxSizing: "border-box",
     }}>
 
       {/* ── LEFT COLUMN ─────────────────── */}
-      <div style={{ flex: "0 0 50%", display: "flex", flexDirection: "column", gap: 0, minWidth: 0, overflow: "hidden" }}>
+      <div style={{ flex: "0 0 50%", display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden", alignSelf: "stretch" }}>
         <h1 style={{
           fontFamily: SERIF,
-          fontSize: "clamp(32px, 4vw, 60px)",
+          fontSize: "clamp(30px, 3.6vw, 56px)",
           fontWeight: 700,
           color: C.text,
           lineHeight: 1.15,
-          marginBottom: 18,
+          marginBottom: 16,
         }}>
           {title}
         </h1>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 22 }}>
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 20 }}>
           {tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}
         </div>
 
         <p style={{
           fontFamily: SANS,
-          fontSize: 15,
+          fontSize: 14,
           color: C.desc,
-          lineHeight: 1.85,
-          marginBottom: 22,
-          maxWidth: 560,
+          lineHeight: 1.9,
+          marginBottom: 20,
+          maxWidth: 540,
         }}>
           {desc}
         </p>
 
-        {/* Screenshot image */}
+        {/* Screenshot image — fills remaining space */}
         <div style={{
           flex: 1,
           minHeight: 0,
-          maxHeight: "32vh",
-          borderRadius: 32,
+          borderRadius: 24,
           border: `1px solid #F0EAE4`,
           overflow: "hidden",
           background: "#FAFAFA",
         }}>
           <img
-            src={annotPlatformImg}
+            src={ANNOT_IMG}
             alt="AI数据标注平台截图"
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }}
           />
         </div>
       </div>
 
-      {/* ── RIGHT COLUMN ────────────────── */}
+      {/* ── RIGHT COLUMN ─── natural-height card, centered vertically ── */}
       <div style={{
         flex: 1,
         minWidth: 0,
+        alignSelf: "center",
         display: "flex",
         flexDirection: "column",
         gap: 0,
         background: "#EFEBE5",
         borderRadius: 20,
-        padding: "28px 28px 24px",
+        padding: "26px 24px",
         overflow: "hidden",
-        alignSelf: "stretch",
       }}>
 
-        {/* Users section */}
+        {/* ── Users section ── */}
         <p style={{
-          fontFamily: SANS, fontSize: 13, fontWeight: 700,
-          color: C.text, letterSpacing: "0.06em",
-          marginBottom: 18,
+          fontFamily: SANS, fontSize: 11, fontWeight: 700,
+          color: C.desc, letterSpacing: "0.1em", textTransform: "uppercase" as const,
+          marginBottom: 14,
         }}>
           用户
         </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {users.map(u => (
-            <div key={u.name} style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <UserAvatar label={u.name} />
+            <div key={u.name} style={{ display: "flex", alignItems: "center", gap: 13 }}>
+              <img
+                src={u.img}
+                alt={u.name}
+                style={{
+                  width: 44, height: 44, borderRadius: "50%",
+                  objectFit: "cover", flexShrink: 0,
+                  border: `1.5px solid ${C.border}`,
+                }}
+              />
               <div>
-                <div style={{ fontFamily: SANS, fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.3 }}>{u.name}</div>
+                <div style={{ fontFamily: SANS, fontSize: 14, fontWeight: 600, color: C.text, lineHeight: 1.3 }}>{u.name}</div>
                 <div style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.5, marginTop: 2 }}>{u.role}</div>
               </div>
             </div>
@@ -185,27 +176,27 @@ function Project01Slide0({ title, tags, desc }: { title: string; tags: string[];
         </div>
 
         {/* Divider */}
-        <div style={{ height: 1, background: C.border, marginBottom: 24 }} />
+        <div style={{ height: 1, background: C.border, margin: "22px 0" }} />
 
-        {/* Core capabilities */}
+        {/* ── Core capabilities ── */}
         <p style={{
-          fontFamily: SANS, fontSize: 13, fontWeight: 700,
-          color: C.text, letterSpacing: "0.06em",
-          marginBottom: 16,
+          fontFamily: SANS, fontSize: 11, fontWeight: 700,
+          color: C.desc, letterSpacing: "0.1em", textTransform: "uppercase" as const,
+          marginBottom: 12,
         }}>
           核心能力
         </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
           {caps.map(cap => (
             <div key={cap.name} style={{
-              display: "flex", alignItems: "flex-start", gap: 12,
+              display: "flex", alignItems: "center", gap: 13,
               background: "rgba(255,255,255,0.55)",
               borderRadius: 12,
-              padding: "12px 14px",
+              padding: "11px 14px",
               border: `1px solid rgba(255,255,255,0.8)`,
             }}>
               <div style={{
-                width: 32, height: 32, borderRadius: 8,
+                width: 34, height: 34, borderRadius: 9,
                 background: "rgba(178,149,126,0.15)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 color: C.accent, flexShrink: 0,
@@ -213,8 +204,8 @@ function Project01Slide0({ title, tags, desc }: { title: string; tags: string[];
                 {cap.icon}
               </div>
               <div>
-                <div style={{ fontFamily: SANS, fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.3 }}>{cap.name}</div>
-                <div style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.5, marginTop: 3 }}>{cap.note}</div>
+                <div style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: C.text, lineHeight: 1.3 }}>{cap.name}</div>
+                <div style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.5, marginTop: 2 }}>{cap.note}</div>
               </div>
             </div>
           ))}
