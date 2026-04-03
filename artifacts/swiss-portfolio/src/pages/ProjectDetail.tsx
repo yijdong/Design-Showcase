@@ -62,10 +62,9 @@ function PageIndicator({
 }) {
   const [open, setOpen] = useState(false);
 
-  // Tooltip panel bg/text adapts to the slide colour
-  const isDark = textColor === "#F9F6F1";
-  const menuBg  = isDark ? "rgba(46,46,46,0.90)"     : "rgba(249,246,241,0.92)";
-  const menuText = textColor;
+  // Panel is always light — fixed fill regardless of current slide
+  const menuBg   = "rgba(249,246,241,0.97)";
+  const menuText = C.text;
   const accent   = C.accent;
 
   return (
@@ -95,9 +94,7 @@ function PageIndicator({
           transform: open ? "translateX(0)" : "translateX(12px)",
           transition: "opacity 0.28s ease, transform 0.28s ease",
           pointerEvents: open ? "auto" : "none",
-          boxShadow: isDark
-            ? "0 24px 60px rgba(0,0,0,0.55), 0 8px 20px rgba(0,0,0,0.35)"
-            : "0 24px 60px rgba(46,46,46,0.18), 0 8px 20px rgba(46,46,46,0.10)",
+          boxShadow: "0 24px 60px rgba(46,46,46,0.18), 0 8px 20px rgba(46,46,46,0.10)",
         }}
       >
         {Array.from({ length: total }).map((_, i) => (
@@ -134,11 +131,11 @@ function PageIndicator({
               </motion.div>
             </div>
 
-            {/* Number + title text — slides right on hover */}
+            {/* Number + title text — slides right on hover; colour inherits from parent */}
             <motion.span
               variants={{
-                initial: { x: -10, color: current === i ? accent : menuText },
-                hover:   { x: 0,   color: accent },
+                initial: { x: -10 },
+                hover:   { x: 0 },
               }}
               transition={{ duration: 0.25, ease: "easeOut" }}
             >
