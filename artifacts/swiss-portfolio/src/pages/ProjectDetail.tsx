@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   PROJECTS_ZH, PROJECTS_EN, VIBE_ZH, VIBE_EN,
   DETAIL_SEQUENCE, seqPath,
@@ -16,7 +17,6 @@ const C = {
 const SERIF = "'Playfair Display', 'DM Serif Display', serif";
 const SANS = "'PingFang SC', 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
 
-// 5 full-screen slides — sections 2-5 are colour-only placeholders for now
 const SLIDES = [
   { bg: "#F9F6F1", text: "#2E2E2E" },
   { bg: "#EDE8E0", text: "#2E2E2E" },
@@ -25,7 +25,6 @@ const SLIDES = [
   { bg: "#2E2E2E", text: "#F9F6F1" },
 ];
 
-// Transition duration (ms) — keep in sync with CSS below
 const DURATION = 900;
 
 function ProjTag({ children }: { children: string }) {
@@ -52,25 +51,115 @@ function NotFound({ navigate }: { navigate: (to: string) => void }) {
   );
 }
 
-function PageIndicator({ total, current, textColor }: { total: number; current: number; textColor: string }) {
+// ── Page-indicator with hover-reveal menu ──────────────────────────────────
+function PageIndicator({
+  total, current, textColor,
+}: {
+  total: number;
+  current: number;
+  textColor: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  // Tooltip panel bg/text adapts to the slide colour
+  const isDark = textColor === "#F9F6F1";
+  const menuBg  = isDark ? "rgba(46,46,46,0.90)"     : "rgba(249,246,241,0.92)";
+  const menuText = textColor;
+  const accent   = C.accent;
+
   return (
-    <div style={{
-      position: "fixed", right: 28, top: "50%", transform: "translateY(-50%)",
-      display: "flex", flexDirection: "column", alignItems: "center", gap: 10, zIndex: 400,
-      pointerEvents: "none",
-    }}>
-      {Array.from({ length: total }).map((_, i) => (
-        <div key={i} style={{
-          width: 7, height: 7, borderRadius: "50%",
-          background: current === i ? textColor : "transparent",
-          border: `1.5px solid ${current === i ? textColor : `${textColor}55`}`,
-          transform: current === i ? "scale(1.4)" : "scale(1)",
-          transition: "all 0.4s ease",
-        }} />
-      ))}
+    <div
+      style={{
+        position: "fixed", right: 28, top: "50%",
+        transform: "translateY(-50%)",
+        zIndex: 400,
+        display: "flex", alignItems: "center", gap: 0,
+      }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      {/* ── slide-in menu panel ── */}
+      <div
+        style={{
+          marginRight: 16,
+          background: menuBg,
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          borderRadius: 12,
+          padding: "14px 20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          opacity: open ? 1 : 0,
+          transform: open ? "translateX(0)" : "translateX(10px)",
+          transition: "opacity 0.28s ease, transform 0.28s ease",
+          pointerEvents: open ? "auto" : "none",
+        }}
+      >
+        {Array.from({ length: total }).map((_, i) => (
+          <motion.div
+            key={i}
+            initial="initial"
+            whileHover="hover"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              cursor: "default",
+              fontFamily: SANS,
+              fontSize: 13,
+              fontWeight: current === i ? 700 : 400,
+              color: current === i ? accent : menuText,
+              lineHeight: 1.4,
+              minWidth: 120,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {/* Arrow — clips from left, then slides in */}
+            <div style={{ width: 14, height: 14, overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center" }}>
+              <motion.div
+                variants={{
+                  initial: { x: "-100%", opacity: 0 },
+                  hover:   { x: 0,       opacity: 1 },
+                }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                style={{ display: "flex", alignItems: "center", color: accent }}
+              >
+                <ArrowRight size={11} strokeWidth={2.5} />
+              </motion.div>
+            </div>
+
+            {/* Number + title text — slides right on hover */}
+            <motion.span
+              variants={{
+                initial: { x: -10, color: current === i ? accent : menuText },
+                hover:   { x: 0,   color: accent },
+              }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            >
+              {String(i + 1).padStart(2, "0")}
+            </motion.span>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* ── dots column ── */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+        {Array.from({ length: total }).map((_, i) => (
+          <div key={i} style={{
+            width: 7, height: 7, borderRadius: "50%",
+            background: current === i ? textColor : "transparent",
+            border: `1.5px solid ${current === i ? textColor : `${textColor}55`}`,
+            transform: current === i ? "scale(1.4)" : "scale(1)",
+            transition: "all 0.4s ease",
+          }} />
+        ))}
+      </div>
     </div>
   );
 }
+
+// ── Page components ────────────────────────────────────────────────────────
 
 export function ProjectDetailPage() {
   const params = useParams<{ num: string }>();
@@ -128,6 +217,8 @@ export function VibeDetailPage() {
   );
 }
 
+// ── Main layout ────────────────────────────────────────────────────────────
+
 function DetailLayout({
   isZh, navigate, title, tags, desc, sectionLabel, prevPath, nextPath,
 }: {
@@ -141,7 +232,6 @@ function DetailLayout({
   nextPath: string | null;
 }) {
   const [current, setCurrent] = useState(0);
-  // Refs allow event handlers to read the latest values without re-registering
   const currentRef = useRef(0);
   const busyRef = useRef(false);
 
@@ -154,57 +244,47 @@ function DetailLayout({
     setTimeout(() => { busyRef.current = false; }, DURATION + 50);
   };
 
-  // Reset when navigating between projects (prev / next)
   useEffect(() => {
     currentRef.current = 0;
     setCurrent(0);
     busyRef.current = false;
   }, [title]);
 
-  // Prevent body scroll on this page
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, []);
 
-  // Mouse-wheel → navigate slides
   useEffect(() => {
     let accum = 0;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       accum += e.deltaY;
-      if (accum > 60) {
-        accum = 0;
-        goTo(currentRef.current + 1);
-      } else if (accum < -60) {
-        accum = 0;
-        goTo(currentRef.current - 1);
-      }
+      if (accum > 60)  { accum = 0; goTo(currentRef.current + 1); }
+      else if (accum < -60) { accum = 0; goTo(currentRef.current - 1); }
     };
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Touch → navigate slides
   useEffect(() => {
     let startY = 0;
     const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY; };
-    const onEnd = (e: TouchEvent) => {
+    const onEnd   = (e: TouchEvent) => {
       const diff = startY - e.changedTouches[0].clientY;
-      if (diff > 50) goTo(currentRef.current + 1);
+      if (diff > 50)  goTo(currentRef.current + 1);
       else if (diff < -50) goTo(currentRef.current - 1);
     };
     window.addEventListener("touchstart", onStart, { passive: true });
-    window.addEventListener("touchend", onEnd, { passive: true });
+    window.addEventListener("touchend",   onEnd,   { passive: true });
     return () => {
       window.removeEventListener("touchstart", onStart);
-      window.removeEventListener("touchend", onEnd);
+      window.removeEventListener("touchend",   onEnd);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Keyboard → navigate slides
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown" || e.key === "PageDown") goTo(currentRef.current + 1);
@@ -216,9 +296,7 @@ function DetailLayout({
   }, []);
 
   const textColor = SLIDES[current].text;
-  const navBg = current === 4
-    ? "rgba(46,46,46,0.96)"
-    : "rgba(252,251,248,0.96)";
+  const navBg     = current === 4 ? "rgba(46,46,46,0.96)"   : "rgba(252,251,248,0.96)";
   const navBorder = current === 4 ? "rgba(249,246,241,0.10)" : C.border;
 
   return (
@@ -249,7 +327,8 @@ function DetailLayout({
       {/* ── FIXED NAVBAR ── */}
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 500,
-        display: "flex", justifyContent: "center",
+        display: "flex", alignItems: "center",
+        paddingLeft: 60, paddingRight: 60,
         paddingTop: 14, paddingBottom: 14,
         background: navBg,
         backdropFilter: "blur(14px)",
@@ -257,53 +336,55 @@ function DetailLayout({
         borderBottom: `1px solid ${navBorder}`,
         transition: `background ${DURATION}ms ease, border-color ${DURATION}ms ease`,
       }}>
-        <nav style={{
-          width: "min(1152px, calc(100vw - 48px))",
-          display: "grid",
-          gridTemplateColumns: "1fr auto 1fr",
-          alignItems: "center",
-          gap: 16,
+
+        {/* LEFT — back button (60px from left edge via parent padding) */}
+        <button className="back-btn" style={{ color: textColor }} onClick={() => navigate("/")}>
+          <ArrowLeft size={15} />
+          {isZh ? "返回主页" : "Back to Home"}
+        </button>
+
+        {/* CENTER — absolutely positioned so it is always truly centred;
+            z-index 1 above the buttons on either side */}
+        <div style={{
+          position: "absolute", left: "50%", transform: "translateX(-50%)",
+          zIndex: 1, pointerEvents: "none",
         }}>
-          <div>
-            <button className="back-btn" style={{ color: textColor }} onClick={() => navigate("/")}>
-              <ArrowLeft size={15} />
-              {isZh ? "返回主页" : "Back to Home"}
-            </button>
-          </div>
           <span style={{
-            fontFamily: SERIF, fontSize: 14, fontWeight: 600,
-            color: textColor, letterSpacing: "0.02em", textAlign: "center",
+            fontFamily: SERIF, fontSize: 17, fontWeight: 700,
+            color: textColor, letterSpacing: "0.02em",
             transition: `color ${DURATION}ms ease`,
           }}>
             {sectionLabel}
           </span>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-            <button
-              className="nav-btn"
-              disabled={!prevPath}
-              style={{ color: textColor, border: `1px solid ${textColor}40` }}
-              onClick={() => prevPath && navigate(prevPath)}
-            >
-              <ChevronLeft size={14} />
-              {isZh ? "上一个" : "Prev"}
-            </button>
-            <button
-              className="nav-btn"
-              disabled={!nextPath}
-              style={{ color: textColor, border: `1px solid ${textColor}40` }}
-              onClick={() => nextPath && navigate(nextPath)}
-            >
-              {isZh ? "下一个" : "Next"}
-              <ChevronRight size={14} />
-            </button>
-          </div>
-        </nav>
+        </div>
+
+        {/* RIGHT — prev/next, pushed to the right via margin-left: auto */}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+          <button
+            className="nav-btn"
+            disabled={!prevPath}
+            style={{ color: textColor, border: `1px solid ${textColor}40` }}
+            onClick={() => prevPath && navigate(prevPath)}
+          >
+            <ChevronLeft size={14} />
+            {isZh ? "上一个" : "Prev"}
+          </button>
+          <button
+            className="nav-btn"
+            disabled={!nextPath}
+            style={{ color: textColor, border: `1px solid ${textColor}40` }}
+            onClick={() => nextPath && navigate(nextPath)}
+          >
+            {isZh ? "下一个" : "Next"}
+            <ChevronRight size={14} />
+          </button>
+        </div>
       </div>
 
-      {/* ── DOT INDICATOR ── */}
+      {/* ── DOT INDICATOR + hover menu ── */}
       <PageIndicator total={SLIDES.length} current={current} textColor={textColor} />
 
-      {/* ── SLIDES ── fixed, stacked, animated with translateY ── */}
+      {/* ── FULL-SCREEN SLIDES ── */}
       {SLIDES.map((slide, i) => (
         <div
           key={i}
@@ -312,7 +393,6 @@ function DetailLayout({
             top: 0, left: 0,
             width: "100vw", height: "100vh",
             background: slide.bg,
-            // Slides at or before current are at 0; slides ahead wait below (100vh)
             transform: `translateY(${i <= current ? 0 : 100}vh)`,
             transition: `transform ${DURATION}ms cubic-bezier(0.76, 0, 0.24, 1)`,
             zIndex: i + 1,
@@ -321,7 +401,6 @@ function DetailLayout({
             justifyContent: "flex-start",
           }}
         >
-          {/* ── Slide 1: title + tags + description ── */}
           {i === 0 && (
             <div style={{ maxWidth: 960, width: "100%", padding: "80px 60px 0" }}>
               <h1 style={{
@@ -347,7 +426,6 @@ function DetailLayout({
               </p>
             </div>
           )}
-          {/* Slides 2-5: placeholder — content to be added later */}
         </div>
       ))}
     </>
