@@ -73,15 +73,33 @@ function PageIndicator({
         position: "fixed", right: 28, top: "50%",
         transform: "translateY(-50%)",
         zIndex: 400,
-        display: "flex", alignItems: "center", gap: 0,
       }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      {/* ── slide-in menu panel ── */}
+      {/* ── dots column — always visible ── */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+        {Array.from({ length: total }).map((_, i) => (
+          <div key={i} style={{
+            width: 7, height: 7, borderRadius: "50%",
+            background: current === i ? textColor : "transparent",
+            border: `1.5px solid ${current === i ? textColor : `${textColor}55`}`,
+            transform: current === i ? "scale(1.4)" : "scale(1)",
+            transition: "all 0.4s ease",
+          }} />
+        ))}
+      </div>
+
+      {/* ── slide-in menu panel — absolute, right-aligned so it covers the dots ── */}
       <div
         style={{
-          marginRight: 20,
+          position: "absolute",
+          right: 0,
+          top: "50%",
+          transform: `translateY(-50%) translateX(${open ? 0 : 14}px)`,
+          opacity: open ? 1 : 0,
+          transition: "opacity 0.28s ease, transform 0.28s ease",
+          pointerEvents: open ? "auto" : "none",
           background: menuBg,
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
@@ -90,10 +108,6 @@ function PageIndicator({
           display: "flex",
           flexDirection: "column",
           gap: 18,
-          opacity: open ? 1 : 0,
-          transform: open ? "translateX(0)" : "translateX(12px)",
-          transition: "opacity 0.28s ease, transform 0.28s ease",
-          pointerEvents: open ? "auto" : "none",
           boxShadow: "0 24px 60px rgba(46,46,46,0.18), 0 8px 20px rgba(46,46,46,0.10)",
         }}
       >
@@ -131,30 +145,17 @@ function PageIndicator({
               </motion.div>
             </div>
 
-            {/* Number + title text — slides right on hover; colour inherits from parent */}
+            {/* Number + title — slides right; accent on hover */}
             <motion.span
               variants={{
                 initial: { x: -10 },
-                hover:   { x: 0 },
+                hover:   { x: 0, color: accent },
               }}
               transition={{ duration: 0.25, ease: "easeOut" }}
             >
               {String(i + 1).padStart(2, "0")}
             </motion.span>
           </motion.div>
-        ))}
-      </div>
-
-      {/* ── dots column ── */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-        {Array.from({ length: total }).map((_, i) => (
-          <div key={i} style={{
-            width: 7, height: 7, borderRadius: "50%",
-            background: current === i ? textColor : "transparent",
-            border: `1.5px solid ${current === i ? textColor : `${textColor}55`}`,
-            transform: current === i ? "scale(1.4)" : "scale(1)",
-            transition: "all 0.4s ease",
-          }} />
         ))}
       </div>
     </div>
