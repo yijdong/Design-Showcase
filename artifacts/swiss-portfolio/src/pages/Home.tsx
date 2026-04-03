@@ -1,30 +1,13 @@
 import { useState, useEffect, useRef, useCallback, CSSProperties, ReactNode } from "react";
-import { Mail, Phone, Copy, Check, FileText, ChevronsDown } from "lucide-react";
+import { Mail, Phone, Copy, Check, FileText, ChevronsDown, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { PROJECTS_ZH, PROJECTS_EN, VIBE_ZH, VIBE_EN } from "@/data/portfolio";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const BASE = import.meta.env.BASE_URL;
-
-// ─── DATA ──────────────────────────────────────────────────────────────────
-
-const PROJECTS_ZH = [
-  { num: "01", title: "AI数据标注平台", en: "AI Annotation Platform", tags: ["交互设计", "AI后台产品", "交互文档"], href: true, desc: "面向AI训练数据生产的全流程标注工作台，覆盖图像、文本、音频等多模态数据类型。主导0-1产品设计，搭建信息架构与核心任务流程，完成用户研究、原型设计及可用性测试。" },
-  { num: "02", title: "全球化企业设备管理平台", en: "Global Device Management", tags: ["ToB复杂系统", "0-1产品设计", "场景化设计"], href: true, desc: "为华为大型企业客户设计的全球化IT设备全生命周期管理系统。深度参与需求挖掘与信息架构设计，打造适配多角色、多场景的复杂B端系统体验。" },
-  { num: "03", title: "汽车金融服务平台", en: "Automotive Finance Platform", tags: ["体验重塑", "用户旅程地图"], href: true, desc: "梅赛德斯-奔驰金融服务数字化平台体验重塑项目。通过用户旅程地图与深度访谈，识别核心痛点，重新定义申请流程与核心交互模型。" },
-  { num: "04", title: "用户研究项目", en: "User Research Project", tags: ["用户访谈", "可用性测试"], href: false, desc: "系统性用户研究项目，包含定性访谈、可用性测试及问卷调研。输出用户画像、旅程地图与设计洞察报告，为产品决策提供数据支撑。" },
-  { num: "05", title: "视觉设计项目", en: "Visual Design Projects", tags: ["插画", "大屏", "数据可视化"], href: false, desc: "涵盖品牌插画、数据可视化大屏、UI视觉规范等多类型视觉设计项目，体现全链路视觉表达与设计执行能力。" },
-];
-
-const PROJECTS_EN = [
-  { num: "01", title: "AI Annotation Platform", en: "ERNIE Bot · Wicresoft", tags: ["Interaction Design", "AI Backend", "Documentation"], href: true, desc: "Full-pipeline annotation workbench for AI training data covering image, text, and audio modalities. Led 0-1 product design — information architecture, core task flows, user research, prototyping, and usability testing." },
-  { num: "02", title: "Global Device Management", en: "Huawei Enterprise", tags: ["Complex ToB System", "0-1 Design", "Multi-scenario"], href: true, desc: "Global IT device lifecycle management system for Huawei enterprise clients. Deeply involved in requirements, information architecture, and designing a system that works across multiple roles and scenarios." },
-  { num: "03", title: "Automotive Finance Platform", en: "Mercedes-Benz Financial", tags: ["Experience Redesign", "User Journey"], href: true, desc: "Digital experience overhaul of Mercedes-Benz financial services. Identified core pain points via user journey maps and in-depth interviews, then redefined application flows and core interaction models." },
-  { num: "04", title: "User Research Projects", en: "EV & Enterprise", tags: ["User Interviews", "Usability Testing"], href: false, desc: "Systematic user research including qualitative interviews, usability testing, and surveys. Outputs: user personas, journey maps, and design insight reports to support product decisions." },
-  { num: "05", title: "Visual Design Projects", en: "Illustration & Data Viz", tags: ["Illustration", "Big Screen", "Data Visualization"], href: false, desc: "Brand illustration, data visualization big screens, and UI visual specifications — demonstrating full visual design and execution capability across diverse project types." },
-];
 
 // Project hover images — actual files in public/images/home/
 const PROJECT_IMGS: Record<string, string> = {
@@ -40,18 +23,6 @@ const TOOLS = [
   { name: "Gemini / Claude / Replit", pct: 70 },
   { name: "Principal", pct: 70 },
   { name: "Adobe PS / AI", pct: 70 },
-];
-
-const VIBE_ZH = [
-  { title: "AI手机系统设计", en: "AI Mobile System Design", tags: ["AI终端产品设计"], desc: "主导北美市场AI手机桌面系统需求定义，完成竞品分析、原型设计，探索AI在移动端的交互范式。" },
-  { title: "个人主页", en: "Personal Portfolio Website", tags: ["Vibe Coding", "Replit"], desc: "使用Replit Vibe coding完成个人主页的设计与上线部署全流程，从设计稿到可交互产品一气呵成。" },
-  { title: "骑马钉拼版检查工具", en: "Saddle Stitch Layout Checker", tags: ["AI Studio", "Gemini"], desc: "使用Google AI Studio中的build功能开发印刷品拼版检查工具，实现本地运行与智能校验。" },
-];
-
-const VIBE_EN = [
-  { title: "AI Mobile System Design", en: "Luxshare Precision", tags: ["AI Terminal Design"], desc: "Led product definition for an AI mobile OS for the North American market — competitor analysis, prototyping, and exploring new interaction paradigms for AI on mobile." },
-  { title: "Personal Portfolio Website", en: "This site", tags: ["Vibe Coding", "Replit"], desc: "Designed and shipped this portfolio entirely with Replit Vibe coding — from design concept to live interactive product in one continuous flow." },
-  { title: "Saddle Stitch Layout Checker", en: "AI Studio Tool", tags: ["AI Studio", "Gemini"], desc: "Built a print layout verification tool using Google AI Studio's build feature, enabling local execution and intelligent print checking." },
 ];
 
 // Removed "设计工具" from nav tabs (section still shows on page)
@@ -601,7 +572,11 @@ export default function Home() {
           from { clip-path: inset(0 0 100% 0 round 20px); }
           to   { clip-path: inset(0 0 0%   0 round 20px); }
         }
-        .proj-img-reveal { animation: sp-imgReveal 0.38s cubic-bezier(.16,1,.3,1) forwards; }
+        .proj-img-reveal { animation: sp-imgReveal 0.38s cubic-bezier(.16,1,.3,1) forwards; align-self: flex-end; }
+        .proj-detail-btn { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.35s ease, margin-top 0.3s ease; }
+        .project-row:hover .proj-detail-btn { max-height: 50px; opacity: 1; margin-top: 16px; }
+        .detail-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 100px; background: #F9F6F1; border: 1px solid #E1DAD1; color: #2E2E2E; font-size: 14px; font-family: ${SANS}; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+        .detail-btn:hover { border-color: #B2957E; background: #F0EBE4; }
 
         @keyframes skeleton-shimmer {
           0%   { background-position: -600px 0; }
@@ -777,8 +752,17 @@ export default function Home() {
                 </div>
                 {/* Description — tags→desc gap is 24px (set via CSS hover) */}
                 <div className="proj-desc" style={{ fontSize: 15, color: C.desc, lineHeight: 1.75 }}>{p.desc}</div>
+                {/* Detail button — only for projects with href, revealed on hover */}
+                {p.href && (
+                  <div className="proj-detail-btn">
+                    <button className="detail-btn" onClick={() => navigate(`/project/${p.num}`)}>
+                      {isZh ? "查看详情" : "View Details"}
+                      <ArrowRight size={13} />
+                    </button>
+                  </div>
+                )}
               </div>
-              {/* Hover image — 360px wide, 16:9, top-to-bottom reveal + skeleton loading */}
+              {/* Hover image — 360px wide, 16:9, top-to-bottom reveal + skeleton loading; align-self:flex-end so bottom aligns with content */}
               {hoveredProj === p.num && (
                 <div className="proj-img-reveal" style={{ flexShrink: 0, paddingLeft: 20 }}>
                   <ProjectImg src={`${BASE}images/home/${PROJECT_IMGS[p.num]}`} alt={p.en} />
@@ -806,7 +790,11 @@ export default function Home() {
                 {v.tags.map(t => <span key={t} style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 100, background: "rgba(178,149,126,0.12)", color: "#96614A" }}>{t}</span>)}
               </div>
               <h3 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 700, color: C.text, lineHeight: 1.25, margin: "0 0 14px" }}>{v.title}</h3>
-              <p style={{ fontSize: 15, color: C.desc, lineHeight: 1.75, margin: 0 }}>{v.desc}</p>
+              <p style={{ fontSize: 15, color: C.desc, lineHeight: 1.75, margin: "0 0 20px" }}>{v.desc}</p>
+              <button className="detail-btn" onClick={() => navigate(`/vibe/${v.id}`)}>
+                {isZh ? "查看详情" : "View Details"}
+                <ArrowRight size={13} />
+              </button>
             </div>
           ))}
         </div>
