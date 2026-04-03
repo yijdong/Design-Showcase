@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import {
@@ -12,27 +12,28 @@ const C = {
   desc: "#666666",
   accent: "#B2957E",
   border: "#E1DAD1",
-  navBg: "rgba(252,251,248,0.97)",
 };
 const SERIF = "'Playfair Display', 'DM Serif Display', serif";
 const SANS = "'PingFang SC', 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
 
-// Full-screen section definitions — colors for the 5 sticky slides
-const SECTIONS = [
-  { bg: "#F9F6F1", text: "#2E2E2E" },  // 1 — content slide
-  { bg: "#EDE8E0", text: "#2E2E2E" },  // 2 — placeholder
-  { bg: "#E4DDD5", text: "#2E2E2E" },  // 3 — placeholder
-  { bg: "#D8D0C7", text: "#2E2E2E" },  // 4 — placeholder
-  { bg: "#2E2E2E", text: "#F9F6F1" },  // 5 — placeholder (dark)
+// 5 full-screen slides — sections 2-5 are colour-only placeholders for now
+const SLIDES = [
+  { bg: "#F9F6F1", text: "#2E2E2E" },
+  { bg: "#EDE8E0", text: "#2E2E2E" },
+  { bg: "#E4DDD5", text: "#2E2E2E" },
+  { bg: "#D8D0C7", text: "#2E2E2E" },
+  { bg: "#2E2E2E", text: "#F9F6F1" },
 ];
 
-function ProjTag({ children, light = false }: { children: string; light?: boolean }) {
+// Transition duration (ms) — keep in sync with CSS below
+const DURATION = 900;
+
+function ProjTag({ children }: { children: string }) {
   return (
     <span style={{
       fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const,
       padding: "4px 10px", borderRadius: 100,
-      background: light ? "rgba(249,246,241,0.15)" : "rgba(178,149,126,0.12)",
-      color: light ? "rgba(249,246,241,0.8)" : "#96614A",
+      background: "rgba(178,149,126,0.12)", color: "#96614A",
       display: "inline-block",
     }}>
       {children}
@@ -51,20 +52,20 @@ function NotFound({ navigate }: { navigate: (to: string) => void }) {
   );
 }
 
-// Right-side vertical dot indicator
 function PageIndicator({ total, current, textColor }: { total: number; current: number; textColor: string }) {
   return (
     <div style={{
       position: "fixed", right: 28, top: "50%", transform: "translateY(-50%)",
-      display: "flex", flexDirection: "column", alignItems: "center", gap: 10, zIndex: 200,
+      display: "flex", flexDirection: "column", alignItems: "center", gap: 10, zIndex: 400,
+      pointerEvents: "none",
     }}>
       {Array.from({ length: total }).map((_, i) => (
         <div key={i} style={{
           width: 7, height: 7, borderRadius: "50%",
           background: current === i ? textColor : "transparent",
           border: `1.5px solid ${current === i ? textColor : `${textColor}55`}`,
-          transform: current === i ? "scale(1.35)" : "scale(1)",
-          transition: "all 0.35s ease",
+          transform: current === i ? "scale(1.4)" : "scale(1)",
+          transition: "all 0.4s ease",
         }} />
       ))}
     </div>
@@ -139,45 +140,92 @@ function DetailLayout({
   prevPath: string | null;
   nextPath: string | null;
 }) {
-  const [currentSection, setCurrentSection] = useState(0);
+  const [current, setCurrent] = useState(0);
+  // Refs allow event handlers to read the latest values without re-registering
+  const currentRef = useRef(0);
+  const busyRef = useRef(false);
 
-  // Enable full-screen block scrolling while on detail page; remove on exit
-  useEffect(() => {
-    const html = document.documentElement;
-    html.style.scrollSnapType = "y mandatory";
-    return () => {
-      html.style.scrollSnapType = "";
-    };
-  }, []);
+  const goTo = (index: number) => {
+    if (busyRef.current) return;
+    if (index < 0 || index >= SLIDES.length) return;
+    busyRef.current = true;
+    currentRef.current = index;
+    setCurrent(index);
+    setTimeout(() => { busyRef.current = false; }, DURATION + 50);
+  };
 
-  // Reset to top on mount AND whenever navigating to a different item (prev/next)
+  // Reset when navigating between projects (prev / next)
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-    setCurrentSection(0);
+    currentRef.current = 0;
+    setCurrent(0);
+    busyRef.current = false;
   }, [title]);
 
-  // Track which full-screen section is currently in view
+  // Prevent body scroll on this page
   useEffect(() => {
-    const handleScroll = () => {
-      const section = Math.round(window.scrollY / window.innerHeight);
-      setCurrentSection(Math.min(section, SECTIONS.length - 1));
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
   }, []);
 
-  const currentTextColor = SECTIONS[currentSection].text;
-  // Navbar blends with the current section's background
-  const navBg = currentSection === 0 ? C.navBg : `${SECTIONS[currentSection].bg}f5`;
-  const navBorder = currentSection === 4 ? "rgba(249,246,241,0.12)" : C.border;
-  const navTextColor = SECTIONS[currentSection].text;
+  // Mouse-wheel → navigate slides
+  useEffect(() => {
+    let accum = 0;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      accum += e.deltaY;
+      if (accum > 60) {
+        accum = 0;
+        goTo(currentRef.current + 1);
+      } else if (accum < -60) {
+        accum = 0;
+        goTo(currentRef.current - 1);
+      }
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Touch → navigate slides
+  useEffect(() => {
+    let startY = 0;
+    const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY; };
+    const onEnd = (e: TouchEvent) => {
+      const diff = startY - e.changedTouches[0].clientY;
+      if (diff > 50) goTo(currentRef.current + 1);
+      else if (diff < -50) goTo(currentRef.current - 1);
+    };
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchend", onEnd, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchend", onEnd);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Keyboard → navigate slides
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown" || e.key === "PageDown") goTo(currentRef.current + 1);
+      if (e.key === "ArrowUp"   || e.key === "PageUp")   goTo(currentRef.current - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const textColor = SLIDES[current].text;
+  const navBg = current === 4
+    ? "rgba(46,46,46,0.96)"
+    : "rgba(252,251,248,0.96)";
+  const navBorder = current === 4 ? "rgba(249,246,241,0.10)" : C.border;
 
   return (
-    <div style={{ fontFamily: SANS, color: C.text }}>
+    <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         .back-btn {
           display: inline-flex; align-items: center; gap: 6px;
           background: none; border: none; font-family: ${SANS};
@@ -185,27 +233,29 @@ function DetailLayout({
           cursor: pointer; padding: 0; transition: opacity 0.2s;
           white-space: nowrap;
         }
-        .back-btn:hover { opacity: 0.6; }
+        .back-btn:hover { opacity: 0.55; }
         .nav-btn {
           display: inline-flex; align-items: center; gap: 4px;
           border-radius: 100px;
           font-family: ${SANS}; font-size: 13px; font-weight: 500;
           padding: 0 14px; height: 34px; cursor: pointer;
-          transition: background 0.25s, opacity 0.25s, border-color 0.25s, color 0.25s;
-          white-space: nowrap;
+          transition: opacity 0.2s;
+          white-space: nowrap; background: transparent;
         }
         .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+        .nav-btn:not(:disabled):hover { opacity: 0.65; }
       `}</style>
 
-      {/* ── FIXED NAVBAR — adapts to current section color ── */}
+      {/* ── FIXED NAVBAR ── */}
       <div style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 300,
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 500,
         display: "flex", justifyContent: "center",
         paddingTop: 14, paddingBottom: 14,
         background: navBg,
         backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
         borderBottom: `1px solid ${navBorder}`,
-        transition: "background 0.5s ease, border-color 0.5s ease",
+        transition: `background ${DURATION}ms ease, border-color ${DURATION}ms ease`,
       }}>
         <nav style={{
           width: "min(1152px, calc(100vw - 48px))",
@@ -214,34 +264,24 @@ function DetailLayout({
           alignItems: "center",
           gap: 16,
         }}>
-
-          {/* LEFT — back */}
           <div>
-            <button className="back-btn" style={{ color: navTextColor }} onClick={() => navigate("/")}>
+            <button className="back-btn" style={{ color: textColor }} onClick={() => navigate("/")}>
               <ArrowLeft size={15} />
               {isZh ? "返回主页" : "Back to Home"}
             </button>
           </div>
-
-          {/* CENTER — section label */}
           <span style={{
             fontFamily: SERIF, fontSize: 14, fontWeight: 600,
-            color: navTextColor, letterSpacing: "0.02em", textAlign: "center",
-            transition: "color 0.5s ease",
+            color: textColor, letterSpacing: "0.02em", textAlign: "center",
+            transition: `color ${DURATION}ms ease`,
           }}>
             {sectionLabel}
           </span>
-
-          {/* RIGHT — prev / next */}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
             <button
               className="nav-btn"
               disabled={!prevPath}
-              style={{
-                background: "transparent",
-                color: navTextColor,
-                border: `1px solid ${navTextColor}40`,
-              }}
+              style={{ color: textColor, border: `1px solid ${textColor}40` }}
               onClick={() => prevPath && navigate(prevPath)}
             >
               <ChevronLeft size={14} />
@@ -250,65 +290,66 @@ function DetailLayout({
             <button
               className="nav-btn"
               disabled={!nextPath}
-              style={{
-                background: "transparent",
-                color: navTextColor,
-                border: `1px solid ${navTextColor}40`,
-              }}
+              style={{ color: textColor, border: `1px solid ${textColor}40` }}
               onClick={() => nextPath && navigate(nextPath)}
             >
               {isZh ? "下一个" : "Next"}
               <ChevronRight size={14} />
             </button>
           </div>
-
         </nav>
       </div>
 
-      {/* ── RIGHT-SIDE DOT INDICATOR ── */}
-      <PageIndicator total={SECTIONS.length} current={currentSection} textColor={currentTextColor} />
+      {/* ── DOT INDICATOR ── */}
+      <PageIndicator total={SLIDES.length} current={current} textColor={textColor} />
 
-      {/* ── FULL-SCREEN STICKY SECTIONS ── */}
-
-      {/* Section 1 — Title · Tags · Description */}
-      <div style={{
-        position: "sticky", top: 0,
-        height: "100vh", width: "100%",
-        background: SECTIONS[0].bg,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        scrollSnapAlign: "start",
-        zIndex: 1,
-      }}>
-        <div style={{ maxWidth: 960, width: "100%", padding: "0 60px", paddingTop: 80 }}>
-          <h1 style={{
-            fontFamily: SERIF, fontSize: "clamp(40px, 5vw, 72px)", fontWeight: 700,
-            color: SECTIONS[0].text, lineHeight: 1.15, marginBottom: 36,
-          }}>
-            {title}
-          </h1>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 40 }}>
-            {tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}
-          </div>
-          <p style={{ fontSize: "clamp(18px, 1.5vw, 24px)", color: C.desc, lineHeight: 1.8, maxWidth: 720 }}>
-            {desc}
-          </p>
-        </div>
-      </div>
-
-      {/* Sections 2–5 — placeholders, will hold project content */}
-      {SECTIONS.slice(1).map((sec, i) => (
-        <div key={i + 1} style={{
-          position: "sticky", top: 0,
-          height: "100vh", width: "100%",
-          background: sec.bg,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          scrollSnapAlign: "start",
-          zIndex: i + 2,
-        }}>
-          {/* Content to be added later */}
+      {/* ── SLIDES ── fixed, stacked, animated with translateY ── */}
+      {SLIDES.map((slide, i) => (
+        <div
+          key={i}
+          style={{
+            position: "fixed",
+            top: 0, left: 0,
+            width: "100vw", height: "100vh",
+            background: slide.bg,
+            // Slides at or before current are at 0; slides ahead wait below (100vh)
+            transform: `translateY(${i <= current ? 0 : 100}vh)`,
+            transition: `transform ${DURATION}ms cubic-bezier(0.76, 0, 0.24, 1)`,
+            zIndex: i + 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+          }}
+        >
+          {/* ── Slide 1: title + tags + description ── */}
+          {i === 0 && (
+            <div style={{ maxWidth: 960, width: "100%", padding: "80px 60px 0" }}>
+              <h1 style={{
+                fontFamily: SERIF,
+                fontSize: "clamp(38px, 5vw, 72px)",
+                fontWeight: 700,
+                color: slide.text,
+                lineHeight: 1.15,
+                marginBottom: 32,
+              }}>
+                {title}
+              </h1>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 36 }}>
+                {tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}
+              </div>
+              <p style={{
+                fontSize: "clamp(16px, 1.4vw, 22px)",
+                color: C.desc,
+                lineHeight: 1.85,
+                maxWidth: 680,
+              }}>
+                {desc}
+              </p>
+            </div>
+          )}
+          {/* Slides 2-5: placeholder — content to be added later */}
         </div>
       ))}
-
-    </div>
+    </>
   );
 }
