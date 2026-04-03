@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Layers, RefreshCw, Users } from "lucide-react";
@@ -215,6 +215,238 @@ function Project01Slide0({ title, tags, desc }: { title: string; tags: string[];
   );
 }
 
+// ── Slide 1: Journey Map for project 01 ────────────────────────────────────
+function Project01Slide1() {
+  const NAVBAR_H = 57;
+
+  const phases = [
+    { code: "01", label: "项目创建与规则准备" },
+    { code: "02", label: "人员匹配与入场" },
+    { code: "03", label: "标注执行" },
+    { code: "04", label: "质检与审核" },
+    { code: "05", label: "结算与闭环" },
+  ];
+
+  type Cell = { items?: string[]; highlight?: string; idle?: string };
+
+  const rows: Array<{ role: string; en: string; cells: Cell[] }> = [
+    {
+      role: "管理者", en: "Manager",
+      cells: [
+        { items: ["创建项目与任务目标", "配置标注题型", "定义质量标准"] },
+        { items: ["筛选合适标注人员", "发布或定向分发任务"] },
+        { items: ["查看整体进度", "关注异常与产能"] },
+        { items: ["抽检或终审结果", "控制整体质量水平"] },
+        { items: ["确认完成情况", "放行结算流程"] },
+      ],
+    },
+    {
+      role: "标注员", en: "Annotator",
+      cells: [
+        { idle: "未入场，等待项目匹配" },
+        { items: ["浏览任务信息", "报名并完成认证", "获得角色与权限"] },
+        { items: ["领取标注任务", "进行标注任务"] },
+        { items: ["提交前自查结果", "根据提示修正问题"] },
+        { items: ["查看收益明细", "完成任务闭环"] },
+      ],
+    },
+    {
+      role: "系统支持", en: "System",
+      cells: [
+        { items: ["题型配置"], highlight: "AI 预检规则配置" },
+        { items: ["储备人才库", "人才能力校验，资质审核", "角色权限分配"] },
+        { items: ["图片标注 / 划词"], highlight: "多轮对话智能体标注" },
+        { highlight: "AI 预检浮窗" },
+        { items: ["任务与费用汇总", "结算与账单展示"] },
+      ],
+    },
+  ];
+
+  const LINE = "rgba(46,46,46,0.08)";
+  const CELL_BG = "rgba(255,255,255,0.30)";
+  const DIM_W = 84;
+
+  return (
+    <div style={{
+      width: "100%", height: "100vh",
+      display: "flex", flexDirection: "column",
+      paddingTop: NAVBAR_H + 18,
+      paddingBottom: 14,
+      paddingLeft: 60, paddingRight: 60,
+      boxSizing: "border-box",
+      gap: 14,
+    }}>
+
+      {/* ── Title ── */}
+      <div>
+        <p style={{
+          fontFamily: SANS, fontSize: 9, fontWeight: 700,
+          color: C.accent, letterSpacing: "0.14em", textTransform: "uppercase" as const,
+          marginBottom: 5,
+        }}>
+          User Journey Map
+        </p>
+        <h2 style={{
+          fontFamily: SERIF, fontSize: 20, fontWeight: 700,
+          color: C.text, lineHeight: 1.2,
+        }}>
+          标注平台业务全流程概览
+        </h2>
+      </div>
+
+      {/* ── Grid ── */}
+      <div style={{
+        flex: 1,
+        minHeight: 0,
+        display: "grid",
+        gridTemplateColumns: `${DIM_W}px repeat(5, 1fr)`,
+        gridTemplateRows: "auto 1fr 1fr 1fr",
+        border: `1px solid ${LINE}`,
+        borderRadius: 14,
+        overflow: "hidden",
+        background: CELL_BG,
+      }}>
+
+        {/* ── Header row ── */}
+
+        {/* corner */}
+        <div style={{
+          borderRight: `1px solid ${LINE}`,
+          borderBottom: `1px solid ${LINE}`,
+          background: "rgba(255,255,255,0.18)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <span style={{ fontSize: 8, fontWeight: 700, color: C.desc, letterSpacing: "0.1em", textTransform: "uppercase" as const }}>
+            阶段
+          </span>
+        </div>
+
+        {/* phase headers */}
+        {phases.map((p, pi) => (
+          <div key={pi} style={{
+            padding: "10px 14px",
+            borderLeft: `1px solid ${LINE}`,
+            borderBottom: `1px solid ${LINE}`,
+            borderTop: `2.5px solid ${C.accent}`,
+            background: "rgba(255,255,255,0.50)",
+          }}>
+            <p style={{
+              fontSize: 8, fontWeight: 800, color: C.accent,
+              letterSpacing: "0.1em", textTransform: "uppercase" as const,
+              marginBottom: 4,
+            }}>
+              PHASE {p.code}
+            </p>
+            <p style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.35 }}>
+              {p.label}
+            </p>
+          </div>
+        ))}
+
+        {/* ── Content rows ── */}
+        {rows.map((row, ri) => (
+          <React.Fragment key={ri}>
+
+            {/* dimension label */}
+            <div style={{
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center",
+              background: "rgba(255,255,255,0.18)",
+              borderRight: `1px solid ${LINE}`,
+              borderBottom: ri < rows.length - 1 ? `1px solid ${LINE}` : undefined,
+              padding: "10px 6px",
+              gap: 4,
+            }}>
+              <p style={{
+                fontFamily: SANS, fontSize: 11, fontWeight: 700,
+                color: C.text, letterSpacing: "0.04em", textAlign: "center",
+              }}>
+                {row.role}
+              </p>
+              <p style={{
+                fontFamily: SANS, fontSize: 9, color: C.desc,
+                letterSpacing: "0.06em", textAlign: "center",
+              }}>
+                {row.en}
+              </p>
+            </div>
+
+            {/* 5 content cells */}
+            {row.cells.map((cell, ci) => (
+              <div key={ci} style={{
+                padding: "14px 14px",
+                borderLeft: `1px solid ${LINE}`,
+                borderBottom: ri < rows.length - 1 ? `1px solid ${LINE}` : undefined,
+                background: CELL_BG,
+                display: "flex", flexDirection: "column",
+                justifyContent: cell.idle ? "center" : "flex-start",
+              }}>
+
+                {/* idle state */}
+                {cell.idle && (
+                  <p style={{
+                    fontFamily: SANS, fontSize: 11,
+                    color: "#C4BAB0", fontStyle: "italic",
+                    textAlign: "center", lineHeight: 1.5,
+                  }}>
+                    {cell.idle}
+                  </p>
+                )}
+
+                {/* action items */}
+                {cell.items?.map((item, ii) => (
+                  <div key={ii} style={{
+                    display: "flex", alignItems: "flex-start", gap: 7,
+                    marginBottom: ii < (cell.items!.length - 1) || cell.highlight ? 8 : 0,
+                  }}>
+                    <div style={{
+                      width: 4, height: 4, borderRadius: "50%",
+                      background: "rgba(178,149,126,0.5)",
+                      marginTop: 5, flexShrink: 0,
+                    }} />
+                    <p style={{
+                      fontFamily: SANS, fontSize: 11, color: C.desc,
+                      lineHeight: 1.55,
+                    }}>
+                      {item}
+                    </p>
+                  </div>
+                ))}
+
+                {/* highlight card */}
+                {cell.highlight && (
+                  <div style={{
+                    background: "rgba(255,255,255,0.75)",
+                    borderLeft: `2.5px solid ${C.accent}`,
+                    borderRadius: "0 8px 8px 0",
+                    padding: "8px 10px",
+                    border: `1px solid rgba(178,149,126,0.18)`,
+                    borderLeftColor: C.accent,
+                  }}>
+                    <p style={{
+                      fontFamily: SANS, fontSize: 8, fontWeight: 800,
+                      color: C.accent, letterSpacing: "0.1em",
+                      textTransform: "uppercase" as const, marginBottom: 4,
+                    }}>
+                      重点展示
+                    </p>
+                    <p style={{
+                      fontFamily: SANS, fontSize: 11, fontWeight: 600, color: C.text,
+                      lineHeight: 1.4,
+                    }}>
+                      {cell.highlight}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Default Slide 0 (generic, used by all other projects) ──────────────────
 function DefaultSlide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
   return (
@@ -342,13 +574,14 @@ export function ProjectDetailPage() {
 
   // Project-specific slide labels (tooltip menu only)
   const slideLabels = params.num === "01"
-    ? ["背景介绍", "", "", "", ""]
+    ? ["背景介绍", "标注平台业务全流程概览", "", "", ""]
     : undefined;
 
-  // Project-specific slide 0 content
+  // Project-specific slide content
   const slide0 = params.num === "01"
     ? <Project01Slide0 title={item.title} tags={item.tags} desc={item.desc} />
     : <DefaultSlide0   title={item.title} tags={item.tags} desc={item.desc} />;
+  const slide1 = params.num === "01" ? <Project01Slide1 /> : undefined;
 
   return (
     <DetailLayout
@@ -359,6 +592,7 @@ export function ProjectDetailPage() {
       nextPath={nextItem ? seqPath(nextItem) : null}
       slideLabels={slideLabels}
       slide0={slide0}
+      slide1={slide1}
       titleForReset={item.title}
     />
   );
@@ -395,7 +629,7 @@ export function VibeDetailPage() {
 
 function DetailLayout({
   isZh, navigate, sectionLabel, prevPath, nextPath,
-  slideLabels, slide0, titleForReset,
+  slideLabels, slide0, slide1, titleForReset,
 }: {
   isZh: boolean;
   navigate: (to: string) => void;
@@ -404,6 +638,7 @@ function DetailLayout({
   nextPath: string | null;
   slideLabels?: string[];
   slide0: React.ReactNode;
+  slide1?: React.ReactNode;
   titleForReset: string;
 }) {
   const [current, setCurrent] = useState(0);
@@ -571,6 +806,7 @@ function DetailLayout({
           }}
         >
           {i === 0 && slide0}
+          {i === 1 && slide1}
         </div>
       ))}
     </>
