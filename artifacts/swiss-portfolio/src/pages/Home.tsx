@@ -575,8 +575,7 @@ export default function Home() {
         .proj-img-reveal { animation: sp-imgReveal 0.38s cubic-bezier(.16,1,.3,1) forwards; align-self: flex-end; }
         .proj-detail-btn { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.35s ease, margin-top 0.3s ease; }
         .project-row:hover .proj-detail-btn { max-height: 50px; opacity: 1; margin-top: 16px; }
-        .detail-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 100px; background: #F9F6F1; border: 1px solid #E1DAD1; color: #2E2E2E; font-size: 14px; font-family: ${SANS}; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
-        .detail-btn:hover { border-color: #B2957E; background: #F0EBE4; }
+        .detail-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 100px; background: #F9F6F1; border: 1px solid #E1DAD1; color: #2E2E2E; font-size: 14px; font-family: ${SANS}; cursor: default; pointer-events: none; }
 
         @keyframes skeleton-shimmer {
           0%   { background-position: -600px 0; }
@@ -732,9 +731,11 @@ export default function Home() {
               className="project-row"
               onMouseEnter={() => setHoveredProj(p.num)}
               onMouseLeave={() => setHoveredProj(null)}
+              onClick={p.href ? () => navigate(`/project/${p.num}`) : undefined}
               style={{
                 padding: "24px 0",
                 display: "flex", alignItems: "flex-start", gap: 20,
+                cursor: p.href ? "pointer" : "default",
                 opacity: projSection.visible ? 1 : 0,
                 transform: projSection.visible ? "none" : "translateY(24px)",
                 transition: `opacity 0.6s ease-out ${i * 80}ms, transform 0.6s ease-out ${i * 80}ms`,
@@ -785,13 +786,13 @@ export default function Home() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
           {VIBE.map((v, i) => (
-            <div key={v.title} className="vibe-card" style={{ padding: 36, opacity: vibeSection.visible ? 1 : 0, transform: vibeSection.visible ? "translateY(0)" : "translateY(24px)", transition: `opacity 0.6s ease-out ${i * 80}ms, transform 0.6s ease-out ${i * 80}ms` }}>
+            <div key={v.title} className="vibe-card" onClick={() => navigate(`/vibe/${v.id}`)} style={{ padding: 36, cursor: "pointer", opacity: vibeSection.visible ? 1 : 0, transform: vibeSection.visible ? "translateY(0)" : "translateY(24px)", transition: `opacity 0.6s ease-out ${i * 80}ms, transform 0.6s ease-out ${i * 80}ms` }}>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
                 {v.tags.map(t => <span key={t} style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 100, background: "rgba(178,149,126,0.12)", color: "#96614A" }}>{t}</span>)}
               </div>
               <h3 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 700, color: C.text, lineHeight: 1.25, margin: "0 0 14px" }}>{v.title}</h3>
               <p style={{ fontSize: 15, color: C.desc, lineHeight: 1.75, margin: "0 0 20px" }}>{v.desc}</p>
-              <button className="detail-btn" onClick={() => navigate(`/vibe/${v.id}`)}>
+              <button className="detail-btn">
                 {isZh ? "查看详情" : "View Details"}
                 <ArrowRight size={13} />
               </button>

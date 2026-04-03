@@ -43,7 +43,7 @@ export function ProjectDetailPage() {
     </div>
   );
 
-  return <DetailLayout isZh={isZh} navigate={navigate} title={item.title} en={item.en} tags={item.tags} desc={item.desc} />;
+  return <DetailLayout isZh={isZh} navigate={navigate} title={item.title} tags={item.tags} desc={item.desc} />;
 }
 
 export function VibeDetailPage() {
@@ -63,16 +63,15 @@ export function VibeDetailPage() {
     </div>
   );
 
-  return <DetailLayout isZh={isZh} navigate={navigate} title={item.title} en={item.en} tags={item.tags} desc={item.desc} />;
+  return <DetailLayout isZh={isZh} navigate={navigate} title={item.title} tags={item.tags} desc={item.desc} />;
 }
 
 function DetailLayout({
-  isZh, navigate, title, en, tags, desc,
+  isZh, navigate, title, tags, desc,
 }: {
   isZh: boolean;
   navigate: (to: string) => void;
   title: string;
-  en: string;
   tags: string[];
   desc: string;
 }) {
@@ -108,13 +107,10 @@ function DetailLayout({
         {/* Title */}
         <h1 style={{
           fontFamily: SERIF, fontSize: 60, fontWeight: 700,
-          color: C.text, lineHeight: 1.2, margin: "0 0 32px",
+          color: C.text, lineHeight: 1.2, margin: "0 0 40px",
         }}>
           {title}
         </h1>
-
-        {/* Subtitle / EN name */}
-        <p style={{ fontSize: 18, color: "#aaa", fontWeight: 300, margin: "0 0 32px" }}>{en}</p>
 
         {/* Tags */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 48 }}>
