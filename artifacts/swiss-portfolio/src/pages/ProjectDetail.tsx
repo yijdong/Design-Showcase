@@ -126,8 +126,10 @@ function Project01Slide0({ title, tags, desc }: { title: string; tags: string[];
 }
 
 // ── Slide 1: Project 01 — users & capabilities ─────────────────────────────
-function Project01SlideUsers() {
+function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
   const NAVBAR_H = 57;
+  const BD = 0.85; // base delay — after 900ms slide transition
+  const E: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
   const users = [
     { img: USER_IMGS[0], name: "管理人员",      role: "配置任务、规则与人员体系" },
@@ -136,93 +138,123 @@ function Project01SlideUsers() {
   ];
 
   const caps = [
-    { icon: <Layers size={15} strokeWidth={1.5} />, name: "多模态标注能力", note: "覆盖文本、多模态、智能体等复杂题型" },
-    { icon: <RefreshCw size={15} strokeWidth={1.5} />, name: "完整质量闭环",  note: "标注-质检-审核-返修-数据入库" },
-    { icon: <Users size={15} strokeWidth={1.5} />,  name: "规模化人力调度", note: "支持场内+垂类兼职+专家人员协同作业" },
+    { name: "多模态标注能力", note: "覆盖文本、多模态、智能体等复杂题型" },
+    { name: "完整质量闭环",   note: "标注-质检-审核-返修-数据入库" },
+    { name: "规模化人力调度", note: "支持场内+垂类兼职+专家人员协同作业" },
   ];
 
-  const COL_LABEL: React.CSSProperties = {
-    fontFamily: SANS, fontSize: 10, fontWeight: 700,
-    color: C.accent, letterSpacing: "0.14em", textTransform: "uppercase",
-    marginBottom: 0,
-  };
+  const rv = (delay: number) => ({
+    initial: { opacity: 0, y: 22 },
+    animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 22 },
+    transition: { duration: 0.65, delay: isActive ? delay : 0, ease: E },
+  });
 
   return (
     <div style={{
+      position: "relative",
       width: "100%", height: "100vh",
       display: "flex", flexDirection: "column", justifyContent: "center",
       paddingTop: NAVBAR_H + 60, paddingBottom: 80,
-      paddingLeft: 80, paddingRight: 80,
-      boxSizing: "border-box",
+      paddingLeft: 88, paddingRight: 80,
+      boxSizing: "border-box", overflow: "hidden",
     }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 44 }}>
 
-      {/* ── Sub-page header ── */}
-      <div>
-        <p style={{
-          fontFamily: SANS, fontSize: 10, fontWeight: 700,
-          color: C.accent, letterSpacing: "0.14em", textTransform: "uppercase" as const,
-          marginBottom: 10,
-        }}>
-          AI数据标注平台
-        </p>
-        <h2 style={{
-          fontFamily: SERIF, fontSize: 30, fontWeight: 700,
-          color: C.text, lineHeight: 1.15,
-        }}>
-          用户与能力
-        </h2>
-      </div>
+      {/* ── Atmospheric depth gradient ── */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse at 88% 88%, rgba(178,149,126,0.11) 0%, transparent 55%)",
+      }} />
 
-      <div style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
+      {/* ── Left accent bar (Vintage Editorial structural element) ── */}
+      <div style={{
+        position: "absolute", left: 0, top: "22%", bottom: "22%",
+        width: 3, background: C.accent, borderRadius: "0 2px 2px 0",
+      }} />
 
-        {/* ── Users column ── */}
-        <div style={{ flex: 1 }}>
-          <p style={COL_LABEL}>用户群体</p>
-          <div style={{ height: 1, background: C.border, marginTop: 16, marginBottom: 0 }} />
-          {users.map((u, i) => (
-            <div key={u.name} style={{
-              display: "flex", alignItems: "center", gap: 20,
-              padding: "22px 0",
-              borderBottom: i < users.length - 1 ? `1px solid ${C.border}` : undefined,
-            }}>
-              <img
-                src={u.img}
-                alt={u.name}
-                style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-              />
-              <div>
-                <div style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, lineHeight: 1.3 }}>{u.name}</div>
-                <div style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.6, marginTop: 4 }}>{u.role}</div>
-              </div>
-            </div>
-          ))}
+      {/* ── Large faint circle — depth / atmosphere ── */}
+      <div style={{
+        position: "absolute", right: -110, bottom: -110,
+        width: 360, height: 360, borderRadius: "50%",
+        border: `1px solid ${C.border}`, opacity: 0.6,
+        pointerEvents: "none",
+      }} />
+
+      {/* ── Content ── */}
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 44 }}>
+
+        {/* Sub-page header */}
+        <motion.div {...rv(BD)}>
+          <p style={{
+            fontFamily: SANS, fontSize: 10, fontWeight: 700,
+            color: C.accent, letterSpacing: "0.15em", textTransform: "uppercase" as const,
+            marginBottom: 10,
+          }}>
+            AI数据标注平台
+          </p>
+          <h2 style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 700, color: C.text, lineHeight: 1.15 }}>
+            用户与能力
+          </h2>
+          <div style={{ height: 1, background: C.border, marginTop: 22 }} />
+        </motion.div>
+
+        {/* Two columns */}
+        <div style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
+
+          {/* Users */}
+          <div style={{ flex: 1 }}>
+            <motion.p
+              {...rv(BD + 0.1)}
+              style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, color: C.accent, letterSpacing: "0.13em", textTransform: "uppercase" as const }}
+            >
+              用户群体
+            </motion.p>
+            <div style={{ height: 1, background: C.border, marginTop: 16 }} />
+            {users.map((u, i) => (
+              <motion.div key={u.name} {...rv(BD + 0.2 + i * 0.12)} style={{
+                display: "flex", alignItems: "center", gap: 20,
+                padding: "22px 0",
+                borderBottom: i < users.length - 1 ? `1px solid ${C.border}` : undefined,
+              }}>
+                <img src={u.img} alt={u.name} style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, lineHeight: 1.3 }}>{u.name}</div>
+                  <div style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.6, marginTop: 4 }}>{u.role}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Capabilities */}
+          <div style={{ flex: 1 }}>
+            <motion.p
+              {...rv(BD + 0.13)}
+              style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, color: C.accent, letterSpacing: "0.13em", textTransform: "uppercase" as const }}
+            >
+              核心能力
+            </motion.p>
+            <div style={{ height: 1, background: C.border, marginTop: 16 }} />
+            {caps.map((cap, i) => (
+              <motion.div key={cap.name} {...rv(BD + 0.23 + i * 0.12)} style={{
+                padding: "22px 0",
+                borderBottom: i < caps.length - 1 ? `1px solid ${C.border}` : undefined,
+              }}>
+                <div style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, lineHeight: 1.3, marginBottom: 6 }}>{cap.name}</div>
+                <div style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.7 }}>{cap.note}</div>
+              </motion.div>
+            ))}
+          </div>
+
         </div>
-
-        {/* ── Capabilities column ── */}
-        <div style={{ flex: 1 }}>
-          <p style={COL_LABEL}>核心能力</p>
-          <div style={{ height: 1, background: C.border, marginTop: 16, marginBottom: 0 }} />
-          {caps.map((cap, i) => (
-            <div key={cap.name} style={{
-              padding: "22px 0",
-              borderBottom: i < caps.length - 1 ? `1px solid ${C.border}` : undefined,
-            }}>
-              <div style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, lineHeight: 1.3, marginBottom: 6 }}>{cap.name}</div>
-              <div style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.7 }}>{cap.note}</div>
-            </div>
-          ))}
-        </div>
-
-      </div>
       </div>
     </div>
   );
 }
 
 // ── Slide 2: Journey Map for project 01 ────────────────────────────────────
-function Project01Slide2() {
+function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
   const NAVBAR_H = 57;
+  const BD = 0.85;
+  const E: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
   const phases = [
     { code: "01", label: "项目创建与规则准备" },
@@ -275,6 +307,7 @@ function Project01Slide2() {
 
   return (
     <div style={{
+      position: "relative",
       width: "100%", height: "100vh",
       display: "flex", flexDirection: "column",
       paddingTop: NAVBAR_H + 18,
@@ -282,10 +315,22 @@ function Project01Slide2() {
       paddingLeft: 60, paddingRight: 60,
       boxSizing: "border-box",
       gap: 14,
+      overflow: "hidden",
     }}>
 
+      {/* ── Atmospheric depth gradient ── */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse at 15% 95%, rgba(178,149,126,0.09) 0%, transparent 50%)",
+      }} />
+
       {/* ── Sub-page header ── */}
-      <div>
+      <motion.div
+        style={{ position: "relative", zIndex: 1 }}
+        initial={{ opacity: 0, y: 18 }}
+        animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
+        transition={{ duration: 0.65, delay: isActive ? BD : 0, ease: E }}
+      >
         <p style={{
           fontFamily: SANS, fontSize: 10, fontWeight: 700,
           color: C.accent, letterSpacing: "0.14em", textTransform: "uppercase" as const,
@@ -299,20 +344,26 @@ function Project01Slide2() {
         }}>
           业务全流程概览
         </h2>
-      </div>
+      </motion.div>
 
       {/* ── Grid ── */}
-      <div style={{
-        flex: 1,
-        minHeight: 0,
-        display: "grid",
-        gridTemplateColumns: `${DIM_W}px repeat(5, 1fr)`,
-        gridTemplateRows: "auto 1fr 1fr 1fr",
-        border: `1px solid ${LINE}`,
-        borderRadius: 14,
-        overflow: "hidden",
-        background: CELL_BG,
-      }}>
+      <motion.div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          display: "grid",
+          gridTemplateColumns: `${DIM_W}px repeat(5, 1fr)`,
+          gridTemplateRows: "auto 1fr 1fr 1fr",
+          border: `1px solid ${LINE}`,
+          borderRadius: 14,
+          overflow: "hidden",
+          background: CELL_BG,
+          position: "relative", zIndex: 1,
+        }}
+        initial={{ opacity: 0, y: 24 }}
+        animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+        transition={{ duration: 0.7, delay: isActive ? BD + 0.15 : 0, ease: E }}
+      >
 
         {/* corner */}
         <div style={{
@@ -427,7 +478,7 @@ function Project01Slide2() {
             ))}
           </React.Fragment>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -806,8 +857,8 @@ function DetailLayout({
           }}
         >
           {i === 0 && slide0}
-          {i === 1 && slide1}
-          {i === 2 && slide2}
+          {i === 1 && slide1 && React.cloneElement(slide1 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 1 })}
+          {i === 2 && slide2 && React.cloneElement(slide2 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 2 })}
         </div>
       ))}
     </>
