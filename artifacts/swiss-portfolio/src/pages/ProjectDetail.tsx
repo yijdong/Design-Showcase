@@ -189,11 +189,10 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
           <p style={{
             fontFamily: SANS, fontSize: 10, fontWeight: 700,
             color: C.accent, letterSpacing: "0.15em", textTransform: "uppercase" as const,
-            marginBottom: 2,
+            marginBottom: 8,
           }}>
             AI数据标注平台
           </p>
-          <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 8 }} />
           <h2 style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 700, color: C.text, lineHeight: 1.15 }}>
             用户与能力
           </h2>
@@ -336,11 +335,10 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
         <p style={{
           fontFamily: SANS, fontSize: 10, fontWeight: 700,
           color: C.accent, letterSpacing: "0.14em", textTransform: "uppercase" as const,
-          marginBottom: 2,
+          marginBottom: 8,
         }}>
           AI数据标注平台
         </p>
-        <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 8 }} />
         <h2 style={{
           fontFamily: SERIF, fontSize: 26, fontWeight: 700,
           color: C.text, lineHeight: 1.2,
@@ -531,11 +529,10 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
         <p style={{
           fontFamily: SANS, fontSize: 10, fontWeight: 700,
           color: C.accent, letterSpacing: "0.15em", textTransform: "uppercase" as const,
-          marginBottom: 2,
+          marginBottom: 8,
         }}>
           AI数据标注平台
         </p>
-        <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 8 }} />
         <h2 style={{ fontFamily: SERIF, fontSize: 28, fontWeight: 700, color: C.text, lineHeight: 1.2 }}>
           核心用户旅程界面
         </h2>
@@ -546,7 +543,7 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
         flex: 1, minHeight: 0,
         display: "flex", gap: 64,
         position: "relative", zIndex: 1,
-        alignItems: "stretch",
+        alignItems: "flex-start",
       }}>
 
         {/* Left: phase list */}
@@ -598,35 +595,25 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
           })}
         </div>
 
-        {/* Right: image display area */}
+        {/* Right: image display area — 16:10 */}
         <motion.div
           {...rv(BD + 0.55)}
           style={{
             flex: 1,
+            aspectRatio: "16/10",
             borderRadius: 32,
             overflow: "hidden",
             position: "relative",
             backgroundColor: PHASE_PATTERN_COLOR,
             backgroundImage: PHASE_PATTERN_IMAGE,
             backgroundSize: "600px 600px",
+            flexShrink: 0,
           }}
         >
           {PHASE_IMGS.map((src, i) => (
-            <motion.img
+            <motion.div
               key={i}
-              src={src}
-              alt={`Phase ${i + 1}`}
-              onLoad={() => setLoadedImgs(prev => new Set([...prev, i]))}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                display: "block",
-                opacity: loadedImgs.has(i) ? 1 : 0,
-                transition: "opacity 0.55s ease",
-              }}
+              style={{ position: "absolute", inset: 0 }}
               initial={{ clipPath: i === 0 ? "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" : "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)" }}
               animate={{
                 clipPath: activePhase === i
@@ -634,7 +621,21 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
                   : "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
               }}
               transition={{ ease: [0.33, 1, 0.68, 1], duration: 0.75 }}
-            />
+            >
+              {!loadedImgs.has(i) && <div className="phase-skeleton" />}
+              <img
+                src={src}
+                alt={`Phase ${i + 1}`}
+                onLoad={() => setLoadedImgs(prev => new Set([...prev, i]))}
+                style={{
+                  position: "absolute", inset: 0,
+                  width: "100%", height: "100%",
+                  objectFit: "cover", display: "block",
+                  opacity: loadedImgs.has(i) ? 1 : 0,
+                  transition: "opacity 0.3s ease",
+                }}
+              />
+            </motion.div>
           ))}
         </motion.div>
 
@@ -943,6 +944,17 @@ function DetailLayout({
         }
         .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
         .nav-btn:not(:disabled):hover { opacity: 0.65; }
+        @keyframes skeleton-shimmer {
+          0%   { background-position: -600px 0; }
+          100% { background-position:  600px 0; }
+        }
+        .phase-skeleton {
+          position: absolute; inset: 0;
+          background: linear-gradient(90deg, #E8E2D9 25%, #F0EBE4 50%, #E8E2D9 75%);
+          background-size: 1200px 100%;
+          animation: skeleton-shimmer 1.4s infinite linear;
+          border-radius: 32px;
+        }
       `}</style>
 
       {/* ── NAVBAR ── */}
