@@ -21,10 +21,11 @@ const SANS  = "'PingFang SC', 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSy
 
 const SLIDES = [
   { bg: "#F9F6F1", text: "#2E2E2E" },
-  { bg: "#EDE8E0", text: "#2E2E2E" },
-  { bg: "#E4DDD5", text: "#2E2E2E" },
-  { bg: "#D8D0C7", text: "#2E2E2E" },
-  { bg: "#C9C0B6", text: "#2E2E2E" },
+  { bg: "#F9F6F1", text: "#2E2E2E" },
+  { bg: "#F9F6F1", text: "#2E2E2E" },
+  { bg: "#F9F6F1", text: "#2E2E2E" },
+  { bg: "#F9F6F1", text: "#2E2E2E" },
+  { bg: "#F9F6F1", text: "#2E2E2E" },
 ];
 
 const DURATION = 900;
@@ -492,6 +493,11 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
   const [activePhase, setActivePhase] = useState(0);
   const [loadedImgs, setLoadedImgs] = useState<Set<number>>(new Set());
 
+  // Reset to Phase 01 every time this slide becomes active
+  useEffect(() => {
+    if (isActive) setActivePhase(0);
+  }, [isActive]);
+
   const rv = (delay: number) => ({
     initial: { opacity: 0, y: 22 },
     animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 22 },
@@ -512,10 +518,10 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
       width: "100%", height: "100vh",
       display: "flex", flexDirection: "column",
       paddingTop: NAVBAR_H + 28,
-      paddingBottom: 36,
+      paddingBottom: 60,
       paddingLeft: 88, paddingRight: 80,
       boxSizing: "border-box", overflow: "hidden",
-      gap: 28,
+      gap: 60,
     }}>
 
       {/* ── Atmospheric depth gradient ── */}
@@ -544,6 +550,7 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
         display: "flex", gap: 64,
         position: "relative", zIndex: 1,
         alignItems: "center",
+        justifyContent: "center",
       }}>
 
         {/* Left: phase list */}
@@ -595,21 +602,19 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
           })}
         </div>
 
-        {/* Right: image display area — 16:10, height-constrained with breathing room */}
+        {/* Right: image display area — 16:10, fills body height */}
         <motion.div
           {...rv(BD + 0.55)}
           style={{
-            height: "calc(100vh - 290px)",
-            maxHeight: 440,
+            height: "100%",
             aspectRatio: "16/10",
-            borderRadius: 32,
+            borderRadius: 28,
             overflow: "hidden",
             position: "relative",
             backgroundColor: PHASE_PATTERN_COLOR,
             backgroundImage: PHASE_PATTERN_IMAGE,
             backgroundSize: "600px 600px",
             flexShrink: 0,
-            marginBlock: 12,
           }}
         >
           {PHASE_IMGS.map((src, i) => (
@@ -665,10 +670,10 @@ function Project01Slide4({ isActive = false }: { isActive?: boolean }) {
     <div style={{
       position: "relative", width: "100%", height: "100vh",
       display: "flex", flexDirection: "column",
-      paddingTop: NAVBAR_H + 28, paddingBottom: 32,
+      paddingTop: NAVBAR_H + 28, paddingBottom: 60,
       paddingLeft: 88, paddingRight: 80,
       boxSizing: "border-box", overflow: "hidden",
-      gap: 20, backgroundColor: slideBg,
+      gap: 60,
     }}>
       {/* Atmospheric gradient */}
       <div style={{
@@ -707,6 +712,7 @@ function Project01Slide4({ isActive = false }: { isActive?: boolean }) {
         display: "flex", gap: 56,
         position: "relative", zIndex: 1,
         alignItems: "stretch",
+        justifyContent: "center",
       }}>
 
         {/* Left: structured text */}
@@ -804,11 +810,11 @@ function Project01Slide4({ isActive = false }: { isActive?: boolean }) {
           {...rv(BD + 0.35)}
           style={{
             flex: 1,
+            height: "100%",
             borderRadius: 32,
             overflow: "hidden",
             position: "relative",
             backgroundColor: "#f8fafc",
-            marginBlock: 12,
             boxShadow: "0 8px 40px rgba(0,0,0,0.08)",
           }}
         >
@@ -826,6 +832,207 @@ function Project01Slide4({ isActive = false }: { isActive?: boolean }) {
         </motion.div>
 
       </div>
+    </div>
+  );
+}
+
+// ── Project 01 / Slide 5: 指令修改需求分析 ──────────────────────────────────
+function Project01Slide5({ isActive = false }: { isActive?: boolean }) {
+  const NAVBAR_H = 57;
+  const BD = 0.85;
+  const E: [number,number,number,number] = [0.16,1,0.3,1];
+
+  const rv = (delay: number) => ({
+    initial: { opacity: 0, y: 24 },
+    animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 },
+    transition: { duration: 0.65, delay, ease: E },
+  });
+
+  const steps = [
+    { num: "01", label: "需求分析", active: true },
+    { num: "02", label: "竞品分析", active: false },
+    { num: "03", label: "多方案对比", active: false },
+    { num: "04", label: "交互文档", active: false },
+  ];
+
+  const problems = [
+    {
+      title: "强打断感，上下文易丢失",
+      body: "弹窗会完全遮挡主界面，打断用户对原文上下文的参考。即便弹窗内显示原文，也因区域有限、失去原有排版，需要用户重新构建语境，加重认知负担。",
+    },
+    {
+      title: "操作路径长，任务流失率高",
+      body: "原本可在页面内直接完成的轻量操作，变成多步弹窗流程。对需要快速反馈、反复修改的 AI 场景，层级过多会降低操作意愿，不符合「直接操作」原则，体验笨重不流畅。",
+    },
+    {
+      title: "视觉冗余，空间利用率低",
+      body: "弹窗重复展示原文占用大量空间，长文本还易出现双层滚动条，操作时看不到主界面实时变化，像「盲改」，降低用户对结果的可控感。",
+    },
+  ];
+
+  const pmProto = `${import.meta.env.BASE_URL}details/annotation-platform/pm_proto.png`;
+
+  return (
+    <div style={{
+      position: "relative", width: "100%", height: "100vh",
+      display: "flex", flexDirection: "column",
+      paddingTop: NAVBAR_H + 28, paddingBottom: 60,
+      paddingLeft: 88, paddingRight: 80,
+      boxSizing: "border-box", overflow: "hidden",
+      gap: 60,
+    }}>
+
+      {/* ── Atmospheric gradient ── */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
+        background: "radial-gradient(ellipse 80% 55% at 60% 20%, rgba(178,149,126,0.07) 0%, transparent 65%)",
+      }} />
+
+      {/* ── Header ── */}
+      <motion.div {...rv(BD)} style={{ position: "relative", zIndex: 1, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <p style={{ fontFamily: SANS, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: C.desc, margin: 0 }}>
+            AI数据标注平台
+          </p>
+          <span style={{
+            fontFamily: SANS, fontSize: 10, letterSpacing: "0.08em",
+            color: C.accent, backgroundColor: `${C.accent}1A`, border: `1px solid ${C.accent}40`,
+            padding: "2px 8px", borderRadius: 100, lineHeight: 1.5,
+          }}>标注执行阶段</span>
+        </div>
+        <h2 style={{ fontFamily: SERIF, fontSize: 28, fontWeight: 700, color: C.text, margin: 0, letterSpacing: "-0.01em", lineHeight: 1.25 }}>
+          关键方案 — 指令修改需求分析
+        </h2>
+      </motion.div>
+
+      {/* ── Content section: step nav + body ── */}
+      <motion.div
+        {...rv(BD + 0.1)}
+        style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", gap: 28, position: "relative", zIndex: 1 }}
+      >
+
+        {/* ── Step progress nav (display only) ── */}
+        <div style={{ flexShrink: 0 }}>
+          {/* Dots + lines row */}
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {steps.map((step, i) => (
+              <React.Fragment key={i}>
+                <div style={{
+                  width: 9, height: 9, borderRadius: "50%", flexShrink: 0,
+                  background: step.active ? C.accent : "transparent",
+                  border: `1.5px solid ${step.active ? C.accent : "#C8C2BB"}`,
+                  boxShadow: step.active ? `0 0 0 3px ${C.accent}22` : "none",
+                  transition: "all 0.3s ease",
+                }} />
+                {i < steps.length - 1 && (
+                  <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, #E1DAD1, #D0C9C0)" }} />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+          {/* Labels row */}
+          <div style={{ display: "flex", marginTop: 10 }}>
+            {steps.map((step, i) => (
+              <div key={i} style={{ flex: i < steps.length - 1 ? 1 : "none" }}>
+                <p style={{
+                  fontFamily: SANS, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.10em",
+                  textTransform: "uppercase" as const, color: step.active ? C.accent : "#B0A89F",
+                  margin: "0 0 3px",
+                }}>Step {step.num}</p>
+                <p style={{
+                  fontFamily: SANS, fontSize: 12, fontWeight: step.active ? 600 : 400,
+                  color: step.active ? C.text : "#B0A89F", margin: 0, lineHeight: 1.3,
+                }}>{step.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Body: left image + right analysis ── */}
+        <div style={{
+          flex: 1, minHeight: 0,
+          display: "flex", gap: 52, alignItems: "stretch",
+        }}>
+
+          {/* Left: PM prototype image */}
+          <motion.div {...rv(BD + 0.25)} style={{
+            width: "36%", flexShrink: 0,
+            display: "flex", flexDirection: "column", gap: 10,
+          }}>
+            <div style={{
+              flex: 1,
+              borderRadius: 20,
+              overflow: "hidden",
+              border: `1px solid ${C.border}`,
+              boxShadow: "0 4px 28px rgba(0,0,0,0.07)",
+              backgroundColor: "#FFFFFF",
+              position: "relative",
+            }}>
+              <img
+                src={pmProto}
+                alt="产品原型"
+                style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
+              />
+            </div>
+            <p style={{
+              fontFamily: SANS, fontSize: 11, color: C.desc,
+              textAlign: "center" as const, margin: 0, letterSpacing: "0.04em",
+              fontStyle: "italic",
+            }}>产品原型</p>
+          </motion.div>
+
+          {/* Right: problem analysis */}
+          <motion.div {...rv(BD + 0.38)} style={{
+            flex: 1, minWidth: 0,
+            display: "flex", flexDirection: "column", justifyContent: "space-between",
+          }}>
+            {/* Intro */}
+            <p style={{
+              fontFamily: SANS, fontSize: 12.5, color: C.desc, lineHeight: 1.8,
+              margin: "0 0 20px", borderLeft: `3px solid ${C.border}`, paddingLeft: 14,
+            }}>
+              针对 PM 提供的「弹窗式指令修改」方案，从认知负荷、操作流失率及空间效率三个维度进行分析，存在以下主要问题：
+            </p>
+
+            {/* Problem blocks */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              {problems.map((problem, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex", gap: 18, alignItems: "flex-start",
+                    paddingBottom: i < 2 ? 20 : 0,
+                    borderBottom: i < 2 ? `1px solid ${C.border}` : "none",
+                    marginBottom: i < 2 ? 20 : 0,
+                  }}
+                >
+                  {/* Numbered circle */}
+                  <div style={{
+                    width: 30, height: 30, borderRadius: "50%", flexShrink: 0,
+                    background: "#F0EBE5",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: SERIF, fontSize: 13, fontWeight: 700,
+                    color: C.accent, marginTop: 1,
+                  }}>
+                    {i + 1}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{
+                      fontFamily: SANS, fontSize: 13.5, fontWeight: 600,
+                      color: C.text, margin: "0 0 6px", lineHeight: 1.3,
+                    }}>{problem.title}</p>
+                    <p style={{
+                      fontFamily: SANS, fontSize: 12, color: C.desc,
+                      lineHeight: 1.8, margin: 0,
+                    }}>{problem.body}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -962,7 +1169,7 @@ export function ProjectDetailPage() {
   if (!item) return <NotFound navigate={navigate} />;
 
   const slideLabels = params.num === "01"
-    ? ["项目背景", "用户与能力", "业务全流程概览", "核心用户旅程界面", "指令修改体验优化"]
+    ? ["项目背景", "用户与能力", "业务全流程概览", "核心用户旅程界面", "指令修改体验优化", "指令修改需求分析"]
     : undefined;
 
   const commonProps = { title: item.title, tags: item.tags, desc: item.desc };
@@ -974,6 +1181,7 @@ export function ProjectDetailPage() {
   const slide2 = params.num === "01" ? <Project01Slide2 /> : undefined;
   const slide3 = params.num === "01" ? <Project01Slide3 /> : undefined;
   const slide4 = params.num === "01" ? <Project01Slide4 /> : undefined;
+  const slide5 = params.num === "01" ? <Project01Slide5 /> : undefined;
 
   return (
     <DetailLayout
@@ -988,6 +1196,7 @@ export function ProjectDetailPage() {
       slide2={slide2}
       slide3={slide3}
       slide4={slide4}
+      slide5={slide5}
       titleForReset={item.title}
     />
   );
@@ -1030,7 +1239,7 @@ export function VibeDetailPage() {
 
 function DetailLayout({
   isZh, navigate, sectionLabel, prevPath, nextPath,
-  slideLabels, slide0, slide1, slide2, slide3, slide4, titleForReset,
+  slideLabels, slide0, slide1, slide2, slide3, slide4, slide5, titleForReset,
 }: {
   isZh: boolean;
   navigate: (to: string) => void;
@@ -1043,6 +1252,7 @@ function DetailLayout({
   slide2?: React.ReactNode;
   slide3?: React.ReactNode;
   slide4?: React.ReactNode;
+  slide5?: React.ReactNode;
   titleForReset: string;
 }) {
   const [current, setCurrent] = useState(0);
@@ -1225,6 +1435,7 @@ function DetailLayout({
           {i === 2 && slide2 && React.cloneElement(slide2 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 2 })}
           {i === 3 && slide3 && React.cloneElement(slide3 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 3 })}
           {i === 4 && slide4 && React.cloneElement(slide4 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 4 })}
+          {i === 5 && slide5 && React.cloneElement(slide5 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 5 })}
         </div>
       ))}
     </>
