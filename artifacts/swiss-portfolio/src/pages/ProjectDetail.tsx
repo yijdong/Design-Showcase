@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Layers, RefreshCw, Users } from "lucide-react";
+import { PHASE_PATTERN_COLOR, PHASE_PATTERN_IMAGE } from "@/data/phasePattern";
 import {
   PROJECTS_ZH, PROJECTS_EN, VIBE_ZH, VIBE_EN,
   DETAIL_SEQUENCE, seqPath,
@@ -59,6 +60,7 @@ const USER_IMGS    = [
   `${BASE}details/annotation-platform/user02.png`,
   `${BASE}details/annotation-platform/user03.png`,
 ];
+const PHASE_IMGS   = [1,2,3,4,5].map(n => `${BASE}details/annotation-platform/phase_${n}.png`);
 
 // ── Shared minimalist Slide 0 layout ──────────────────────────────────────
 function BaseSlide0({
@@ -187,10 +189,11 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
           <p style={{
             fontFamily: SANS, fontSize: 10, fontWeight: 700,
             color: C.accent, letterSpacing: "0.15em", textTransform: "uppercase" as const,
-            marginBottom: 10,
+            marginBottom: 14,
           }}>
             AI数据标注平台
           </p>
+          <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 18 }} />
           <h2 style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 700, color: C.text, lineHeight: 1.15 }}>
             用户与能力
           </h2>
@@ -334,10 +337,11 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
         <p style={{
           fontFamily: SANS, fontSize: 10, fontWeight: 700,
           color: C.accent, letterSpacing: "0.14em", textTransform: "uppercase" as const,
-          marginBottom: 10,
+          marginBottom: 14,
         }}>
           AI数据标注平台
         </p>
+        <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 18 }} />
         <h2 style={{
           fontFamily: SERIF, fontSize: 26, fontWeight: 700,
           color: C.text, lineHeight: 1.2,
@@ -483,6 +487,162 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
   );
 }
 
+// ── Slide 3: Project 01 — core user journey UI ─────────────────────────────
+function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
+  const NAVBAR_H = 57;
+  const BD = 0.85;
+  const E: [number, number, number, number] = [0.16, 1, 0.3, 1];
+  const [activePhase, setActivePhase] = useState(0);
+
+  const rv = (delay: number) => ({
+    initial: { opacity: 0, y: 22 },
+    animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 22 },
+    transition: { duration: 0.65, delay: isActive ? delay : 0, ease: E },
+  });
+
+  const phases = [
+    { en: "PHASE 01", zh: "项目创建与规则准备" },
+    { en: "PHASE 02", zh: "人员匹配与入场" },
+    { en: "PHASE 03", zh: "标注执行" },
+    { en: "PHASE 04", zh: "质检与审核" },
+    { en: "PHASE 05", zh: "结算与闭环" },
+  ];
+
+  return (
+    <div style={{
+      position: "relative",
+      width: "100%", height: "100vh",
+      display: "flex", flexDirection: "column",
+      paddingTop: NAVBAR_H + 28,
+      paddingBottom: 36,
+      paddingLeft: 88, paddingRight: 80,
+      boxSizing: "border-box", overflow: "hidden",
+      gap: 28,
+    }}>
+
+      {/* ── Atmospheric depth gradient ── */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse at 85% 15%, rgba(178,149,126,0.08) 0%, transparent 50%)",
+      }} />
+
+      {/* ── Sub-page header ── */}
+      <motion.div style={{ position: "relative", zIndex: 1 }} {...rv(BD)}>
+        <p style={{
+          fontFamily: SANS, fontSize: 10, fontWeight: 700,
+          color: C.accent, letterSpacing: "0.15em", textTransform: "uppercase" as const,
+          marginBottom: 14,
+        }}>
+          AI数据标注平台
+        </p>
+        <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 18 }} />
+        <h2 style={{ fontFamily: SERIF, fontSize: 28, fontWeight: 700, color: C.text, lineHeight: 1.2 }}>
+          核心用户旅程界面
+        </h2>
+        <div style={{ height: 1, background: C.border, marginTop: 18 }} />
+      </motion.div>
+
+      {/* ── Body: left phase list + right image area ── */}
+      <div style={{
+        flex: 1, minHeight: 0,
+        display: "flex", gap: 64,
+        position: "relative", zIndex: 1,
+        alignItems: "stretch",
+      }}>
+
+        {/* Left: phase list */}
+        <div style={{ width: 260, display: "flex", flexDirection: "column", justifyContent: "center", gap: 0 }}>
+          {phases.map((phase, i) => {
+            const active = activePhase === i;
+            return (
+              <motion.div
+                key={i}
+                {...rv(BD + 0.12 + i * 0.08)}
+                onMouseEnter={() => setActivePhase(i)}
+                style={{
+                  cursor: "pointer",
+                  padding: "18px 0",
+                  borderBottom: `1px solid ${C.border}`,
+                  display: "flex", alignItems: "center", gap: 14,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                {/* Active indicator */}
+                <div style={{
+                  width: 3, height: active ? 32 : 0,
+                  background: C.accent,
+                  borderRadius: 2,
+                  flexShrink: 0,
+                  transition: "height 0.35s cubic-bezier(0.16,1,0.3,1)",
+                }} />
+                <div>
+                  <p style={{
+                    fontFamily: SANS, fontSize: 9, fontWeight: 700,
+                    color: active ? C.accent : C.desc,
+                    letterSpacing: "0.13em", textTransform: "uppercase" as const,
+                    marginBottom: 4,
+                    transition: "color 0.3s ease",
+                  }}>
+                    {phase.en}
+                  </p>
+                  <p style={{
+                    fontFamily: SANS,
+                    fontSize: 14,
+                    fontWeight: active ? 600 : 400,
+                    color: active ? C.text : C.desc,
+                    lineHeight: 1.4,
+                    transition: "color 0.3s ease, font-weight 0.2s ease",
+                  }}>
+                    {phase.zh}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Right: image display area */}
+        <motion.div
+          {...rv(BD + 0.55)}
+          style={{
+            flex: 1,
+            borderRadius: 32,
+            overflow: "hidden",
+            position: "relative",
+            backgroundColor: PHASE_PATTERN_COLOR,
+            backgroundImage: PHASE_PATTERN_IMAGE,
+            backgroundSize: "600px 600px",
+          }}
+        >
+          {PHASE_IMGS.map((src, i) => (
+            <motion.img
+              key={i}
+              src={src}
+              alt={`Phase ${i + 1}`}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+              }}
+              initial={{ clipPath: i === 0 ? "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" : "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)" }}
+              animate={{
+                clipPath: activePhase === i
+                  ? "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)"
+                  : "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
+              }}
+              transition={{ ease: [0.33, 1, 0.68, 1], duration: 0.75 }}
+            />
+          ))}
+        </motion.div>
+
+      </div>
+    </div>
+  );
+}
+
 // ── Slide 0: Project 02 ────────────────────────────────────────────────────
 function Project02Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
   return <BaseSlide0 num="02" context="Huawei · Enterprise IT" title={title} tags={tags} desc={desc} />;
@@ -615,7 +775,7 @@ export function ProjectDetailPage() {
   if (!item) return <NotFound navigate={navigate} />;
 
   const slideLabels = params.num === "01"
-    ? ["项目背景", "用户与能力", "业务全流程概览", "", ""]
+    ? ["项目背景", "用户与能力", "业务全流程概览", "核心用户旅程界面", ""]
     : undefined;
 
   const commonProps = { title: item.title, tags: item.tags, desc: item.desc };
@@ -625,6 +785,7 @@ export function ProjectDetailPage() {
     : <DefaultSlide0 {...commonProps} />;
   const slide1 = params.num === "01" ? <Project01SlideUsers /> : undefined;
   const slide2 = params.num === "01" ? <Project01Slide2 /> : undefined;
+  const slide3 = params.num === "01" ? <Project01Slide3 /> : undefined;
 
   return (
     <DetailLayout
@@ -637,6 +798,7 @@ export function ProjectDetailPage() {
       slide0={slide0}
       slide1={slide1}
       slide2={slide2}
+      slide3={slide3}
       titleForReset={item.title}
     />
   );
@@ -679,7 +841,7 @@ export function VibeDetailPage() {
 
 function DetailLayout({
   isZh, navigate, sectionLabel, prevPath, nextPath,
-  slideLabels, slide0, slide1, slide2, titleForReset,
+  slideLabels, slide0, slide1, slide2, slide3, titleForReset,
 }: {
   isZh: boolean;
   navigate: (to: string) => void;
@@ -690,6 +852,7 @@ function DetailLayout({
   slide0: React.ReactNode;
   slide1?: React.ReactNode;
   slide2?: React.ReactNode;
+  slide3?: React.ReactNode;
   titleForReset: string;
 }) {
   const [current, setCurrent] = useState(0);
@@ -859,6 +1022,7 @@ function DetailLayout({
           {i === 0 && slide0}
           {i === 1 && slide1 && React.cloneElement(slide1 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 1 })}
           {i === 2 && slide2 && React.cloneElement(slide2 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 2 })}
+          {i === 3 && slide3 && React.cloneElement(slide3 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 3 })}
         </div>
       ))}
     </>
