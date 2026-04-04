@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 交互流程演示 - UX Showcase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .step-node {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 划词高亮效果 */
+        .text-highlight-blue {
+            background-color: rgba(59, 130, 246, 0.12);
+            color: #1e40af;
+            border-radius: 2px;
+            padding: 0 2px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 胶囊 Tab 样式 */
+        .capsule-tab-container {
+            display: inline-flex;
+            background-color: #f1f5f9;
+            border-radius: 999px;
+            padding: 4px;
+            border: 1px solid #e2e8f0;
+        }
+        .capsule-tab-item {
+            padding: 6px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #64748b;
+        }
+        .capsule-tab-item.active {
+            background-color: #ffffff;
+            color: #1e40af;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .orange-label {
+            color: #ea580c;
+            background-color: #fff7ed;
+            border: 1px solid #ffedd5;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            line-height: 1.6;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .input-wrapper-blue {
+            border: 1.5px solid #bfdbfe;
+            background-color: #ffffff;
+            transition: all 0.3s;
+        }
+        .input-wrapper-blue:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* 悬浮菜单样式 */
+        .action-menu {
+            opacity: 0;
+            transform: translateY(10px) scale(0.95);
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .group:hover .action-menu {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        /* 场景2：随动断点样式 */
+        #floating-breakpoint-tool {
+            pointer-events: none;
+            position: absolute;
+            z-index: 100;
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            top: 0;
+            left: 0;
+            will-change: transform;
+        }
+
+        /* 流式文字动画 */
+        .typing-text span {
+            opacity: 0;
+            display: inline;
+            animation: fadeIn 0.05s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+<base target="_self"></head>
+<body class="p-6 min-h-screen flex justify-center items-start">
+
+    <!-- 图标定义 -->
+    <svg style="display: none;">
+        <symbol id="icon-airplane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </symbol>
+        <symbol id="icon-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"></path>
+            <line x1="9" y1="18" x2="15" y2="18"></line>
+            <line x1="10" y1="22" x2="14" y2="22"></line>
+        </symbol>
+    </svg>
+
+    <div class="max-w-6xl w-full grid grid-cols-[140px_1fr] gap-12 relative">
+        
+        <!-- 左侧步骤条 -->
+        <div class="flex flex-col items-center sticky top-12 h-[80vh] justify-between py-10">
+            <div class="flex flex-col items-center gap-24 relative">
+                <div id="step1-node" class="step-node w-20 h-20 rounded-full border-2 border-blue-500 bg-blue-500 flex flex-col items-center justify-center text-center p-2 z-10 text-white shadow-lg">
+                    <span class="text-[10px] opacity-80 font-bold uppercase">Step 1</span>
+                    <span class="text-sm font-semibold">发起修改</span>
+                </div>
+                <div class="absolute top-20 bottom-20 w-[2px] bg-slate-100 -z-0">
+                    <div id="progress-line" class="w-full bg-blue-500 h-[0%] transition-all duration-700"></div>
+                </div>
+                <div id="step2-node" class="step-node w-20 h-20 rounded-full border-2 border-slate-100 bg-white flex flex-col items-center justify-center text-center p-2 z-10">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase">Step 2</span>
+                    <span class="text-sm font-semibold text-black">智能调优</span>
+                </div>
+                <div id="step3-node" class="step-node w-20 h-20 rounded-full border-2 border-slate-100 bg-white flex flex-col items-center justify-center text-center p-2 z-10">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase">Step 3</span>
+                    <span class="text-sm font-semibold text-slate-600">生成结果</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧内容区 -->
+        <div class="space-y-16">
+            
+            <!-- 部分 1: 发起修改 (带 Hover 菜单) -->
+            <section id="section-1" class="relative group grid grid-cols-[1fr_240px] gap-8">
+                <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-100 relative transition-all group-hover:border-blue-200">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs">思</div>
+                        <span class="font-medium text-sm">思考内容</span>
+                        <span class="text-[10px] text-slate-300">1206 字</span>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-5 text-slate-600 text-sm leading-relaxed border border-slate-100 relative min-h-[140px]">
+                        <span class="inline-block bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[10px] mb-2 font-medium">思考</span><br>
+                        用户想知道西安的天气情况，这属于天气查询需求。我可以使用联网搜索工具获取最新的天气信息。
+                        
+                        <!-- Hover 弹出菜单 -->
+                        <div class="action-menu absolute bottom-4 right-4 z-20">
+                            <div class="bg-white border border-slate-100 shadow-2xl rounded-xl p-1.5 min-w-[120px]">
+                                <button onclick="triggerAction('tab1')" class="w-full text-left px-3 py-2 text-xs text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    指令修改
+                                </button>
+                                <button onclick="triggerAction('tab2')" class="w-full text-left px-3 py-2 text-xs text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 border-t border-slate-50 mt-1 pt-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                                    断点后重写
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="orange-label">
+                        <svg class="w-5 h-5 flex-shrink-0 mt-0.5"><use xlink:href="#icon-lightbulb"></use></svg>
+                        <div>
+                            <div class="font-bold mb-1">统一入口</div>
+                            用户对结果不满意，悬浮至卡片触发修改。
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 部分 2: 智能调优 -->
+            <section id="section-2" class="space-y-6">
+                <div class="flex justify-start ml-2">
+                    <div class="capsule-tab-container">
+                        <div onclick="switchTab('tab1')" id="btn-tab1" class="capsule-tab-item active">场景1:指令修改</div>
+                        <div onclick="switchTab('tab2')" id="btn-tab2" class="capsule-tab-item">场景2:断点后重写</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-[1fr_240px] gap-8 min-h-[320px]">
+                    <!-- 场景 1: 指令修改内容 -->
+                    <div id="content-tab1" class="relative block">
+                        <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-100 h-full flex flex-col relative">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-6 h-6 rounded-full bg-blue-400 flex items-center justify-center text-white text-[10px]">思</div>
+                                <span class="text-sm font-medium">思考内容</span>
+                            </div>
+                            <div class="bg-slate-50 rounded-xl p-5 text-sm leading-relaxed flex-grow space-y-4">
+                                <p class="text-slate-700"><span class="text-highlight-blue">用户想知道西安的天气情况，这属于天气查询需求。我可以使用联网搜索工具获取最新的天气信息。</span></p>
+                                <div class="absolute bottom-8 right-10 flex flex-col items-end">
+                                    <div class="mb-2 w-72 bg-white border border-slate-100 shadow-2xl rounded-2xl p-4 z-40">
+                                        <div class="flex items-center justify-between mb-3 text-[11px] font-bold text-slate-700 uppercase tracking-tight">指令修改</div>
+                                        <div class="input-wrapper-blue rounded-xl p-1 flex items-end">
+                                            <textarea placeholder="请基于选定文本输入修改指令" class="w-full bg-transparent py-2 px-3 text-xs focus:outline-none min-h-[60px] resize-none"></textarea>
+                                            <div class="mb-1 mr-1 w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-md cursor-pointer">
+                                                <svg class="w-4 h-4"><use xlink:href="#icon-airplane"></use></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-lg bg-blue-500 text-white shadow-lg flex items-center justify-center">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 场景 2: 断点后重写内容 -->
+                    <div id="content-tab2" class="relative hidden">
+                        <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-100 flex flex-col relative overflow-hidden" style="min-height: 280px;">
+                            <div class="absolute top-4 left-1/2 transform -translate-x-1/2 z-[70]">
+                                <div class="flex items-center gap-3 bg-blue-600 text-white rounded-xl px-4 py-2 shadow-xl w-fit whitespace-nowrap">
+                                    <span class="text-xs font-medium">请在高亮文本区域选择断点</span>
+                                    <button class="text-[10px] bg-white/20 px-2 py-0.5 rounded hover:bg-white/30">退出</button>
+                                </div>
+                            </div>
+
+                            <div id="breakpoint-area" class="bg-slate-50 rounded-xl p-8 text-sm leading-[2.2] text-slate-700 relative mt-10" 
+                                 onmousemove="moveBreakpoint(event)" 
+                                 onmouseleave="hideBreakpointTool()">
+                                
+                                <div id="text-content-wrapper" class="relative z-10">
+                                    <p><span class="text-highlight-blue">用户想知道西安的天气情况，这属于典型的实时信息查询需求。为了提供准确的回答，我需要获取当前的时间和地理位置。西安作为中国西北的重要城市，其气候具有明显的季节性特征。</span></p>
+                                    <p class="mt-4"><span class="text-highlight-blue">根据现有的逻辑框架，我将调用内部的高级联网插件。该插件能够访问多个气象API接口，并返回包含温度、湿度、风级及未来24小时预报的综合数据包。在处理这些返回的JSON数据时，我会进行数据清洗以过滤掉不相关的广告信息</span></p>
+                                </div>
+
+                                <!-- 随动断点工具 -->
+                                <div id="floating-breakpoint-tool">
+                                    <div class="w-[2px] h-6 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,1)]"></div>
+                                    <div class="mt-0.5 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[10px] whitespace-nowrap shadow-xl flex items-center gap-1.5">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                        单击添加断点
+                                    </div>
+                                </div>
+
+                                <!-- 固定输入框 -->
+                                <div class="absolute bottom-4 right-6 flex flex-col items-end z-20">
+                                    <div class="mb-2 w-[340px] bg-white border border-slate-100 shadow-2xl rounded-2xl p-4">
+                                        <div class="flex items-center justify-between mb-3 text-[11px] font-bold text-slate-700 uppercase tracking-tight">断点后重写</div>
+                                        <div class="input-wrapper-blue rounded-xl p-1 flex items-end">
+                                            <textarea placeholder="请输入修改指令，重写断点后的内容" class="w-full bg-transparent py-2 px-3 text-xs focus:outline-none min-h-[60px] resize-none"></textarea>
+                                            <div class="mb-1 mr-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-md cursor-pointer">
+                                                <svg class="w-4 h-4"><use xlink:href="#icon-airplane"></use></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-400">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 动态说明文字区 -->
+                    <div class="flex items-start">
+                        <!-- 场景1说明文字 -->
+                        <div id="desc-tab1" class="orange-label flex">
+                            <svg class="w-5 h-5 flex-shrink-0 mt-0.5"><use xlink:href="#icon-lightbulb"></use></svg>
+                            <div>
+                                <strong>状态可视化：</strong>单击指令修改后，所针对修改的文字会有划词背景高亮色，帮助标注人员明确指令作用范围，避免修改边界不清。
+                            </div>
+                        </div>
+                        <!-- 场景2说明文字 -->
+                        <div id="desc-tab2" class="orange-label hidden">
+                            <svg class="w-5 h-5 flex-shrink-0 mt-0.5"><use xlink:href="#icon-lightbulb"></use></svg>
+                            <div>
+                                悬浮提示与常驻引导结合，降低“打断点”理解成本。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 部分 3: 生成结果 -->
+            <section id="section-3" class="pt-8 grid grid-cols-[1fr_240px] gap-8">
+                <div class="bg-white rounded-3xl p-6 card-shadow border border-slate-100 relative min-h-[420px]">
+                    <div class="flex items-center justify-between mb-4 px-2">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                            <span class="text-sm font-bold">生成预览</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-4 flex items-center gap-3">
+                        <span class="text-sm text-slate-700 flex-grow">口语化一些，增加温馨提示</span>
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg">
+                            <svg class="w-4 h-4"><use xlink:href="#icon-airplane"></use></svg>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-slate-100 rounded-2xl p-6 relative">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded">思考</span>
+                        </div>
+                        <div id="streaming-content" class="text-sm text-slate-600 leading-[1.8] min-h-[140px] typing-text"></div>
+                        
+                        <div class="mt-8 pt-4 border-t border-slate-50 flex items-center justify-between">
+                             <div class="flex items-center gap-4">
+                                <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                             </div>
+                             <button id="fill-btn" class="px-6 py-2 bg-blue-600 text-white text-xs rounded-full font-bold shadow-lg opacity-0 transition-opacity">一键填充</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-start pt-8">
+                    <div class="orange-label flex">
+                        <svg class="w-5 h-5 flex-shrink-0 mt-0.5"><use xlink:href="#icon-lightbulb"></use></svg>
+                        <div>
+                            <ul class="space-y-2 list-disc pl-4">
+                                <li>支持多次编辑指令，重复生成，直至得到满意的结果</li>
+                                <li>支持流式逐句生成，可快速预览并一键应用至主编辑器。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // 触发菜单动作
+        function triggerAction(tabId) {
+            // 切换 Tab
+            switchTab(tabId);
+            // 滚动到 Section 2
+            document.getElementById('section-2').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function switchTab(tabId) {
+            const tabs = ['tab1', 'tab2'];
+            tabs.forEach(id => {
+                const content = document.getElementById(`content-${id}`);
+                const btn = document.getElementById(`btn-${id}`);
+                const desc = document.getElementById(`desc-${id}`);
+                if (id === tabId) {
+                    content.classList.replace('hidden', 'block');
+                    btn.classList.add('active');
+                    desc.classList.replace('hidden', 'flex'); 
+                } else {
+                    content.classList.replace('block', 'hidden');
+                    btn.classList.remove('active');
+                    desc.classList.replace('flex', 'hidden');
+                }
+            });
+        }
+
+        // 随动断点逻辑
+        function moveBreakpoint(e) {
+            const tool = document.getElementById('floating-breakpoint-tool');
+            const area = document.getElementById('breakpoint-area');
+            const wrapper = document.getElementById('text-content-wrapper');
+            
+            const areaRect = area.getBoundingClientRect();
+            const wrapperRect = wrapper.getBoundingClientRect();
+            
+            const mouseX = e.clientX - areaRect.left;
+            const mouseY = e.clientY - areaRect.top;
+
+            const isInsideText = (
+                e.clientX >= wrapperRect.left && e.clientX <= wrapperRect.right && 
+                e.clientY >= wrapperRect.top && e.clientY <= wrapperRect.bottom
+            );
+
+            if (isInsideText) {
+                tool.style.display = 'flex';
+                tool.style.transform = `translate(${mouseX}px, ${mouseY - 8}px)`;
+            } else {
+                tool.style.display = 'none';
+            }
+        }
+
+        function hideBreakpointTool() {
+            document.getElementById('floating-breakpoint-tool').style.display = 'none';
+        }
+
+        const fullText = "好的，我已为您优化了表达方式。西安目前的空气质量为良，但晚间气温下降较快，如果您计划在城墙附近散步，建议加一件轻便的防风外套。此外，系统检测到后天可能有微弱降水，记得提前查看天气预报。";
+        let isTyping = false;
+
+        function startTyping() {
+            if (isTyping) return;
+            isTyping = true;
+            const container = document.getElementById('streaming-content');
+            const fillBtn = document.getElementById('fill-btn');
+            container.innerHTML = '';
+            
+            fullText.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.innerText = char;
+                span.style.animationDelay = `${index * 0.02}s`;
+                container.appendChild(span);
+            });
+
+            setTimeout(() => {
+                fillBtn.style.opacity = '1';
+            }, fullText.length * 25);
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            const progressLine = document.getElementById('progress-line');
+            const s1 = document.getElementById('step1-node');
+            const s2 = document.getElementById('step2-node');
+            const s3 = document.getElementById('step3-node');
+
+            progressLine.style.height = `${scrollPercent}%`;
+
+            if (scrollPercent < 30) {
+                setActive(s1); setInactive(s2); setInactive(s3);
+            } else if (scrollPercent < 70) {
+                setInactive(s1); setActive(s2); setInactive(s3);
+            } else {
+                setInactive(s1); setInactive(s2); setActive(s3);
+                startTyping();
+            }
+        });
+
+        function setActive(node) {
+            node.classList.add('bg-blue-500', 'border-blue-500', 'text-white', 'shadow-lg');
+            node.classList.remove('bg-white', 'text-slate-400', 'border-slate-100');
+            node.querySelector('span:last-child').style.color = '#ffffff';
+        }
+
+        function setInactive(node) {
+            node.classList.remove('bg-blue-500', 'border-blue-500', 'text-white', 'shadow-lg');
+            node.classList.add('bg-white', 'border-slate-100');
+            node.querySelector('span:last-child').style.color = (node.id === 'step2-node') ? '#000000' : '#475569';
+        }
+
+        window.dispatchEvent(new Event('scroll'));
+    </script>
+</body>
+</html>

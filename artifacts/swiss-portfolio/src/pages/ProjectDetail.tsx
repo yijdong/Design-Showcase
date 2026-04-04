@@ -24,7 +24,7 @@ const SLIDES = [
   { bg: "#EDE8E0", text: "#2E2E2E" },
   { bg: "#E4DDD5", text: "#2E2E2E" },
   { bg: "#D8D0C7", text: "#2E2E2E" },
-  { bg: "#2E2E2E", text: "#F9F6F1" },
+  { bg: "#C9C0B6", text: "#2E2E2E" },
 ];
 
 const DURATION = 900;
@@ -543,7 +543,7 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
         flex: 1, minHeight: 0,
         display: "flex", gap: 64,
         position: "relative", zIndex: 1,
-        alignItems: "flex-start",
+        alignItems: "center",
       }}>
 
         {/* Left: phase list */}
@@ -595,11 +595,12 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
           })}
         </div>
 
-        {/* Right: image display area — 16:10 */}
+        {/* Right: image display area — 16:10, height-constrained with breathing room */}
         <motion.div
           {...rv(BD + 0.55)}
           style={{
-            flex: 1,
+            height: "calc(100vh - 290px)",
+            maxHeight: 440,
             aspectRatio: "16/10",
             borderRadius: 32,
             overflow: "hidden",
@@ -608,6 +609,7 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
             backgroundImage: PHASE_PATTERN_IMAGE,
             backgroundSize: "600px 600px",
             flexShrink: 0,
+            marginBlock: 12,
           }}
         >
           {PHASE_IMGS.map((src, i) => (
@@ -637,6 +639,190 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
               />
             </motion.div>
           ))}
+        </motion.div>
+
+      </div>
+    </div>
+  );
+}
+
+// ── Project 01 / Slide 4: 指令修改体验优化 ──────────────────────────────────
+function Project01Slide4({ isActive = false }: { isActive?: boolean }) {
+  const NAVBAR_H = 57;
+  const BD = 0.85;
+  const E: [number,number,number,number] = [0.16,1,0.3,1];
+  const slideBg = SLIDES[4].bg;
+
+  const rv = (delay: number) => ({
+    initial: { opacity: 0, y: 28 },
+    animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 },
+    transition: { duration: 0.72, delay, ease: E },
+  });
+
+  const iframeSrc = `${import.meta.env.BASE_URL}details/annotation-platform/slide-interaction.html`;
+
+  return (
+    <div style={{
+      position: "relative", width: "100%", height: "100vh",
+      display: "flex", flexDirection: "column",
+      paddingTop: NAVBAR_H + 28, paddingBottom: 32,
+      paddingLeft: 88, paddingRight: 80,
+      boxSizing: "border-box", overflow: "hidden",
+      gap: 20, backgroundColor: slideBg,
+    }}>
+      {/* Atmospheric gradient */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
+        background: `radial-gradient(ellipse 70% 60% at 75% 40%, rgba(220,210,195,0.45) 0%, transparent 70%)`,
+      }} />
+
+      {/* ── Header ── */}
+      <motion.div {...rv(BD)} style={{ position: "relative", zIndex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <p style={{
+            fontFamily: SANS, fontSize: 11, letterSpacing: "0.12em",
+            textTransform: "uppercase", color: C.desc, margin: 0,
+          }}>
+            AI数据标注平台
+          </p>
+          <span style={{
+            fontFamily: SANS, fontSize: 10, letterSpacing: "0.08em",
+            color: C.accent, backgroundColor: `${C.accent}1A`, border: `1px solid ${C.accent}40`,
+            padding: "2px 8px", borderRadius: 100, lineHeight: 1.5,
+          }}>
+            标注执行阶段
+          </span>
+        </div>
+        <h2 style={{
+          fontFamily: SERIF, fontSize: 28, fontWeight: 700, color: C.text,
+          margin: 0, letterSpacing: "-0.01em", lineHeight: 1.25,
+        }}>
+          关键方案 — 指令修改体验优化
+        </h2>
+      </motion.div>
+
+      {/* ── Body: left text + right iframe ── */}
+      <div style={{
+        flex: 1, minHeight: 0,
+        display: "flex", gap: 56,
+        position: "relative", zIndex: 1,
+        alignItems: "stretch",
+      }}>
+
+        {/* Left: structured text */}
+        <motion.div {...rv(BD + 0.12)} style={{
+          width: 300, flexShrink: 0,
+          display: "flex", flexDirection: "column", gap: 28,
+          justifyContent: "center",
+        }}>
+          {/* 需求背景 */}
+          <div>
+            <p style={{
+              fontFamily: SANS, fontSize: 10, letterSpacing: "0.14em",
+              textTransform: "uppercase", color: C.accent, margin: "0 0 10px",
+              fontWeight: 600,
+            }}>需求背景</p>
+            <p style={{
+              fontFamily: SANS, fontSize: 13.5, lineHeight: 1.85,
+              color: C.desc, margin: 0,
+            }}>
+              智能体组件通过多轮对话生成推荐思考内容，标注人员需要频繁重新请求模型并人工调整结果，筛选可用内容用于后续模型训练。
+            </p>
+          </div>
+
+          {/* Divider */}
+          <div style={{ height: 1, backgroundColor: C.border }} />
+
+          {/* 核心痛点 */}
+          <div>
+            <p style={{
+              fontFamily: SANS, fontSize: 10, letterSpacing: "0.14em",
+              textTransform: "uppercase", color: C.accent, margin: "0 0 14px",
+              fontWeight: 600,
+            }}>核心痛点</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <p style={{
+                  fontFamily: SANS, fontSize: 13, fontWeight: 600,
+                  color: C.text, margin: "0 0 4px",
+                }}>结果不可控</p>
+                <p style={{
+                  fontFamily: SANS, fontSize: 12.5, lineHeight: 1.75,
+                  color: C.desc, margin: 0,
+                }}>每次全量重生成随机性高，标注人员需要反复试错才能获得可用结果。</p>
+              </div>
+              <div>
+                <p style={{
+                  fontFamily: SANS, fontSize: 13, fontWeight: 600,
+                  color: C.text, margin: "0 0 4px",
+                }}>优质内容丢失</p>
+                <p style={{
+                  fontFamily: SANS, fontSize: 12.5, lineHeight: 1.75,
+                  color: C.desc, margin: 0,
+                }}>重新生成会覆盖已有优质内容，缺乏对局部修改与结果保留的支持。</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div style={{ height: 1, backgroundColor: C.border }} />
+
+          {/* 设计策略 */}
+          <div>
+            <p style={{
+              fontFamily: SANS, fontSize: 10, letterSpacing: "0.14em",
+              textTransform: "uppercase", color: C.accent, margin: "0 0 14px",
+              fontWeight: 600,
+            }}>设计策略</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <p style={{
+                  fontFamily: SANS, fontSize: 13, fontWeight: 600,
+                  color: C.text, margin: "0 0 4px",
+                }}>指令修改</p>
+                <p style={{
+                  fontFamily: SANS, fontSize: 12.5, lineHeight: 1.75,
+                  color: C.desc, margin: 0,
+                }}>通过明确修改指令意图，收敛生成范围。</p>
+              </div>
+              <div>
+                <p style={{
+                  fontFamily: SANS, fontSize: 13, fontWeight: 600,
+                  color: C.text, margin: "0 0 4px",
+                }}>断点后重写</p>
+                <p style={{
+                  fontFamily: SANS, fontSize: 12.5, lineHeight: 1.75,
+                  color: C.desc, margin: 0,
+                }}>仅重构不满意部分，降低试错与返工。</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Right: iframe demo */}
+        <motion.div
+          {...rv(BD + 0.35)}
+          style={{
+            flex: 1,
+            borderRadius: 32,
+            overflow: "hidden",
+            position: "relative",
+            backgroundColor: "#f8fafc",
+            marginBlock: 12,
+            boxShadow: "0 8px 40px rgba(0,0,0,0.08)",
+          }}
+        >
+          {isActive && (
+            <iframe
+              src={iframeSrc}
+              title="指令修改体验演示"
+              style={{
+                width: "100%", height: "100%",
+                border: "none", display: "block",
+              }}
+              sandbox="allow-scripts allow-same-origin"
+            />
+          )}
         </motion.div>
 
       </div>
@@ -776,7 +962,7 @@ export function ProjectDetailPage() {
   if (!item) return <NotFound navigate={navigate} />;
 
   const slideLabels = params.num === "01"
-    ? ["项目背景", "用户与能力", "业务全流程概览", "核心用户旅程界面", ""]
+    ? ["项目背景", "用户与能力", "业务全流程概览", "核心用户旅程界面", "指令修改体验优化"]
     : undefined;
 
   const commonProps = { title: item.title, tags: item.tags, desc: item.desc };
@@ -787,6 +973,7 @@ export function ProjectDetailPage() {
   const slide1 = params.num === "01" ? <Project01SlideUsers /> : undefined;
   const slide2 = params.num === "01" ? <Project01Slide2 /> : undefined;
   const slide3 = params.num === "01" ? <Project01Slide3 /> : undefined;
+  const slide4 = params.num === "01" ? <Project01Slide4 /> : undefined;
 
   return (
     <DetailLayout
@@ -800,6 +987,7 @@ export function ProjectDetailPage() {
       slide1={slide1}
       slide2={slide2}
       slide3={slide3}
+      slide4={slide4}
       titleForReset={item.title}
     />
   );
@@ -842,7 +1030,7 @@ export function VibeDetailPage() {
 
 function DetailLayout({
   isZh, navigate, sectionLabel, prevPath, nextPath,
-  slideLabels, slide0, slide1, slide2, slide3, titleForReset,
+  slideLabels, slide0, slide1, slide2, slide3, slide4, titleForReset,
 }: {
   isZh: boolean;
   navigate: (to: string) => void;
@@ -854,6 +1042,7 @@ function DetailLayout({
   slide1?: React.ReactNode;
   slide2?: React.ReactNode;
   slide3?: React.ReactNode;
+  slide4?: React.ReactNode;
   titleForReset: string;
 }) {
   const [current, setCurrent] = useState(0);
@@ -921,8 +1110,8 @@ function DetailLayout({
   }, []);
 
   const textColor = SLIDES[current].text;
-  const navBg     = current === 4 ? "rgba(46,46,46,0.96)"   : "rgba(252,251,248,0.96)";
-  const navBorder = current === 4 ? "rgba(249,246,241,0.10)" : C.border;
+  const navBg     = "rgba(252,251,248,0.96)";
+  const navBorder = C.border;
 
   return (
     <>
@@ -1035,6 +1224,7 @@ function DetailLayout({
           {i === 1 && slide1 && React.cloneElement(slide1 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 1 })}
           {i === 2 && slide2 && React.cloneElement(slide2 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 2 })}
           {i === 3 && slide3 && React.cloneElement(slide3 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 3 })}
+          {i === 4 && slide4 && React.cloneElement(slide4 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 4 })}
         </div>
       ))}
     </>
