@@ -60,338 +60,148 @@ const USER_IMGS    = [
   `${BASE}details/annotation-platform/user03.png`,
 ];
 
-// ── Shared base layout for all Slide 0 pages ──────────────────────────────
+// ── Shared minimalist Slide 0 layout ──────────────────────────────────────
 function BaseSlide0({
-  num, context, title, tags, desc, imgSrc, right,
+  num, context, title, tags, desc,
 }: {
   num: string; context: string; title: string;
-  tags: string[]; desc: string; imgSrc?: string;
-  right: React.ReactNode;
+  tags: string[]; desc: string;
 }) {
   const NAVBAR_H = 57;
   return (
     <div style={{
       position: "relative",
       width: "100%", height: "100vh",
-      display: "flex", alignItems: "center",
-      paddingTop: NAVBAR_H + 28, paddingBottom: 28,
-      paddingLeft: 60, paddingRight: 60,
-      gap: "4%", boxSizing: "border-box", overflow: "hidden",
+      display: "flex", flexDirection: "column", justifyContent: "center",
+      paddingTop: NAVBAR_H + 60, paddingBottom: 80,
+      paddingLeft: 80, paddingRight: 80,
+      boxSizing: "border-box", overflow: "hidden",
     }}>
       {/* editorial background number */}
       <div style={{
-        position: "absolute", top: NAVBAR_H + 4, left: 46,
-        fontFamily: SERIF, fontSize: "clamp(80px, 13vw, 150px)",
-        fontWeight: 700, color: C.text, opacity: 0.045,
+        position: "absolute", top: NAVBAR_H + 0, left: 66,
+        fontFamily: SERIF, fontSize: "clamp(120px, 18vw, 220px)",
+        fontWeight: 700, color: C.text, opacity: 0.030,
         lineHeight: 1, pointerEvents: "none", userSelect: "none", zIndex: 0,
       }}>
         {num}
       </div>
 
-      {/* left column */}
-      <div style={{
-        position: "relative", zIndex: 1,
-        flex: "0 0 50%", display: "flex", flexDirection: "column",
-        minWidth: 0, overflow: "hidden", alignSelf: "stretch",
-      }}>
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 780 }}>
         <p style={{
           fontFamily: SANS, fontSize: 10, fontWeight: 700,
-          color: C.accent, letterSpacing: "0.12em", textTransform: "uppercase" as const,
-          marginBottom: 14,
+          color: C.accent, letterSpacing: "0.16em", textTransform: "uppercase" as const,
+          marginBottom: 22,
         }}>
           {context}
         </p>
-        <div style={{ width: 36, height: 2, background: C.accent, marginBottom: 14 }} />
+        <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 32 }} />
         <h1 style={{
-          fontFamily: SERIF, fontSize: "clamp(28px, 3.4vw, 52px)",
-          fontWeight: 700, color: C.text, lineHeight: 1.15, marginBottom: 16,
+          fontFamily: SERIF,
+          fontSize: "clamp(40px, 5.4vw, 72px)",
+          fontWeight: 700, color: C.text,
+          lineHeight: 1.08, marginBottom: 32,
         }}>
           {title}
         </h1>
-        <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 40 }}>
           {tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}
         </div>
         <p style={{
-          fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.9,
-          marginBottom: imgSrc ? 20 : 0, maxWidth: 540,
+          fontFamily: SANS, fontSize: 16, color: C.desc,
+          lineHeight: 2.0, maxWidth: 600,
         }}>
           {desc}
         </p>
-        {imgSrc && (
-          <div style={{ flex: 1, minHeight: 0, borderRadius: 24, border: `1px solid #F0EAE4`, overflow: "hidden", background: "#FAFAFA" }}>
-            <img src={imgSrc} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
-          </div>
-        )}
-      </div>
-
-      {/* right column */}
-      <div style={{ position: "relative", zIndex: 1, flex: 1, minWidth: 0, alignSelf: "center" }}>
-        {right}
       </div>
     </div>
   );
 }
 
-function ICard({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ background: "#EFEBE5", borderRadius: 20, padding: "24px 22px", overflow: "hidden" }}>
-      {children}
-    </div>
-  );
-}
-
-function ILabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, color: C.desc, letterSpacing: "0.1em", textTransform: "uppercase" as const, marginBottom: 10 }}>
-      {children}
-    </p>
-  );
-}
-
-function IDivider() {
-  return <div style={{ height: 1, background: C.border, margin: "18px 0" }} />;
-}
-
-function IBullet({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 9, marginBottom: 8 }}>
-      <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.accent, marginTop: 6, flexShrink: 0, opacity: 0.65 }} />
-      <span style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.6 }}>{children}</span>
-    </div>
-  );
-}
-
-// ── Slide 0 content for project 01 ─────────────────────────────────────────
+// ── Slide 0: Project 01 — title / tags / desc ──────────────────────────────
 function Project01Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
+  return (
+    <BaseSlide0 num="01" context="ERNIE Bot · Wicresoft" title={title} tags={tags} desc={desc} />
+  );
+}
+
+// ── Slide 1: Project 01 — users & capabilities ─────────────────────────────
+function Project01SlideUsers() {
+  const NAVBAR_H = 57;
+
   const users = [
     { img: USER_IMGS[0], name: "管理人员",      role: "配置任务、规则与人员体系" },
     { img: USER_IMGS[1], name: "标注人员",      role: "完成具体数据标注任务" },
     { img: USER_IMGS[2], name: "质检/审核人员", role: "对标注结果进行多级质量把控" },
   ];
+
   const caps = [
-    { icon: <Layers size={16} strokeWidth={1.7} />, name: "多模态标注能力", note: "覆盖文本、多模态、智能体等复杂题型" },
-    { icon: <RefreshCw size={16} strokeWidth={1.7} />, name: "完整质量闭环",  note: "标注-质检-审核-返修-数据入库" },
-    { icon: <Users size={16} strokeWidth={1.7} />,  name: "规模化人力调度", note: "支持场内+垂类兼职+专家人员协同作业" },
+    { icon: <Layers size={15} strokeWidth={1.5} />, name: "多模态标注能力", note: "覆盖文本、多模态、智能体等复杂题型" },
+    { icon: <RefreshCw size={15} strokeWidth={1.5} />, name: "完整质量闭环",  note: "标注-质检-审核-返修-数据入库" },
+    { icon: <Users size={15} strokeWidth={1.5} />,  name: "规模化人力调度", note: "支持场内+垂类兼职+专家人员协同作业" },
   ];
 
-  const right = (
-    <ICard>
-      <ILabel>用户群体</ILabel>
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        {users.map(u => (
-          <div key={u.name} style={{ display: "flex", alignItems: "center", gap: 13 }}>
-            <img src={u.img} alt={u.name} style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: `1.5px solid ${C.border}` }} />
-            <div>
-              <div style={{ fontFamily: SANS, fontSize: 14, fontWeight: 600, color: C.text, lineHeight: 1.3 }}>{u.name}</div>
-              <div style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.5, marginTop: 2 }}>{u.role}</div>
+  const COL_LABEL: React.CSSProperties = {
+    fontFamily: SANS, fontSize: 10, fontWeight: 700,
+    color: C.accent, letterSpacing: "0.14em", textTransform: "uppercase",
+    marginBottom: 0,
+  };
+
+  return (
+    <div style={{
+      width: "100%", height: "100vh",
+      display: "flex", flexDirection: "column", justifyContent: "center",
+      paddingTop: NAVBAR_H + 60, paddingBottom: 80,
+      paddingLeft: 80, paddingRight: 80,
+      boxSizing: "border-box",
+    }}>
+      <div style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
+
+        {/* ── Users column ── */}
+        <div style={{ flex: 1 }}>
+          <p style={COL_LABEL}>用户群体</p>
+          <div style={{ height: 1, background: C.border, marginTop: 16, marginBottom: 0 }} />
+          {users.map((u, i) => (
+            <div key={u.name} style={{
+              display: "flex", alignItems: "center", gap: 20,
+              padding: "22px 0",
+              borderBottom: i < users.length - 1 ? `1px solid ${C.border}` : undefined,
+            }}>
+              <img
+                src={u.img}
+                alt={u.name}
+                style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+              />
+              <div>
+                <div style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, lineHeight: 1.3 }}>{u.name}</div>
+                <div style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.6, marginTop: 4 }}>{u.role}</div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* ── Capabilities column ── */}
+        <div style={{ flex: 1 }}>
+          <p style={COL_LABEL}>核心能力</p>
+          <div style={{ height: 1, background: C.border, marginTop: 16, marginBottom: 0 }} />
+          {caps.map((cap, i) => (
+            <div key={cap.name} style={{
+              padding: "22px 0",
+              borderBottom: i < caps.length - 1 ? `1px solid ${C.border}` : undefined,
+            }}>
+              <div style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, lineHeight: 1.3, marginBottom: 6 }}>{cap.name}</div>
+              <div style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.7 }}>{cap.note}</div>
+            </div>
+          ))}
+        </div>
+
       </div>
-      <IDivider />
-      <ILabel>核心能力</ILabel>
-      <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-        {caps.map(cap => (
-          <div key={cap.name} style={{ display: "flex", alignItems: "center", gap: 13, background: "rgba(255,255,255,0.55)", borderRadius: 12, padding: "11px 14px", border: `1px solid rgba(255,255,255,0.8)` }}>
-            <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(178,149,126,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: C.accent, flexShrink: 0 }}>
-              {cap.icon}
-            </div>
-            <div>
-              <div style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: C.text, lineHeight: 1.3 }}>{cap.name}</div>
-              <div style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.5, marginTop: 2 }}>{cap.note}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </ICard>
-  );
-
-  return (
-    <BaseSlide0
-      num="01" context="ERNIE Bot · Wicresoft"
-      title={title} tags={tags} desc={desc}
-      imgSrc={ANNOT_IMG} right={right}
-    />
+    </div>
   );
 }
 
-// ── Slide 0 for project 02 ──────────────────────────────────────────────────
-function Project02Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
-  return (
-    <BaseSlide0
-      num="02" context="Huawei · Enterprise IT"
-      title={title} tags={tags} desc={desc}
-      right={
-        <ICard>
-          <ILabel>项目类型</ILabel>
-          <p style={{ fontFamily: SANS, fontSize: 14, fontWeight: 600, color: C.text, lineHeight: 1.5, marginBottom: 4 }}>
-            0-1 产品设计
-          </p>
-          <p style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.6 }}>
-            全球化 IT 设备全生命周期管理系统
-          </p>
-          <IDivider />
-          <ILabel>核心挑战</ILabel>
-          <IBullet>多角色协作——管理员、IT 运维、审计跨部门</IBullet>
-          <IBullet>跨地域规模化——覆盖全球多个业务实体</IBullet>
-          <IBullet>复杂生命周期——采购、部署、运维、报废全链路</IBullet>
-          <IDivider />
-          <ILabel>我的贡献</ILabel>
-          <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.8 }}>
-            需求挖掘 · 信息架构 · 原型设计 · 可用性测试
-          </p>
-        </ICard>
-      }
-    />
-  );
-}
-
-// ── Slide 0 for project 03 ──────────────────────────────────────────────────
-function Project03Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
-  return (
-    <BaseSlide0
-      num="03" context="Mercedes-Benz Financial Services"
-      title={title} tags={tags} desc={desc}
-      right={
-        <ICard>
-          <ILabel>研究方法</ILabel>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 4 }}>
-            {["用户旅程地图", "深度用户访谈", "竞品分析"].map(m => (
-              <div key={m} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(178,149,126,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.accent }} />
-                </div>
-                <span style={{ fontFamily: SANS, fontSize: 13, color: C.text, fontWeight: 500 }}>{m}</span>
-              </div>
-            ))}
-          </div>
-          <IDivider />
-          <ILabel>核心成果</ILabel>
-          <IBullet>申请流程重新设计——减少操作步骤与认知负担</IBullet>
-          <IBullet>核心交互模型重构——贴合用户实际使用场景</IBullet>
-          <IDivider />
-          <ILabel>设计价值</ILabel>
-          <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.8 }}>
-            以用户旅程为驱动，识别高频痛点，推动金融服务数字化体验从功能完善走向以人为本
-          </p>
-        </ICard>
-      }
-    />
-  );
-}
-
-// ── Slide 0 for vibe 0 ──────────────────────────────────────────────────────
-function Vibe0Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
-  return (
-    <BaseSlide0
-      num="V1" context="Luxshare Precision · North America"
-      title={title} tags={tags} desc={desc}
-      right={
-        <ICard>
-          <ILabel>项目范围</ILabel>
-          <p style={{ fontFamily: SANS, fontSize: 14, fontWeight: 600, color: C.text, lineHeight: 1.5, marginBottom: 4 }}>
-            北美市场 AI 手机桌面系统
-          </p>
-          <p style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.6 }}>
-            AI 原生交互范式的产品定义与设计探索
-          </p>
-          <IDivider />
-          <ILabel>工作内容</ILabel>
-          <IBullet>竞品分析——北美主流 AI 手机交互研究</IBullet>
-          <IBullet>需求定义——桌面系统功能与交互规范文档</IBullet>
-          <IBullet>原型设计——核心 AI 场景高保真交互原型</IBullet>
-          <IDivider />
-          <ILabel>探索方向</ILabel>
-          <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.8 }}>
-            AI 在移动端的新交互范式——从指令驱动到意图感知
-          </p>
-        </ICard>
-      }
-    />
-  );
-}
-
-// ── Slide 0 for vibe 1 ──────────────────────────────────────────────────────
-function Vibe1Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
-  const stack = [
-    { label: "设计", value: "Figma 方案" },
-    { label: "开发", value: "Vibe Coding" },
-    { label: "平台", value: "Replit" },
-    { label: "部署", value: "自动化上线" },
-  ];
-  return (
-    <BaseSlide0
-      num="V2" context="Personal Project · This Site"
-      title={title} tags={tags} desc={desc}
-      right={
-        <ICard>
-          <ILabel>工具与方法</ILabel>
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {stack.map((s, i) => (
-              <div key={s.label}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0" }}>
-                  <span style={{ fontFamily: SANS, fontSize: 11, fontWeight: 700, color: C.desc, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>{s.label}</span>
-                  <span style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: C.text }}>{s.value}</span>
-                </div>
-                {i < stack.length - 1 && <div style={{ height: 1, background: C.border }} />}
-              </div>
-            ))}
-          </div>
-          <IDivider />
-          <ILabel>设计理念</ILabel>
-          <p style={{ fontFamily: SERIF, fontSize: 15, fontStyle: "italic", color: C.text, lineHeight: 1.7 }}>
-            "从设计稿到可交互产品，一气呵成"
-          </p>
-          <p style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.7, marginTop: 8 }}>
-            你现在看到的这个页面本身，就是这个项目的成果
-          </p>
-        </ICard>
-      }
-    />
-  );
-}
-
-// ── Slide 0 for vibe 2 ──────────────────────────────────────────────────────
-function Vibe2Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
-  const flow = ["上传印刷拼版文件", "Gemini Vision 智能检测", "输出页序校验报告"];
-  return (
-    <BaseSlide0
-      num="V3" context="Google AI Studio · Gemini"
-      title={title} tags={tags} desc={desc}
-      right={
-        <ICard>
-          <ILabel>技术栈</ILabel>
-          <p style={{ fontFamily: SANS, fontSize: 14, fontWeight: 600, color: C.text, lineHeight: 1.5, marginBottom: 4 }}>
-            Google AI Studio + Gemini Vision API
-          </p>
-          <p style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.6 }}>
-            本地运行，无需服务端部署
-          </p>
-          <IDivider />
-          <ILabel>使用流程</ILabel>
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {flow.map((step, i) => (
-              <div key={step} style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 0" }}>
-                <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(178,149,126,0.15)", border: `1.5px solid ${C.accent}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <span style={{ fontFamily: SANS, fontSize: 9, fontWeight: 800, color: C.accent }}>0{i + 1}</span>
-                </div>
-                <span style={{ fontFamily: SANS, fontSize: 13, color: C.text, lineHeight: 1.5 }}>{step}</span>
-              </div>
-            ))}
-          </div>
-          <IDivider />
-          <ILabel>适用场景</ILabel>
-          <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.8 }}>
-            骑马钉装帧印刷品的拼版页序校验——解决传统人工肉眼校对效率低的问题
-          </p>
-        </ICard>
-      }
-    />
-  );
-}
-
-// ── Slide 1: Journey Map for project 01 ────────────────────────────────────
-function Project01Slide1() {
+// ── Slide 2: Journey Map for project 01 ────────────────────────────────────
+function Project01Slide2() {
   const NAVBAR_H = 57;
 
   const phases = [
@@ -484,8 +294,6 @@ function Project01Slide1() {
         background: CELL_BG,
       }}>
 
-        {/* ── Header row ── */}
-
         {/* corner */}
         <div style={{
           borderRight: `1px solid ${LINE}`,
@@ -520,7 +328,7 @@ function Project01Slide1() {
           </div>
         ))}
 
-        {/* ── Content rows ── */}
+        {/* content rows */}
         {rows.map((row, ri) => (
           <React.Fragment key={ri}>
 
@@ -535,16 +343,10 @@ function Project01Slide1() {
               padding: "10px 6px",
               gap: 4,
             }}>
-              <p style={{
-                fontFamily: SANS, fontSize: 11, fontWeight: 700,
-                color: C.text, letterSpacing: "0.04em", textAlign: "center",
-              }}>
+              <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 700, color: C.text, letterSpacing: "0.04em", textAlign: "center" }}>
                 {row.role}
               </p>
-              <p style={{
-                fontFamily: SANS, fontSize: 9, color: C.desc,
-                letterSpacing: "0.06em", textAlign: "center",
-              }}>
+              <p style={{ fontFamily: SANS, fontSize: 9, color: C.desc, letterSpacing: "0.06em", textAlign: "center" }}>
                 {row.en}
               </p>
             </div>
@@ -582,10 +384,7 @@ function Project01Slide1() {
                       background: "rgba(178,149,126,0.5)",
                       marginTop: 5, flexShrink: 0,
                     }} />
-                    <p style={{
-                      fontFamily: SANS, fontSize: 11, color: C.desc,
-                      lineHeight: 1.55,
-                    }}>
+                    <p style={{ fontFamily: SANS, fontSize: 11, color: C.desc, lineHeight: 1.55 }}>
                       {item}
                     </p>
                   </div>
@@ -608,10 +407,7 @@ function Project01Slide1() {
                     }}>
                       重点展示
                     </p>
-                    <p style={{
-                      fontFamily: SANS, fontSize: 11, fontWeight: 600, color: C.text,
-                      lineHeight: 1.4,
-                    }}>
+                    <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 600, color: C.text, lineHeight: 1.4 }}>
                       {cell.highlight}
                     </p>
                   </div>
@@ -625,25 +421,35 @@ function Project01Slide1() {
   );
 }
 
-// ── Default Slide 0 (generic, used by all other projects) ──────────────────
+// ── Slide 0: Project 02 ────────────────────────────────────────────────────
+function Project02Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
+  return <BaseSlide0 num="02" context="Huawei · Enterprise IT" title={title} tags={tags} desc={desc} />;
+}
+
+// ── Slide 0: Project 03 ────────────────────────────────────────────────────
+function Project03Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
+  return <BaseSlide0 num="03" context="Mercedes-Benz Financial Services" title={title} tags={tags} desc={desc} />;
+}
+
+// ── Slide 0: Vibe 0 ────────────────────────────────────────────────────────
+function Vibe0Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
+  return <BaseSlide0 num="V1" context="Luxshare Precision · North America" title={title} tags={tags} desc={desc} />;
+}
+
+// ── Slide 0: Vibe 1 ────────────────────────────────────────────────────────
+function Vibe1Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
+  return <BaseSlide0 num="V2" context="Personal Project · This Site" title={title} tags={tags} desc={desc} />;
+}
+
+// ── Slide 0: Vibe 2 ────────────────────────────────────────────────────────
+function Vibe2Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
+  return <BaseSlide0 num="V3" context="Google AI Studio · Gemini" title={title} tags={tags} desc={desc} />;
+}
+
+// ── Default Slide 0 (fallback) ──────────────────────────────────────────────
 function DefaultSlide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
   return (
-    <div style={{ maxWidth: 960, width: "100%", padding: "80px 60px 0" }}>
-      <h1 style={{
-        fontFamily: SERIF,
-        fontSize: "clamp(38px, 5vw, 72px)",
-        fontWeight: 700, color: C.text,
-        lineHeight: 1.15, marginBottom: 32,
-      }}>
-        {title}
-      </h1>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 36 }}>
-        {tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}
-      </div>
-      <p style={{ fontSize: "clamp(16px, 1.4vw, 22px)", color: C.desc, lineHeight: 1.85, maxWidth: 680 }}>
-        {desc}
-      </p>
-    </div>
+    <BaseSlide0 num="—" context="" title={title} tags={tags} desc={desc} />
   );
 }
 
@@ -669,7 +475,6 @@ function PageIndicator({
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      {/* dots column */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
         {Array.from({ length: total }).map((_, i) => (
           <div key={i} style={{
@@ -682,7 +487,6 @@ function PageIndicator({
         ))}
       </div>
 
-      {/* slide-in menu panel — absolute, right-aligned (covers dots) */}
       <div style={{
         position: "absolute", right: 0, top: "50%",
         transform: `translateY(-50%) translateX(${open ? 0 : 14}px)`,
@@ -709,7 +513,6 @@ function PageIndicator({
               lineHeight: 1.5, minWidth: 140, whiteSpace: "nowrap",
             }}
           >
-            {/* arrow — clips from left */}
             <div style={{ width: 14, height: 14, overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center" }}>
               <motion.div
                 variants={{ initial: { x: "-100%", opacity: 0 }, hover: { x: 0, opacity: 1 } }}
@@ -719,7 +522,6 @@ function PageIndicator({
                 <ArrowRight size={11} strokeWidth={2.5} />
               </motion.div>
             </div>
-            {/* number + label */}
             <motion.span
               variants={{ initial: { x: -10 }, hover: { x: 0, color: accent } }}
               transition={{ duration: 0.25, ease: "easeOut" }}
@@ -750,18 +552,17 @@ export function ProjectDetailPage() {
 
   if (!item) return <NotFound navigate={navigate} />;
 
-  // Project-specific slide labels (tooltip menu only)
   const slideLabels = params.num === "01"
-    ? ["背景介绍", "标注平台业务全流程概览", "", "", ""]
+    ? ["项目背景", "用户与能力", "业务全流程概览", "", ""]
     : undefined;
 
-  // Project-specific slide content
   const commonProps = { title: item.title, tags: item.tags, desc: item.desc };
   const slide0 = params.num === "01" ? <Project01Slide0 {...commonProps} />
     : params.num === "02" ? <Project02Slide0 {...commonProps} />
     : params.num === "03" ? <Project03Slide0 {...commonProps} />
     : <DefaultSlide0 {...commonProps} />;
-  const slide1 = params.num === "01" ? <Project01Slide1 /> : undefined;
+  const slide1 = params.num === "01" ? <Project01SlideUsers /> : undefined;
+  const slide2 = params.num === "01" ? <Project01Slide2 /> : undefined;
 
   return (
     <DetailLayout
@@ -773,6 +574,7 @@ export function ProjectDetailPage() {
       slideLabels={slideLabels}
       slide0={slide0}
       slide1={slide1}
+      slide2={slide2}
       titleForReset={item.title}
     />
   );
@@ -815,7 +617,7 @@ export function VibeDetailPage() {
 
 function DetailLayout({
   isZh, navigate, sectionLabel, prevPath, nextPath,
-  slideLabels, slide0, slide1, titleForReset,
+  slideLabels, slide0, slide1, slide2, titleForReset,
 }: {
   isZh: boolean;
   navigate: (to: string) => void;
@@ -825,6 +627,7 @@ function DetailLayout({
   slideLabels?: string[];
   slide0: React.ReactNode;
   slide1?: React.ReactNode;
+  slide2?: React.ReactNode;
   titleForReset: string;
 }) {
   const [current, setCurrent] = useState(0);
@@ -993,6 +796,7 @@ function DetailLayout({
         >
           {i === 0 && slide0}
           {i === 1 && slide1}
+          {i === 2 && slide2}
         </div>
       ))}
     </>
