@@ -189,15 +189,14 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
           <p style={{
             fontFamily: SANS, fontSize: 10, fontWeight: 700,
             color: C.accent, letterSpacing: "0.15em", textTransform: "uppercase" as const,
-            marginBottom: 14,
+            marginBottom: 2,
           }}>
             AI数据标注平台
           </p>
-          <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 18 }} />
+          <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 8 }} />
           <h2 style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 700, color: C.text, lineHeight: 1.15 }}>
             用户与能力
           </h2>
-          <div style={{ height: 1, background: C.border, marginTop: 22 }} />
         </motion.div>
 
         {/* Two columns */}
@@ -337,11 +336,11 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
         <p style={{
           fontFamily: SANS, fontSize: 10, fontWeight: 700,
           color: C.accent, letterSpacing: "0.14em", textTransform: "uppercase" as const,
-          marginBottom: 14,
+          marginBottom: 2,
         }}>
           AI数据标注平台
         </p>
-        <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 18 }} />
+        <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 8 }} />
         <h2 style={{
           fontFamily: SERIF, fontSize: 26, fontWeight: 700,
           color: C.text, lineHeight: 1.2,
@@ -493,6 +492,7 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
   const BD = 0.85;
   const E: [number, number, number, number] = [0.16, 1, 0.3, 1];
   const [activePhase, setActivePhase] = useState(0);
+  const [loadedImgs, setLoadedImgs] = useState<Set<number>>(new Set());
 
   const rv = (delay: number) => ({
     initial: { opacity: 0, y: 22 },
@@ -531,15 +531,14 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
         <p style={{
           fontFamily: SANS, fontSize: 10, fontWeight: 700,
           color: C.accent, letterSpacing: "0.15em", textTransform: "uppercase" as const,
-          marginBottom: 14,
+          marginBottom: 2,
         }}>
           AI数据标注平台
         </p>
-        <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 18 }} />
+        <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 8 }} />
         <h2 style={{ fontFamily: SERIF, fontSize: 28, fontWeight: 700, color: C.text, lineHeight: 1.2 }}>
           核心用户旅程界面
         </h2>
-        <div style={{ height: 1, background: C.border, marginTop: 18 }} />
       </motion.div>
 
       {/* ── Body: left phase list + right image area ── */}
@@ -551,7 +550,7 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
       }}>
 
         {/* Left: phase list */}
-        <div style={{ width: 260, display: "flex", flexDirection: "column", justifyContent: "center", gap: 0 }}>
+        <div style={{ width: 300, display: "flex", flexDirection: "column", justifyContent: "center", gap: 0 }}>
           {phases.map((phase, i) => {
             const active = activePhase === i;
             return (
@@ -561,15 +560,13 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
                 onMouseEnter={() => setActivePhase(i)}
                 style={{
                   cursor: "pointer",
-                  padding: "18px 0",
-                  borderBottom: `1px solid ${C.border}`,
-                  display: "flex", alignItems: "center", gap: 14,
-                  transition: "all 0.3s ease",
+                  padding: "20px 0",
+                  display: "flex", alignItems: "center", gap: 16,
                 }}
               >
                 {/* Active indicator */}
                 <div style={{
-                  width: 3, height: active ? 32 : 0,
+                  width: 3, height: active ? 38 : 0,
                   background: C.accent,
                   borderRadius: 2,
                   flexShrink: 0,
@@ -577,20 +574,20 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
                 }} />
                 <div>
                   <p style={{
-                    fontFamily: SANS, fontSize: 9, fontWeight: 700,
+                    fontFamily: SANS, fontSize: 11, fontWeight: 700,
                     color: active ? C.accent : C.desc,
                     letterSpacing: "0.13em", textTransform: "uppercase" as const,
-                    marginBottom: 4,
+                    marginBottom: 5,
                     transition: "color 0.3s ease",
                   }}>
                     {phase.en}
                   </p>
                   <p style={{
                     fontFamily: SANS,
-                    fontSize: 14,
+                    fontSize: 18,
                     fontWeight: active ? 600 : 400,
-                    color: active ? C.text : C.desc,
-                    lineHeight: 1.4,
+                    color: active ? C.text : "#999",
+                    lineHeight: 1.35,
                     transition: "color 0.3s ease, font-weight 0.2s ease",
                   }}>
                     {phase.zh}
@@ -619,6 +616,7 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
               key={i}
               src={src}
               alt={`Phase ${i + 1}`}
+              onLoad={() => setLoadedImgs(prev => new Set([...prev, i]))}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -626,6 +624,8 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
                 height: "100%",
                 objectFit: "cover",
                 display: "block",
+                opacity: loadedImgs.has(i) ? 1 : 0,
+                transition: "opacity 0.55s ease",
               }}
               initial={{ clipPath: i === 0 ? "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" : "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)" }}
               animate={{
