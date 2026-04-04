@@ -155,6 +155,25 @@ function Project01SlideUsers() {
       paddingLeft: 80, paddingRight: 80,
       boxSizing: "border-box",
     }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 44 }}>
+
+      {/* ── Sub-page header ── */}
+      <div>
+        <p style={{
+          fontFamily: SANS, fontSize: 10, fontWeight: 700,
+          color: C.accent, letterSpacing: "0.14em", textTransform: "uppercase" as const,
+          marginBottom: 10,
+        }}>
+          AI数据标注平台
+        </p>
+        <h2 style={{
+          fontFamily: SERIF, fontSize: 30, fontWeight: 700,
+          color: C.text, lineHeight: 1.15,
+        }}>
+          用户与能力
+        </h2>
+      </div>
+
       <div style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
 
         {/* ── Users column ── */}
@@ -195,6 +214,7 @@ function Project01SlideUsers() {
           ))}
         </div>
 
+      </div>
       </div>
     </div>
   );
@@ -264,20 +284,20 @@ function Project01Slide2() {
       gap: 14,
     }}>
 
-      {/* ── Title ── */}
+      {/* ── Sub-page header ── */}
       <div>
         <p style={{
-          fontFamily: SANS, fontSize: 9, fontWeight: 700,
+          fontFamily: SANS, fontSize: 10, fontWeight: 700,
           color: C.accent, letterSpacing: "0.14em", textTransform: "uppercase" as const,
-          marginBottom: 5,
+          marginBottom: 10,
         }}>
-          User Journey Map
+          AI数据标注平台
         </p>
         <h2 style={{
-          fontFamily: SERIF, fontSize: 20, fontWeight: 700,
+          fontFamily: SERIF, fontSize: 26, fontWeight: 700,
           color: C.text, lineHeight: 1.2,
         }}>
-          标注平台业务全流程概览
+          业务全流程概览
         </h2>
       </div>
 
@@ -316,13 +336,13 @@ function Project01Slide2() {
             background: "rgba(255,255,255,0.50)",
           }}>
             <p style={{
-              fontSize: 8, fontWeight: 800, color: C.accent,
+              fontSize: 9, fontWeight: 800, color: C.accent,
               letterSpacing: "0.1em", textTransform: "uppercase" as const,
-              marginBottom: 4,
+              marginBottom: 5,
             }}>
               PHASE {p.code}
             </p>
-            <p style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.35 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.35 }}>
               {p.label}
             </p>
           </div>
@@ -343,10 +363,10 @@ function Project01Slide2() {
               padding: "10px 6px",
               gap: 4,
             }}>
-              <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 700, color: C.text, letterSpacing: "0.04em", textAlign: "center" }}>
+              <p style={{ fontFamily: SANS, fontSize: 12, fontWeight: 700, color: C.text, letterSpacing: "0.04em", textAlign: "center" }}>
                 {row.role}
               </p>
-              <p style={{ fontFamily: SANS, fontSize: 9, color: C.desc, letterSpacing: "0.06em", textAlign: "center" }}>
+              <p style={{ fontFamily: SANS, fontSize: 10, color: C.desc, letterSpacing: "0.06em", textAlign: "center" }}>
                 {row.en}
               </p>
             </div>
@@ -365,7 +385,7 @@ function Project01Slide2() {
                 {/* idle state */}
                 {cell.idle && (
                   <p style={{
-                    fontFamily: SANS, fontSize: 11,
+                    fontFamily: SANS, fontSize: 12,
                     color: "#C4BAB0", fontStyle: "italic",
                     textAlign: "center", lineHeight: 1.5,
                   }}>
@@ -377,37 +397,28 @@ function Project01Slide2() {
                 {cell.items?.map((item, ii) => (
                   <div key={ii} style={{
                     display: "flex", alignItems: "flex-start", gap: 7,
-                    marginBottom: ii < (cell.items!.length - 1) || cell.highlight ? 8 : 0,
+                    marginBottom: ii < (cell.items!.length - 1) || cell.highlight ? 9 : 0,
                   }}>
                     <div style={{
                       width: 4, height: 4, borderRadius: "50%",
                       background: "rgba(178,149,126,0.5)",
-                      marginTop: 5, flexShrink: 0,
+                      marginTop: 6, flexShrink: 0,
                     }} />
-                    <p style={{ fontFamily: SANS, fontSize: 11, color: C.desc, lineHeight: 1.55 }}>
+                    <p style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.55 }}>
                       {item}
                     </p>
                   </div>
                 ))}
 
-                {/* highlight card */}
+                {/* highlight — same style as regular items */}
                 {cell.highlight && (
-                  <div style={{
-                    background: "rgba(255,255,255,0.75)",
-                    borderLeft: `2.5px solid ${C.accent}`,
-                    borderRadius: "0 8px 8px 0",
-                    padding: "8px 10px",
-                    border: `1px solid rgba(178,149,126,0.18)`,
-                    borderLeftColor: C.accent,
-                  }}>
-                    <p style={{
-                      fontFamily: SANS, fontSize: 8, fontWeight: 800,
-                      color: C.accent, letterSpacing: "0.1em",
-                      textTransform: "uppercase" as const, marginBottom: 4,
-                    }}>
-                      重点展示
-                    </p>
-                    <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 600, color: C.text, lineHeight: 1.4 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
+                    <div style={{
+                      width: 4, height: 4, borderRadius: "50%",
+                      background: "rgba(178,149,126,0.5)",
+                      marginTop: 6, flexShrink: 0,
+                    }} />
+                    <p style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.55 }}>
                       {cell.highlight}
                     </p>
                   </div>
