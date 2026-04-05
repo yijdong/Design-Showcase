@@ -596,7 +596,8 @@ function Project01Slide8({ isActive = false }: { isActive?: boolean }) {
                   <ImgBox src={SOL_IMGS[0]} alt="理想方案" loaded={loadedImgs.has(0)} onLoad={() => markLoaded(0)} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 14 }}>
-                  <div>
+                  {/* 设计思路 — card style */}
+                  <div style={{ borderRadius: 12, padding: "16px 20px", background: "rgba(178,149,126,0.07)", border: `1px solid ${C.border}` }}>
                     <SectionLabel>设计思路</SectionLabel>
                     <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.8, color: C.desc, margin: "0 0 10px" }}>核心是将AI修改从PM原型方案的全篇弹窗重写，转化为"基于上下文的轻量化编辑"，同时遵循操作原位化与视觉反馈即时化策略：</p>
                     {[{ t: "指令修改", b: "参考文档纠错/批注逻辑，触发入口锚定在目标文本末尾，关联清晰。" }, { t: "断点重写", b: "借鉴代码编辑器插入点概念，划词激活，满足续写需求。" }].map(item => (
@@ -606,7 +607,6 @@ function Project01Slide8({ isActive = false }: { isActive?: boolean }) {
                       </div>
                     ))}
                   </div>
-                  <div style={{ height: 1, background: C.border }} />
                   <div>
                     <SectionLabel color="#7BAA8B">优点</SectionLabel>
                     {[{ t: "原位触发", b: "Hover、划词触发操作，无需切换视线，维持创作心流。" }, { t: "状态可视化", b: "Hover高亮界定指令作用域，解决修改边界模糊的焦虑。" }, { t: "轻量化浮窗", b: "替代重度弹窗，集成输入与一键填充，压缩操作闭环。" }].map(item => (
@@ -620,17 +620,12 @@ function Project01Slide8({ isActive = false }: { isActive?: boolean }) {
                   <div>
                     <SectionLabel color="#BF7E7E">缺点</SectionLabel>
                     {[
-                      { group: "技术实现成本高", items: ["文本偏移计算：流式输出、动态排版中，精准定位Hover位置并挂载图标，对前端性能要求高。", "划词逻辑冲突：需解决与标注页面现有划词快捷菜单的事件优先级、UI覆盖问题。"] },
-                      { group: "用户学习成本高", items: ["发现性不足：Hover、划词为隐式交互，缺乏引导时，用户可能无法发现该功能。", "视觉干扰：文本密集、多代码场景下，Hover图标和高亮可能产生视觉噪音，影响阅读。"] },
-                    ].map(g => (
-                      <div key={g.group} style={{ marginBottom: 8 }}>
-                        <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px", lineHeight: 1.4 }}>{g.group}</p>
-                        {g.items.map((item, ii) => (
-                          <div key={ii} style={{ display: "flex", gap: 9, marginBottom: 5 }}>
-                            <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#BF7E7E", marginTop: 8, flexShrink: 0 }} />
-                            <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.75, margin: 0 }}>{item}</p>
-                          </div>
-                        ))}
+                      { t: "技术实现成本高", b: "动态排版下 Hover 定位对性能要求高，需解决与现有划词菜单的事件冲突。" },
+                      { t: "用户学习成本高", b: "隐式交互难发现，文本 / 代码密集场景中易造成视觉干扰。" },
+                    ].map(item => (
+                      <div key={item.t} style={{ display: "flex", gap: 9, marginBottom: 8 }}>
+                        <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#BF7E7E", marginTop: 7, flexShrink: 0 }} />
+                        <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.75, margin: 0 }}><b style={{ color: C.text, fontWeight: 600 }}>{item.t}：</b>{item.b}</p>
                       </div>
                     ))}
                   </div>
@@ -664,14 +659,16 @@ function Project01Slide8({ isActive = false }: { isActive?: boolean }) {
                     <SectionLabel>设计思路：基于动作触发的「渐进式交互」</SectionLabel>
                     <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.8, color: C.desc, margin: "0 0 10px" }}>核心是将修改任务拆解为"触发→声明意图→局部操作"三阶段：</p>
                     {[
-                      "原位体验佳：用户始终处于文档视觉范围内，无上下文丢失；输入框和结果紧贴操作点，操作轻盈。",
-                      "符合用户习惯：修改Icon紧邻重生成按钮，贴合用户操作逻辑；下拉菜单、浮窗为通用交互，认知门槛低、发现性高。",
-                      "技术实现友好：固定入口触发，无需计算文本偏移，降低前端损耗。",
-                      "控制感精准：高亮选区明确指令范围，浮窗提示降低理解成本，\u201c所见即所得\u201d增强操作安全感。",
+                      { t: "原位体验佳", b: "用户始终处于文档视觉范围内，无上下文丢失；输入框和结果紧贴操作点，操作轻盈。" },
+                      { t: "符合用户习惯", b: "修改Icon紧邻重生成按钮，贴合用户操作逻辑；下拉菜单、浮窗为通用交互，认知门槛低、发现性高。" },
+                      { t: "技术实现友好", b: "固定入口触发，无需计算文本偏移，降低前端损耗。" },
+                      { t: "控制感精准", b: "高亮选区明确指令范围，浮窗提示降低理解成本，\u201c所见即所得\u201d增强操作安全感。" },
                     ].map((item, i) => (
                       <div key={i} style={{ display: "flex", gap: 9, marginBottom: 7 }}>
                         <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.accent, marginTop: 8, flexShrink: 0 }} />
-                        <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.75, margin: 0 }}>{item}</p>
+                        <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.75, margin: 0 }}>
+                          <b style={{ color: C.text, fontWeight: 700 }}>{item.t}：</b>{item.b}
+                        </p>
                       </div>
                     ))}
                   </div>
