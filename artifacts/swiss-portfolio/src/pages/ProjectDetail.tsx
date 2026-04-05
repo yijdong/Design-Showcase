@@ -19,13 +19,10 @@ const C = {
 const SERIF = "'Playfair Display', 'DM Serif Display', serif";
 const SANS  = "'PingFang SC', 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
 
+const SLIDE_BG = { bg: "#F9F6F1", text: "#2E2E2E" };
 const SLIDES = [
-  { bg: "#F9F6F1", text: "#2E2E2E" },
-  { bg: "#F9F6F1", text: "#2E2E2E" },
-  { bg: "#F9F6F1", text: "#2E2E2E" },
-  { bg: "#F9F6F1", text: "#2E2E2E" },
-  { bg: "#F9F6F1", text: "#2E2E2E" },
-  { bg: "#F9F6F1", text: "#2E2E2E" },
+  SLIDE_BG, SLIDE_BG, SLIDE_BG, SLIDE_BG,
+  SLIDE_BG, SLIDE_BG, SLIDE_BG,
 ];
 
 const DURATION = 500;
@@ -43,44 +40,7 @@ function ProjTag({ children }: { children: string }) {
   );
 }
 
-/* ── Compact one-line slide header ── */
-function SlideHeader({
-  project, section, badge, rv,
-}: {
-  project: string;
-  section: string;
-  badge?: string;
-  rv: object;
-}) {
-  return (
-    <motion.div style={{ flexShrink: 0, position: "relative", zIndex: 1 }} {...rv}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 7, flexWrap: "wrap" }}>
-        <span style={{
-          fontFamily: SANS, fontSize: 11, color: C.desc, fontWeight: 400,
-          letterSpacing: "0.04em",
-        }}>{project}</span>
-        {badge && (
-          <>
-            <span style={{ color: C.border, fontSize: 10 }}>·</span>
-            <span style={{
-              fontFamily: SANS, fontSize: 10, letterSpacing: "0.07em",
-              color: C.accent, backgroundColor: `${C.accent}18`,
-              border: `1px solid ${C.accent}38`,
-              padding: "1px 7px", borderRadius: 100, lineHeight: 1.6,
-            }}>{badge}</span>
-          </>
-        )}
-        <span style={{ color: C.border, fontSize: 11 }}>·</span>
-        <span style={{
-          fontFamily: SANS, fontSize: 14, color: C.text, fontWeight: 700,
-          letterSpacing: "-0.01em",
-        }}>{section}</span>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ── Small color-block label (accent square + uppercase text) ── */
+/* ── Section label: accent square + uppercase text ── */
 function SectionLabel({ children }: { children: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
@@ -89,6 +49,68 @@ function SectionLabel({ children }: { children: string }) {
         fontFamily: SANS, fontSize: 11, letterSpacing: "0.13em",
         textTransform: "uppercase" as const, color: C.accent, margin: 0, fontWeight: 700,
       }}>{children}</p>
+    </div>
+  );
+}
+
+/* ── Inline page title + fixed-width accent line ── */
+function PageTitle({
+  title, motionProps,
+}: {
+  title: string;
+  motionProps: object;
+}) {
+  return (
+    <motion.div style={{ flexShrink: 0 }} {...motionProps}>
+      <h2 style={{
+        fontFamily: SERIF, fontSize: 20, fontWeight: 700, color: C.text,
+        lineHeight: 1.3, marginBottom: 8,
+        letterSpacing: "-0.01em",
+      }}>{title}</h2>
+      <div style={{ width: 320, height: 1.5, background: C.accent, marginBottom: 32 }} />
+    </motion.div>
+  );
+}
+
+/* ── Compact step bar (centered, short connectors) ── */
+const DESIGN_STEPS = [
+  { num: "01", label: "需求分析", active: true },
+  { num: "02", label: "竞品分析", active: false },
+  { num: "03", label: "多方案对比", active: false },
+  { num: "04", label: "交互文档", active: false },
+];
+
+function CompactStepBar() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+      {DESIGN_STEPS.map((step, i) => (
+        <React.Fragment key={i}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, flexShrink: 0 }}>
+            <div style={{
+              width: 8, height: 8, borderRadius: "50%",
+              background: step.active ? C.accent : "transparent",
+              border: `1.5px solid ${step.active ? C.accent : "#C8C2BB"}`,
+              boxShadow: step.active ? `0 0 0 3px ${C.accent}22` : "none",
+            }} />
+            <span style={{
+              fontFamily: SANS, fontSize: 10, fontWeight: 700,
+              textTransform: "uppercase" as const, letterSpacing: "0.09em",
+              color: step.active ? C.accent : "#B0A89F",
+            }}>Step {step.num}</span>
+            <span style={{
+              fontFamily: SANS, fontSize: 13, fontWeight: step.active ? 600 : 400,
+              color: step.active ? C.text : "#B0A89F",
+            }}>{step.label}</span>
+          </div>
+          {i < DESIGN_STEPS.length - 1 && (
+            <div style={{
+              width: 36, height: 1, flexShrink: 0,
+              background: "linear-gradient(90deg, #E1DAD1, #D0C9C0)",
+              margin: "0 10px",
+            }} />
+          )}
+        </React.Fragment>
+      ))}
     </div>
   );
 }
@@ -105,15 +127,14 @@ function NotFound({ navigate }: { navigate: (to: string) => void }) {
 }
 
 const BASE = import.meta.env.BASE_URL;
-const ANNOT_IMG    = `${BASE}details/annotation-platform/cover.png`;
-const USER_IMGS    = [
+const USER_IMGS = [
   `${BASE}details/annotation-platform/user01.png`,
   `${BASE}details/annotation-platform/user02.png`,
   `${BASE}details/annotation-platform/user03.png`,
 ];
-const PHASE_IMGS   = [1,2,3,4,5].map(n => `${BASE}details/annotation-platform/phase_${n}.png`);
+const PHASE_IMGS = [1,2,3,4,5].map(n => `${BASE}details/annotation-platform/phase_${n}.png`);
 
-// ── Shared minimalist Slide 0 layout ──────────────────────────────────────
+// ── Shared Slide 0 layout ─────────────────────────────────────────────────
 function BaseSlide0({
   num, context, title, tags, desc,
 }: {
@@ -131,51 +152,37 @@ function BaseSlide0({
       boxSizing: "border-box", overflow: "hidden",
     }}>
       <div style={{
-        position: "absolute", top: NAVBAR_H + 0, left: 66,
+        position: "absolute", top: NAVBAR_H, left: 66,
         fontFamily: SERIF, fontSize: "clamp(120px, 18vw, 220px)",
         fontWeight: 700, color: C.text, opacity: 0.030,
         lineHeight: 1, pointerEvents: "none", userSelect: "none", zIndex: 0,
-      }}>
-        {num}
-      </div>
+      }}>{num}</div>
 
       <div style={{ position: "relative", zIndex: 1, maxWidth: 780 }}>
         <p style={{
           fontFamily: SANS, fontSize: 10, fontWeight: 700,
           color: C.accent, letterSpacing: "0.16em", textTransform: "uppercase" as const,
           marginBottom: 22,
-        }}>
-          {context}
-        </p>
+        }}>{context}</p>
         <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 32 }} />
         <h1 style={{
-          fontFamily: SERIF,
-          fontSize: "clamp(40px, 5.4vw, 72px)",
-          fontWeight: 700, color: C.text,
-          lineHeight: 1.08, marginBottom: 32,
-        }}>
-          {title}
-        </h1>
+          fontFamily: SERIF, fontSize: "clamp(40px, 5.4vw, 72px)",
+          fontWeight: 700, color: C.text, lineHeight: 1.08, marginBottom: 32,
+        }}>{title}</h1>
         <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 40 }}>
           {tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}
         </div>
-        <p style={{
-          fontFamily: SANS, fontSize: 16, color: C.desc,
-          lineHeight: 2.0, maxWidth: 600,
-        }}>
-          {desc}
-        </p>
+        <p style={{ fontFamily: SANS, fontSize: 16, color: C.desc, lineHeight: 2.0, maxWidth: 600 }}>{desc}</p>
       </div>
     </div>
   );
 }
 
-// ── Slide 0: Project 01 ──────────────────────────────────────────────────
 function Project01Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
   return <BaseSlide0 num="01" context="ERNIE Bot · Wicresoft" title={title} tags={tags} desc={desc} />;
 }
 
-// ── Slide 1: Project 01 — users & capabilities ──────────────────────────
+// ── Slide 1: Users & Capabilities ─────────────────────────────────────────
 function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
   const NAVBAR_H = 57;
   const BD = 0.35;
@@ -186,7 +193,6 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
     { img: USER_IMGS[1], name: "标注人员",      role: "完成具体数据标注任务" },
     { img: USER_IMGS[2], name: "质检/审核人员", role: "对标注结果进行多级质量把控" },
   ];
-
   const caps = [
     { name: "多模态标注能力", note: "覆盖文本、多模态、智能体等复杂题型" },
     { name: "完整质量闭环",   note: "标注-质检-审核-返修-数据入库" },
@@ -201,51 +207,33 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
 
   return (
     <div style={{
-      position: "relative",
-      width: "100%", height: "100vh",
-      display: "flex", flexDirection: "column", justifyContent: "center",
-      paddingTop: NAVBAR_H + 40, paddingBottom: 60,
+      position: "relative", width: "100%", height: "100vh",
+      display: "flex", flexDirection: "column",
+      paddingTop: NAVBAR_H + 28, paddingBottom: 60,
       paddingLeft: 88, paddingRight: 80,
       boxSizing: "border-box", overflow: "hidden",
     }}>
-
-      <div style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        background: "radial-gradient(ellipse at 88% 88%, rgba(178,149,126,0.11) 0%, transparent 55%)",
-      }} />
-
-      <div style={{
-        position: "absolute", left: 0, top: "22%", bottom: "22%",
-        width: 3, background: C.accent, borderRadius: "0 2px 2px 0",
-      }} />
-
-      <div style={{
-        position: "absolute", right: -110, bottom: -110,
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse at 88% 88%, rgba(178,149,126,0.11) 0%, transparent 55%)" }} />
+      <div style={{ position: "absolute", left: 0, top: "22%", bottom: "22%",
+        width: 3, background: C.accent, borderRadius: "0 2px 2px 0" }} />
+      <div style={{ position: "absolute", right: -110, bottom: -110,
         width: 360, height: 360, borderRadius: "50%",
-        border: `1px solid ${C.border}`, opacity: 0.6,
-        pointerEvents: "none",
-      }} />
+        border: `1px solid ${C.border}`, opacity: 0.6, pointerEvents: "none" }} />
 
-      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column" }}>
+        <PageTitle title="用户与能力" motionProps={rv(BD)} />
 
-        <SlideHeader project="AI数据标注平台" section="用户与能力" rv={rv(BD)} />
-
-        {/* Two columns */}
         <div style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
-
-          {/* Users */}
           <div style={{ flex: 1 }}>
             <motion.div {...rv(BD + 0.06)} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
               <div style={{ width: 3, height: 13, background: C.accent, borderRadius: 2, flexShrink: 0 }} />
-              <p style={{ fontFamily: SANS, fontSize: 12, fontWeight: 700, color: C.accent, letterSpacing: "0.12em", textTransform: "uppercase" as const, margin: 0 }}>
-                用户群体
-              </p>
+              <p style={{ fontFamily: SANS, fontSize: 12, fontWeight: 700, color: C.accent, letterSpacing: "0.12em", textTransform: "uppercase" as const, margin: 0 }}>用户群体</p>
             </motion.div>
             <div style={{ height: 1, background: C.border }} />
             {users.map((u, i) => (
               <motion.div key={u.name} {...rv(BD + 0.12 + i * 0.06)} style={{
-                display: "flex", alignItems: "center", gap: 20,
-                padding: "20px 0",
+                display: "flex", alignItems: "center", gap: 20, padding: "20px 0",
                 borderBottom: i < users.length - 1 ? `1px solid ${C.border}` : undefined,
               }}>
                 <img src={u.img} alt={u.name} style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
@@ -257,13 +245,10 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
             ))}
           </div>
 
-          {/* Capabilities */}
           <div style={{ flex: 1 }}>
             <motion.div {...rv(BD + 0.08)} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
               <div style={{ width: 3, height: 13, background: C.accent, borderRadius: 2, flexShrink: 0 }} />
-              <p style={{ fontFamily: SANS, fontSize: 12, fontWeight: 700, color: C.accent, letterSpacing: "0.12em", textTransform: "uppercase" as const, margin: 0 }}>
-                核心能力
-              </p>
+              <p style={{ fontFamily: SANS, fontSize: 12, fontWeight: 700, color: C.accent, letterSpacing: "0.12em", textTransform: "uppercase" as const, margin: 0 }}>核心能力</p>
             </motion.div>
             <div style={{ height: 1, background: C.border }} />
             {caps.map((cap, i) => (
@@ -276,14 +261,13 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
               </motion.div>
             ))}
           </div>
-
         </div>
       </div>
     </div>
   );
 }
 
-// ── Slide 2: Journey Map for project 01 ────────────────────────────────
+// ── Slide 2: Business Flow ─────────────────────────────────────────────────
 function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
   const NAVBAR_H = 57;
   const BD = 0.35;
@@ -298,7 +282,6 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
   ];
 
   type Cell = { items?: string[]; highlight?: string; idle?: string };
-
   const rows: Array<{ role: string; en: string; cells: Cell[] }> = [
     {
       role: "管理者", en: "Manager",
@@ -340,77 +323,53 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
 
   return (
     <div style={{
-      position: "relative",
-      width: "100%", height: "100vh",
+      position: "relative", width: "100%", height: "100vh",
       display: "flex", flexDirection: "column",
-      paddingTop: NAVBAR_H + 16,
-      paddingBottom: 14,
+      paddingTop: NAVBAR_H + 12, paddingBottom: 14,
       paddingLeft: 60, paddingRight: 60,
-      boxSizing: "border-box",
-      gap: 12,
-      overflow: "hidden",
+      boxSizing: "border-box", overflow: "hidden",
     }}>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse at 15% 95%, rgba(178,149,126,0.09) 0%, transparent 50%)" }} />
 
-      <div style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        background: "radial-gradient(ellipse at 15% 95%, rgba(178,149,126,0.09) 0%, transparent 50%)",
-      }} />
-
-      <SlideHeader project="AI数据标注平台" section="业务全流程概览" rv={{
-        style: { position: "relative", zIndex: 1 },
+      <PageTitle title="业务全流程概览" motionProps={{
         initial: { opacity: 0, y: 18 },
         animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 },
         transition: { duration: 0.40, delay: isActive ? BD : 0, ease: E },
+        style: { position: "relative", zIndex: 1 },
       }} />
 
-      {/* ── Grid ── */}
       <motion.div
         style={{
-          flex: 1,
-          minHeight: 0,
+          flex: 1, minHeight: 0,
           display: "grid",
           gridTemplateColumns: `${DIM_W}px repeat(5, 1fr)`,
           gridTemplateRows: "auto 1fr 1fr 1fr",
-          border: `1px solid ${LINE}`,
-          borderRadius: 14,
-          overflow: "hidden",
-          background: CELL_BG,
+          border: `1px solid ${LINE}`, borderRadius: 14,
+          overflow: "hidden", background: CELL_BG,
           position: "relative", zIndex: 1,
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ duration: 0.40, delay: isActive ? BD + 0.08 : 0, ease: E }}
       >
-
         <div style={{
-          borderRight: `1px solid ${LINE}`,
-          borderBottom: `1px solid ${LINE}`,
+          borderRight: `1px solid ${LINE}`, borderBottom: `1px solid ${LINE}`,
           background: "rgba(255,255,255,0.18)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          <span style={{ fontSize: 9, fontWeight: 700, color: C.desc, letterSpacing: "0.1em", textTransform: "uppercase" as const }}>
-            阶段
-          </span>
+          <span style={{ fontSize: 9, fontWeight: 700, color: C.desc, letterSpacing: "0.1em", textTransform: "uppercase" as const }}>阶段</span>
         </div>
 
         {phases.map((p, pi) => (
           <div key={pi} style={{
             padding: "10px 14px",
-            borderLeft: `1px solid ${LINE}`,
-            borderBottom: `1px solid ${LINE}`,
+            borderLeft: `1px solid ${LINE}`, borderBottom: `1px solid ${LINE}`,
             borderTop: `2.5px solid ${C.accent}`,
             background: "rgba(255,255,255,0.50)",
           }}>
-            <p style={{
-              fontSize: 9, fontWeight: 800, color: C.accent,
-              letterSpacing: "0.1em", textTransform: "uppercase" as const,
-              marginBottom: 5,
-            }}>
-              PHASE {p.code}
-            </p>
-            <p style={{ fontSize: 13.5, fontWeight: 700, color: C.text, lineHeight: 1.35 }}>
-              {p.label}
-            </p>
+            <p style={{ fontSize: 9, fontWeight: 800, color: C.accent, letterSpacing: "0.1em", textTransform: "uppercase" as const, marginBottom: 5 }}>PHASE {p.code}</p>
+            <p style={{ fontSize: 13.5, fontWeight: 700, color: C.text, lineHeight: 1.35 }}>{p.label}</p>
           </div>
         ))}
 
@@ -423,15 +382,10 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
               borderRight: `1px solid ${LINE}`,
               borderBottom: ri < rows.length - 1 ? `1px solid ${LINE}` : undefined,
               borderLeft: `3px solid ${ROW_ACCENTS[ri]}`,
-              padding: "10px 6px",
-              gap: 4,
+              padding: "10px 6px", gap: 4,
             }}>
-              <p style={{ fontFamily: SANS, fontSize: 13, fontWeight: 700, color: C.text, letterSpacing: "0.04em", textAlign: "center" }}>
-                {row.role}
-              </p>
-              <p style={{ fontFamily: SANS, fontSize: 11, color: C.desc, letterSpacing: "0.06em", textAlign: "center" }}>
-                {row.en}
-              </p>
+              <p style={{ fontFamily: SANS, fontSize: 13, fontWeight: 700, color: C.text, letterSpacing: "0.04em", textAlign: "center" }}>{row.role}</p>
+              <p style={{ fontFamily: SANS, fontSize: 11, color: C.desc, letterSpacing: "0.06em", textAlign: "center" }}>{row.en}</p>
             </div>
 
             {row.cells.map((cell, ci) => (
@@ -444,39 +398,18 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
                 justifyContent: cell.idle ? "center" : "flex-start",
               }}>
                 {cell.idle && (
-                  <p style={{
-                    fontFamily: SANS, fontSize: 12.5,
-                    color: "#C4BAB0", fontStyle: "italic",
-                    textAlign: "center", lineHeight: 1.5,
-                  }}>
-                    {cell.idle}
-                  </p>
+                  <p style={{ fontFamily: SANS, fontSize: 12.5, color: "#C4BAB0", fontStyle: "italic", textAlign: "center", lineHeight: 1.5 }}>{cell.idle}</p>
                 )}
                 {cell.items?.map((item, ii) => (
-                  <div key={ii} style={{
-                    display: "flex", alignItems: "flex-start", gap: 7,
-                    marginBottom: ii < (cell.items!.length - 1) || cell.highlight ? 9 : 0,
-                  }}>
-                    <div style={{
-                      width: 4, height: 4, borderRadius: "50%",
-                      background: "rgba(178,149,126,0.5)",
-                      marginTop: 6, flexShrink: 0,
-                    }} />
-                    <p style={{ fontFamily: SANS, fontSize: 12.5, color: C.desc, lineHeight: 1.55 }}>
-                      {item}
-                    </p>
+                  <div key={ii} style={{ display: "flex", alignItems: "flex-start", gap: 7, marginBottom: ii < (cell.items!.length - 1) || cell.highlight ? 9 : 0 }}>
+                    <div style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(178,149,126,0.5)", marginTop: 6, flexShrink: 0 }} />
+                    <p style={{ fontFamily: SANS, fontSize: 12.5, color: C.desc, lineHeight: 1.55 }}>{item}</p>
                   </div>
                 ))}
                 {cell.highlight && (
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
-                    <div style={{
-                      width: 4, height: 4, borderRadius: "50%",
-                      background: "rgba(178,149,126,0.5)",
-                      marginTop: 6, flexShrink: 0,
-                    }} />
-                    <p style={{ fontFamily: SANS, fontSize: 12.5, color: C.desc, lineHeight: 1.55 }}>
-                      {cell.highlight}
-                    </p>
+                    <div style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(178,149,126,0.5)", marginTop: 6, flexShrink: 0 }} />
+                    <p style={{ fontFamily: SANS, fontSize: 12.5, color: C.desc, lineHeight: 1.55 }}>{cell.highlight}</p>
                   </div>
                 )}
               </div>
@@ -488,7 +421,7 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
   );
 }
 
-// ── Slide 3: Project 01 — core user journey UI ──────────────────────────
+// ── Slide 3: Core User Journey ─────────────────────────────────────────────
 function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
   const NAVBAR_H = 57;
   const BD = 0.35;
@@ -516,33 +449,23 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
 
   return (
     <div style={{
-      position: "relative",
-      width: "100%", height: "100vh",
+      position: "relative", width: "100%", height: "100vh",
       display: "flex", flexDirection: "column",
-      paddingTop: NAVBAR_H + 24,
-      paddingBottom: 60,
+      paddingTop: NAVBAR_H + 24, paddingBottom: 60,
       paddingLeft: 88, paddingRight: 80,
       boxSizing: "border-box", overflow: "hidden",
-      gap: 28,
     }}>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse at 85% 15%, rgba(178,149,126,0.08) 0%, transparent 50%)" }} />
 
-      <div style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        background: "radial-gradient(ellipse at 85% 15%, rgba(178,149,126,0.08) 0%, transparent 50%)",
-      }} />
+      <PageTitle title="核心用户旅程界面" motionProps={rv(BD)} />
 
-      <SlideHeader project="AI数据标注平台" section="核心用户旅程界面" rv={rv(BD)} />
-
-      {/* ── Body: left phase list + right image area ── */}
       <div style={{
         flex: 1, minHeight: 0,
         display: "flex", gap: 64,
         position: "relative", zIndex: 1,
-        alignItems: "center",
-        justifyContent: "center",
+        alignItems: "center", justifyContent: "center",
       }}>
-
-        {/* Left: phase list */}
         <div style={{ width: 300, display: "flex", flexDirection: "column", justifyContent: "center", gap: 0 }}>
           {phases.map((phase, i) => {
             const active = activePhase === i;
@@ -552,17 +475,14 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
                 {...rv(BD + 0.08 + i * 0.05)}
                 onMouseEnter={() => setActivePhase(i)}
                 style={{
-                  cursor: "pointer",
-                  padding: "18px 0",
+                  cursor: "pointer", padding: "18px 0",
                   display: "flex", alignItems: "center", gap: 16,
                   borderBottom: i < phases.length - 1 ? `1px solid ${C.border}` : undefined,
                 }}
               >
                 <div style={{
                   width: 3, height: active ? 38 : 0,
-                  background: C.accent,
-                  borderRadius: 2,
-                  flexShrink: 0,
+                  background: C.accent, borderRadius: 2, flexShrink: 0,
                   transition: "height 0.3s cubic-bezier(0.16,1,0.3,1)",
                 }} />
                 <div>
@@ -570,35 +490,25 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
                     fontFamily: SANS, fontSize: 11, fontWeight: 700,
                     color: active ? C.accent : C.desc,
                     letterSpacing: "0.13em", textTransform: "uppercase" as const,
-                    marginBottom: 4,
-                    transition: "color 0.25s ease",
-                  }}>
-                    {phase.en}
-                  </p>
+                    marginBottom: 4, transition: "color 0.25s ease",
+                  }}>{phase.en}</p>
                   <p style={{
-                    fontFamily: SANS,
-                    fontSize: 20,
+                    fontFamily: SANS, fontSize: 20,
                     fontWeight: active ? 600 : 400,
                     color: active ? C.text : "#999",
-                    lineHeight: 1.3,
-                    transition: "color 0.25s ease",
-                  }}>
-                    {phase.zh}
-                  </p>
+                    lineHeight: 1.3, transition: "color 0.25s ease",
+                  }}>{phase.zh}</p>
                 </div>
               </motion.div>
             );
           })}
         </div>
 
-        {/* Right: image display area */}
         <motion.div
           {...rv(BD + 0.40)}
           style={{
-            height: "100%",
-            aspectRatio: "16/10",
-            borderRadius: 28,
-            overflow: "hidden",
+            height: "100%", aspectRatio: "16/10",
+            borderRadius: 28, overflow: "hidden",
             position: "relative",
             backgroundColor: PHASE_PATTERN_COLOR,
             backgroundImage: PHASE_PATTERN_IMAGE,
@@ -607,18 +517,10 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
           }}
         >
           {PHASE_IMGS.map((src, i) => (
-            <div
-              key={i}
-              style={{
-                position: "absolute", inset: 0,
-                opacity: activePhase === i ? 1 : 0,
-                transition: "none",
-              }}
-            >
+            <div key={i} style={{ position: "absolute", inset: 0, opacity: activePhase === i ? 1 : 0, transition: "none" }}>
               {!loadedImgs.has(i) && <div className="phase-skeleton" />}
               <img
-                src={src}
-                alt={`Phase ${i + 1}`}
+                src={src} alt={`Phase ${i + 1}`}
                 onLoad={() => setLoadedImgs(prev => new Set([...prev, i]))}
                 style={{
                   position: "absolute", inset: 0,
@@ -631,14 +533,115 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
             </div>
           ))}
         </motion.div>
+      </div>
+    </div>
+  );
+}
+
+// ── Slide 4: 关键方案展示 (special full-center layout) ─────────────────────
+function Project01SlideKeyMethod({ isActive = false }: { isActive?: boolean }) {
+  const BD = 0.35;
+  const E: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+  const rv = (delay: number) => ({
+    initial: { opacity: 0, y: 24 },
+    animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 },
+    transition: { duration: 0.50, delay: isActive ? delay : 0, ease: E },
+  });
+
+  const steps = [
+    { num: "01", label: "需求分析" },
+    { num: "02", label: "竞品分析" },
+    { num: "03", label: "多方案对比" },
+    { num: "04", label: "交互文档" },
+  ];
+
+  return (
+    <div style={{
+      position: "relative", width: "100%", height: "100vh",
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      padding: "0 80px", boxSizing: "border-box", overflow: "hidden",
+    }}>
+      {/* Atmosphere */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse 70% 70% at 50% 40%, rgba(178,149,126,0.08) 0%, transparent 70%)",
+      }} />
+      <div style={{
+        position: "absolute", width: 560, height: 560, borderRadius: "50%",
+        border: `1px solid ${C.border}`, opacity: 0.35, pointerEvents: "none",
+        top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+      }} />
+      <div style={{
+        position: "absolute", width: 320, height: 320, borderRadius: "50%",
+        border: `1px solid ${C.border}`, opacity: 0.25, pointerEvents: "none",
+        top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+      }} />
+
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: 820 }}>
+
+        <motion.h1 {...rv(BD)} style={{
+          fontFamily: SERIF, fontSize: 60, fontWeight: 700, color: C.text,
+          lineHeight: 1.1, marginBottom: 20, letterSpacing: "-0.02em",
+        }}>
+          关键方案展示
+        </motion.h1>
+
+        <motion.p {...rv(BD + 0.08)} style={{
+          fontFamily: SANS, fontSize: 20, color: C.desc, lineHeight: 1.8,
+          marginBottom: 52, maxWidth: 680, margin: "0 auto 52px",
+        }}>
+          以「指令修改」功能交互设计为例，完整呈现从需求到落地的全流程设计过程。
+        </motion.p>
+
+        {/* Step visualization */}
+        <motion.div {...rv(BD + 0.16)} style={{
+          display: "flex", alignItems: "flex-start", justifyContent: "center",
+        }}>
+          {steps.map((step, i) => (
+            <React.Fragment key={i}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, width: 148, flexShrink: 0 }}>
+                {/* Circle */}
+                <div style={{
+                  width: 48, height: 48, borderRadius: "50%",
+                  border: `2px solid ${C.accent}`,
+                  backgroundColor: `${C.accent}14`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <span style={{ fontFamily: SERIF, fontSize: 16, fontWeight: 700, color: C.accent }}>{step.num}</span>
+                </div>
+                {/* Label */}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <p style={{
+                    fontFamily: SANS, fontSize: 10, fontWeight: 700,
+                    color: C.accent, letterSpacing: "0.10em",
+                    textTransform: "uppercase" as const, margin: 0,
+                  }}>Step {step.num}</p>
+                  <p style={{
+                    fontFamily: SANS, fontSize: 18, fontWeight: 600,
+                    color: C.text, lineHeight: 1.3, margin: 0,
+                  }}>{step.label}</p>
+                </div>
+              </div>
+              {i < steps.length - 1 && (
+                <div style={{
+                  height: 1.5, flex: 1, minWidth: 20,
+                  background: `linear-gradient(90deg, ${C.accent}55, ${C.accent}25)`,
+                  marginTop: 24, flexShrink: 1,
+                }} />
+              )}
+            </React.Fragment>
+          ))}
+        </motion.div>
 
       </div>
     </div>
   );
 }
 
-// ── Project 01 / Slide 4: 指令修改体验优化 ──────────────────────────────
-function Project01Slide4({ isActive = false }: { isActive?: boolean }) {
+// ── Slide 5: 「指令修改」功能交互设计_1 ────────────────────────────────────
+function Project01Slide5({ isActive = false }: { isActive?: boolean }) {
   const NAVBAR_H = 57;
   const BD = 0.35;
   const E: [number,number,number,number] = [0.16,1,0.3,1];
@@ -658,133 +661,91 @@ function Project01Slide4({ isActive = false }: { isActive?: boolean }) {
       paddingTop: NAVBAR_H + 24, paddingBottom: 60,
       paddingLeft: 88, paddingRight: 80,
       boxSizing: "border-box", overflow: "hidden",
-      gap: 28,
     }}>
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
         background: `radial-gradient(ellipse 70% 60% at 75% 40%, rgba(220,210,195,0.45) 0%, transparent 70%)`,
       }} />
 
-      <SlideHeader project="AI数据标注平台" section="关键方案 — 指令修改体验优化" badge="标注执行阶段" rv={{ ...rv(BD), style: { position: "relative", zIndex: 1 } }} />
+      <PageTitle title="「指令修改」功能交互设计" motionProps={{ ...rv(BD), style: { position: "relative", zIndex: 1 } }} />
 
-      {/* ── Body ── */}
+      {/* Step bar */}
+      <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 20, position: "relative", zIndex: 1 }}>
+        <CompactStepBar />
+      </motion.div>
+
+      {/* Body */}
       <div style={{
         flex: 1, minHeight: 0,
         display: "flex", gap: 56,
         position: "relative", zIndex: 1,
         alignItems: "stretch",
-        justifyContent: "center",
       }}>
-
         {/* Left: structured text */}
-        <motion.div {...rv(BD + 0.08)} style={{
+        <motion.div {...rv(BD + 0.12)} style={{
           width: 300, flexShrink: 0,
-          display: "flex", flexDirection: "column", gap: 22,
-          justifyContent: "center",
+          display: "flex", flexDirection: "column", gap: 22, justifyContent: "center",
         }}>
-          {/* 需求背景 */}
           <div>
             <SectionLabel>需求背景</SectionLabel>
-            <p style={{
-              fontFamily: SANS, fontSize: 15, lineHeight: 1.85,
-              color: C.desc, margin: 0,
-            }}>
+            <p style={{ fontFamily: SANS, fontSize: 15, lineHeight: 1.85, color: C.desc, margin: 0 }}>
               智能体组件通过多轮对话生成推荐思考内容，标注人员需要频繁重新请求模型并人工调整结果，筛选可用内容用于后续模型训练。
             </p>
           </div>
-
           <div style={{ height: 1, backgroundColor: C.border }} />
-
-          {/* 核心痛点 */}
           <div>
             <SectionLabel>核心痛点</SectionLabel>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <p style={{
-                  fontFamily: SANS, fontSize: 15, fontWeight: 600,
-                  color: C.text, margin: "0 0 5px",
-                }}>结果不可控</p>
-                <p style={{
-                  fontFamily: SANS, fontSize: 14, lineHeight: 1.75,
-                  color: C.desc, margin: 0,
-                }}>每次全量重生成随机性高，标注人员需要反复试错才能获得可用结果。</p>
+                <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>结果不可控</p>
+                <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>每次全量重生成随机性高，标注人员需要反复试错才能获得可用结果。</p>
               </div>
               <div>
-                <p style={{
-                  fontFamily: SANS, fontSize: 15, fontWeight: 600,
-                  color: C.text, margin: "0 0 5px",
-                }}>优质内容丢失</p>
-                <p style={{
-                  fontFamily: SANS, fontSize: 14, lineHeight: 1.75,
-                  color: C.desc, margin: 0,
-                }}>重新生成会覆盖已有优质内容，缺乏对局部修改与结果保留的支持。</p>
+                <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>优质内容丢失</p>
+                <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>重新生成会覆盖已有优质内容，缺乏对局部修改与结果保留的支持。</p>
               </div>
             </div>
           </div>
-
           <div style={{ height: 1, backgroundColor: C.border }} />
-
-          {/* 设计策略 */}
           <div>
             <SectionLabel>设计策略</SectionLabel>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <p style={{
-                  fontFamily: SANS, fontSize: 15, fontWeight: 600,
-                  color: C.text, margin: "0 0 5px",
-                }}>指令修改</p>
-                <p style={{
-                  fontFamily: SANS, fontSize: 14, lineHeight: 1.75,
-                  color: C.desc, margin: 0,
-                }}>通过明确修改指令意图，收敛生成范围。</p>
+                <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>指令修改</p>
+                <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>通过明确修改指令意图，收敛生成范围。</p>
               </div>
               <div>
-                <p style={{
-                  fontFamily: SANS, fontSize: 15, fontWeight: 600,
-                  color: C.text, margin: "0 0 5px",
-                }}>断点后重写</p>
-                <p style={{
-                  fontFamily: SANS, fontSize: 14, lineHeight: 1.75,
-                  color: C.desc, margin: 0,
-                }}>仅重构不满意部分，降低试错与返工。</p>
+                <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>断点后重写</p>
+                <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>仅重构不满意部分，降低试错与返工。</p>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Right: iframe demo */}
-        <motion.div
-          {...rv(BD + 0.22)}
-          style={{
-            flex: 1,
-            height: "100%",
-            borderRadius: 32,
-            overflow: "hidden",
-            position: "relative",
-            backgroundColor: "#f8fafc",
-            boxShadow: "0 8px 40px rgba(0,0,0,0.08)",
-          }}
-        >
+        {/* Right: iframe */}
+        <motion.div {...rv(BD + 0.22)} style={{
+          flex: 1, height: "100%",
+          borderRadius: 32, overflow: "hidden",
+          position: "relative",
+          backgroundColor: "#f8fafc",
+          boxShadow: "0 8px 40px rgba(0,0,0,0.08)",
+        }}>
           {isActive && (
             <iframe
               src={iframeSrc}
               title="指令修改体验演示"
-              style={{
-                width: "100%", height: "100%",
-                border: "none", display: "block",
-              }}
+              style={{ width: "100%", height: "100%", border: "none", display: "block" }}
               sandbox="allow-scripts allow-same-origin"
             />
           )}
         </motion.div>
-
       </div>
     </div>
   );
 }
 
-// ── Project 01 / Slide 5: 指令修改需求分析 ──────────────────────────────
-function Project01Slide5({ isActive = false }: { isActive?: boolean }) {
+// ── Slide 6: 「指令修改」功能交互设计_2 ────────────────────────────────────
+function Project01Slide6({ isActive = false }: { isActive?: boolean }) {
   const NAVBAR_H = 57;
   const BD = 0.35;
   const E: [number,number,number,number] = [0.16,1,0.3,1];
@@ -794,13 +755,6 @@ function Project01Slide5({ isActive = false }: { isActive?: boolean }) {
     animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
     transition: { duration: 0.40, delay, ease: E },
   });
-
-  const steps = [
-    { num: "01", label: "需求分析", active: true },
-    { num: "02", label: "竞品分析", active: false },
-    { num: "03", label: "多方案对比", active: false },
-    { num: "04", label: "交互文档", active: false },
-  ];
 
   const problems = [
     {
@@ -826,146 +780,76 @@ function Project01Slide5({ isActive = false }: { isActive?: boolean }) {
       paddingTop: NAVBAR_H + 24, paddingBottom: 60,
       paddingLeft: 88, paddingRight: 80,
       boxSizing: "border-box", overflow: "hidden",
-      gap: 20,
     }}>
-
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
         background: "radial-gradient(ellipse 80% 55% at 60% 20%, rgba(178,149,126,0.07) 0%, transparent 65%)",
       }} />
 
-      <SlideHeader project="AI数据标注平台" section="关键方案 — 指令修改需求分析" badge="标注执行阶段" rv={{ ...rv(BD), style: { position: "relative", zIndex: 1, flexShrink: 0 } }} />
+      <PageTitle title="「指令修改」功能交互设计" motionProps={{ ...rv(BD), style: { position: "relative", zIndex: 1, flexShrink: 0 } }} />
 
-      {/* ── Step progress nav (compact inline) ── */}
-      <motion.div
-        {...rv(BD + 0.06)}
-        style={{ flexShrink: 0, position: "relative", zIndex: 1, display: "flex", alignItems: "center" }}
-      >
-        {steps.map((step, i) => (
-          <React.Fragment key={i}>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, flexShrink: 0 }}>
-              <div style={{
-                width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
-                background: step.active ? C.accent : "transparent",
-                border: `1.5px solid ${step.active ? C.accent : "#C8C2BB"}`,
-                boxShadow: step.active ? `0 0 0 3px ${C.accent}22` : "none",
-              }} />
-              <span style={{
-                fontFamily: SANS, fontSize: 10, fontWeight: 700,
-                textTransform: "uppercase" as const, letterSpacing: "0.09em",
-                color: step.active ? C.accent : "#B0A89F",
-              }}>Step {step.num}</span>
-              <span style={{
-                fontFamily: SANS, fontSize: 13, fontWeight: step.active ? 600 : 400,
-                color: step.active ? C.text : "#B0A89F",
-              }}>{step.label}</span>
-            </div>
-            {i < steps.length - 1 && (
-              <div style={{
-                flex: 1, minWidth: 20, height: 1,
-                background: "linear-gradient(90deg, #E1DAD1, #D0C9C0)",
-                margin: "0 12px",
-              }} />
-            )}
-          </React.Fragment>
-        ))}
+      {/* Step bar */}
+      <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 16, position: "relative", zIndex: 1 }}>
+        <CompactStepBar />
       </motion.div>
 
-      {/* ── Body: left image + right analysis ── */}
+      {/* Body */}
       <motion.div
         {...rv(BD + 0.12)}
         style={{ flex: 1, minHeight: 0, display: "flex", gap: 48, alignItems: "center", position: "relative", zIndex: 1 }}
       >
-
-        {/* Left: PM prototype image */}
-        <div style={{
-          width: "36%", flexShrink: 0,
-          display: "flex", flexDirection: "column", gap: 10,
-          alignSelf: "center",
-        }}>
+        {/* Left: PM prototype */}
+        <div style={{ width: "36%", flexShrink: 0, display: "flex", flexDirection: "column", gap: 10, alignSelf: "center" }}>
           <div style={{
-            borderRadius: 20,
-            overflow: "hidden",
+            borderRadius: 20, overflow: "hidden",
             border: `1px solid ${C.border}`,
             boxShadow: "0 4px 28px rgba(0,0,0,0.07)",
             backgroundColor: "#FFFFFF",
-            position: "relative",
           }}>
-            <img
-              src={pmProto}
-              alt="产品原型"
-              style={{ width: "100%", height: "auto", objectFit: "contain", display: "block" }}
-            />
+            <img src={pmProto} alt="产品原型" style={{ width: "100%", height: "auto", objectFit: "contain", display: "block" }} />
           </div>
-          <p style={{
-            fontFamily: SANS, fontSize: 11, color: C.desc,
-            textAlign: "center" as const, margin: 0, letterSpacing: "0.04em",
-            fontStyle: "italic",
-          }}>产品原型</p>
+          <p style={{ fontFamily: SANS, fontSize: 11, color: C.desc, textAlign: "center" as const, margin: 0, letterSpacing: "0.04em", fontStyle: "italic" }}>产品原型</p>
         </div>
 
-        {/* Right: problem analysis */}
-        <div style={{
-          flex: 1, minWidth: 0,
-          display: "flex", flexDirection: "column",
-          justifyContent: "flex-start",
-          alignSelf: "center",
-          gap: 0,
-        }}>
-          {/* Intro */}
+        {/* Right: analysis */}
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignSelf: "center", gap: 0 }}>
           <p style={{
             fontFamily: SANS, fontSize: 15, color: C.desc, lineHeight: 1.8,
             margin: "0 0 20px",
-            borderLeft: `3px solid ${C.accent}`,
-            paddingLeft: 14,
+            borderLeft: `3px solid ${C.accent}`, paddingLeft: 14,
             paddingTop: 8, paddingBottom: 8,
-            backgroundColor: `${C.accent}08`,
-            borderRadius: "0 6px 6px 0",
+            backgroundColor: `${C.accent}08`, borderRadius: "0 6px 6px 0",
           }}>
             针对 PM 提供的「弹窗式指令修改」方案，从认知负荷、操作流失率及空间效率三个维度进行分析，存在以下主要问题：
           </p>
-
-          {/* Problem blocks */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {problems.map((problem, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex", gap: 16, alignItems: "flex-start",
-                  paddingBottom: i < 2 ? 16 : 0,
-                  borderBottom: i < 2 ? `1px solid ${C.border}` : "none",
-                }}
-              >
+              <div key={i} style={{
+                display: "flex", gap: 16, alignItems: "flex-start",
+                paddingBottom: i < 2 ? 16 : 0,
+                borderBottom: i < 2 ? `1px solid ${C.border}` : "none",
+              }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
                   background: C.accent,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontFamily: SERIF, fontSize: 13, fontWeight: 700,
                   color: "#FFFFFF", marginTop: 2,
-                }}>
-                  {i + 1}
-                </div>
+                }}>{i + 1}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{
-                    fontFamily: SANS, fontSize: 16, fontWeight: 600,
-                    color: C.text, margin: "0 0 5px", lineHeight: 1.3,
-                  }}>{problem.title}</p>
-                  <p style={{
-                    fontFamily: SANS, fontSize: 14, color: C.desc,
-                    lineHeight: 1.8, margin: 0,
-                  }}>{problem.body}</p>
+                  <p style={{ fontFamily: SANS, fontSize: 16, fontWeight: 600, color: C.text, margin: "0 0 5px", lineHeight: 1.3 }}>{problem.title}</p>
+                  <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.8, margin: 0 }}>{problem.body}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
-
       </motion.div>
     </div>
   );
 }
 
-// ── Slide 0: Project 02/03, Vibes ──────────────────────────────────────
+// ── Slide 0 variants ───────────────────────────────────────────────────────
 function Project02Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
   return <BaseSlide0 num="02" context="Huawei · Enterprise IT" title={title} tags={tags} desc={desc} />;
 }
@@ -985,7 +869,7 @@ function DefaultSlide0({ title, tags, desc }: { title: string; tags: string[]; d
   return <BaseSlide0 num="—" context="" title={title} tags={tags} desc={desc} />;
 }
 
-// ── Page-indicator with hover-reveal menu ──────────────────────────────
+// ── Page indicator ────────────────────────────────────────────────────────
 function PageIndicator({
   total, current, textColor, labels, onGoTo,
 }: {
@@ -1024,8 +908,7 @@ function PageIndicator({
         opacity: open ? 1 : 0,
         transition: "opacity 0.28s ease, transform 0.28s ease",
         pointerEvents: open ? "auto" : "none",
-        background: menuBg,
-        backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+        background: menuBg, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
         borderRadius: 16, padding: "22px 28px",
         display: "flex", flexDirection: "column", gap: 18,
         boxShadow: "0 24px 60px rgba(46,46,46,0.18), 0 8px 20px rgba(46,46,46,0.10)",
@@ -1041,7 +924,7 @@ function PageIndicator({
               cursor: "pointer", fontFamily: SANS, fontSize: 15,
               fontWeight: current === i ? 700 : 400,
               color: current === i ? accent : menuText,
-              lineHeight: 1.5, minWidth: 140, whiteSpace: "nowrap",
+              lineHeight: 1.5, minWidth: 148, whiteSpace: "nowrap",
             }}
           >
             <div style={{ width: 14, height: 14, overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center" }}>
@@ -1067,7 +950,7 @@ function PageIndicator({
   );
 }
 
-// ── Page exports ────────────────────────────────────────────────────────
+// ── Page exports ───────────────────────────────────────────────────────────
 
 export function ProjectDetailPage() {
   const params = useParams<{ num: string }>();
@@ -1084,7 +967,15 @@ export function ProjectDetailPage() {
   if (!item) return <NotFound navigate={navigate} />;
 
   const slideLabels = params.num === "01"
-    ? ["项目背景", "用户与能力", "业务全流程概览", "核心用户旅程界面", "指令修改体验优化", "指令修改需求分析"]
+    ? [
+        "项目背景",
+        "用户与能力",
+        "业务全流程概览",
+        "核心用户旅程界面",
+        "关键方案展示",
+        "「指令修改」功能交互设计_1",
+        "「指令修改」功能交互设计_2",
+      ]
     : undefined;
 
   const commonProps = { title: item.title, tags: item.tags, desc: item.desc };
@@ -1092,17 +983,20 @@ export function ProjectDetailPage() {
     : params.num === "02" ? <Project02Slide0 {...commonProps} />
     : params.num === "03" ? <Project03Slide0 {...commonProps} />
     : <DefaultSlide0 {...commonProps} />;
+
   const slide1 = params.num === "01" ? <Project01SlideUsers /> : undefined;
   const slide2 = params.num === "01" ? <Project01Slide2 /> : undefined;
   const slide3 = params.num === "01" ? <Project01Slide3 /> : undefined;
-  const slide4 = params.num === "01" ? <Project01Slide4 /> : undefined;
+  const slide4 = params.num === "01" ? <Project01SlideKeyMethod /> : undefined;
   const slide5 = params.num === "01" ? <Project01Slide5 /> : undefined;
+  const slide6 = params.num === "01" ? <Project01Slide6 /> : undefined;
 
   return (
     <DetailLayout
       isZh={isZh}
       navigate={navigate}
       sectionLabel={isZh ? "项目案例" : "Projects"}
+      navSubtitle={item.title}
       prevPath={prevItem ? seqPath(prevItem) : null}
       nextPath={nextItem ? seqPath(nextItem) : null}
       slideLabels={slideLabels}
@@ -1112,6 +1006,7 @@ export function ProjectDetailPage() {
       slide3={slide3}
       slide4={slide4}
       slide5={slide5}
+      slide6={slide6}
       titleForReset={item.title}
     />
   );
@@ -1141,6 +1036,7 @@ export function VibeDetailPage() {
       isZh={isZh}
       navigate={navigate}
       sectionLabel={isZh ? "设计随想" : "Vibes"}
+      navSubtitle={item.title}
       prevPath={prevItem ? seqPath(prevItem) : null}
       nextPath={nextItem ? seqPath(nextItem) : null}
       slide0={slide0}
@@ -1149,14 +1045,15 @@ export function VibeDetailPage() {
   );
 }
 
-// ── DetailLayout ────────────────────────────────────────────────────────
+// ── DetailLayout ───────────────────────────────────────────────────────────
 function DetailLayout({
-  isZh, navigate, sectionLabel, prevPath, nextPath, slideLabels,
-  slide0, slide1, slide2, slide3, slide4, slide5, titleForReset,
+  isZh, navigate, sectionLabel, navSubtitle = "", prevPath, nextPath, slideLabels,
+  slide0, slide1, slide2, slide3, slide4, slide5, slide6, titleForReset,
 }: {
   isZh: boolean;
   navigate: (to: string) => void;
   sectionLabel: string;
+  navSubtitle?: string;
   prevPath: string | null;
   nextPath: string | null;
   slideLabels?: string[];
@@ -1166,15 +1063,19 @@ function DetailLayout({
   slide3?: React.ReactNode;
   slide4?: React.ReactNode;
   slide5?: React.ReactNode;
+  slide6?: React.ReactNode;
   titleForReset: string;
 }) {
   const [current, setCurrent] = useState(0);
   const currentRef = useRef(0);
   const busyRef    = useRef(false);
 
+  const slideNodes = [slide0, slide1, slide2, slide3, slide4, slide5, slide6];
+  const totalSlides = slideNodes.filter(Boolean).length;
+
   const goTo = (index: number) => {
     if (busyRef.current) return;
-    if (index < 0 || index >= SLIDES.length) return;
+    if (index < 0 || index >= totalSlides) return;
     busyRef.current = true;
     currentRef.current = index;
     setCurrent(index);
@@ -1203,7 +1104,7 @@ function DetailLayout({
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [totalSlides]);
 
   useEffect(() => {
     let startY = 0;
@@ -1220,7 +1121,7 @@ function DetailLayout({
       window.removeEventListener("touchend",   onEnd);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [totalSlides]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -1230,9 +1131,9 @@ function DetailLayout({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [totalSlides]);
 
-  const textColor = SLIDES[current].text;
+  const textColor = SLIDES[Math.min(current, SLIDES.length - 1)].text;
   const navBg     = "rgba(252,251,248,0.96)";
   const navBorder = C.border;
 
@@ -1295,6 +1196,9 @@ function DetailLayout({
             transition: `color ${DURATION}ms ease`,
           }}>
             {sectionLabel}
+            {current > 0 && navSubtitle && (
+              <span style={{ fontWeight: 400, opacity: 0.60 }}> / {navSubtitle}</span>
+            )}
           </span>
         </div>
 
@@ -1322,7 +1226,7 @@ function DetailLayout({
 
       {/* ── INDICATOR ── */}
       <PageIndicator
-        total={SLIDES.length}
+        total={totalSlides}
         current={current}
         textColor={textColor}
         labels={slideLabels}
@@ -1330,7 +1234,7 @@ function DetailLayout({
       />
 
       {/* ── SLIDES ── */}
-      {SLIDES.map((slide, i) => (
+      {SLIDES.slice(0, totalSlides).map((slide, i) => (
         <div
           key={i}
           style={{
@@ -1349,6 +1253,7 @@ function DetailLayout({
           {i === 3 && slide3 && React.cloneElement(slide3 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 3 })}
           {i === 4 && slide4 && React.cloneElement(slide4 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 4 })}
           {i === 5 && slide5 && React.cloneElement(slide5 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 5 })}
+          {i === 6 && slide6 && React.cloneElement(slide6 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 6 })}
         </div>
       ))}
     </>
