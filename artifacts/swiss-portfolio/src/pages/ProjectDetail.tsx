@@ -21,7 +21,7 @@ const E: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const DURATION = 500;
 
 const SLIDE_BG = { bg: "#F9F6F1", text: "#2E2E2E" };
-const SLIDES = Array(9).fill(SLIDE_BG);
+const SLIDES = Array(10).fill(SLIDE_BG);
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -697,6 +697,204 @@ function Project01Slide8({ isActive = false }: { isActive?: boolean }) {
   );
 }
 
+// ── Pan/Zoom Viewer ───────────────────────────────────────────────────────
+const INTER_IMGS = [1, 2].map(n => `${BASE}details/annotation-platform/interaction_doc_${n}.png`);
+const IMG2_W = 9504, IMG2_H = 2672;
+
+function PanZoomViewer({ loaded, onLoad, resetKey }: { loaded: boolean; onLoad: () => void; resetKey: number }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const transformRef = useRef({ x: 0, y: 0, scale: 1 });
+  const [transform, _setT] = useState({ x: 0, y: 0, scale: 1 });
+  const [dragging, setDragging] = useState(false);
+  const initialScale = useRef(1);
+  const isDragging = useRef(false);
+  const lastPos = useRef({ x: 0, y: 0 });
+  const lastDist = useRef<number | null>(null);
+  const lastTouchPos = useRef<{ x: number; y: number } | null>(null);
+
+  const applyT = (t: { x: number; y: number; scale: number }) => {
+    transformRef.current = t;
+    _setT({ ...t });
+  };
+
+  const resetView = () => {
+    if (!containerRef.current) return;
+    const h = containerRef.current.getBoundingClientRect().height;
+    const sc = h / IMG2_H;
+    initialScale.current = sc;
+    applyT({ x: 0, y: 0, scale: sc });
+  };
+
+  // Init & reset when resetKey changes (tab switch / page enter)
+  useEffect(() => { resetView(); }, [resetKey]); // eslint-disable-line
+
+  // Native wheel — prevents page navigation
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const t = transformRef.current;
+      const factor = e.deltaY < 0 ? 1.12 : 0.89;
+      const minSc = initialScale.current * 0.5;
+      const maxSc = initialScale.current * 10;
+      const newSc = Math.max(minSc, Math.min(maxSc, t.scale * factor));
+      const rect = el.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+      const imgX = (cx - t.x) / t.scale;
+      const imgY = (cy - t.y) / t.scale;
+      applyT({ x: cx - imgX * newSc, y: cy - imgY * newSc, scale: newSc });
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []); // eslint-disable-line
+
+  // Mouse pan
+  const onMD = (e: React.MouseEvent) => {
+    isDragging.current = true; setDragging(true);
+    lastPos.current = { x: e.clientX, y: e.clientY };
+    e.preventDefault();
+  };
+  const onMM = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    const dx = e.clientX - lastPos.current.x;
+    const dy = e.clientY - lastPos.current.y;
+    lastPos.current = { x: e.clientX, y: e.clientY };
+    const t = transformRef.current;
+    applyT({ ...t, x: t.x + dx, y: t.y + dy });
+  };
+  const onMU = () => { isDragging.current = false; setDragging(false); };
+
+  // Touch pan + pinch
+  const onTS = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      lastTouchPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      lastDist.current = null;
+    } else if (e.touches.length === 2) {
+      lastDist.current = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    }
+  };
+  const onTM = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (e.touches.length === 1 && lastTouchPos.current) {
+      const dx = e.touches[0].clientX - lastTouchPos.current.x;
+      const dy = e.touches[0].clientY - lastTouchPos.current.y;
+      lastTouchPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      const t = transformRef.current;
+      applyT({ ...t, x: t.x + dx, y: t.y + dy });
+    } else if (e.touches.length === 2 && lastDist.current !== null) {
+      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      const factor = dist / lastDist.current;
+      lastDist.current = dist;
+      const t = transformRef.current;
+      const minSc = initialScale.current * 0.5, maxSc = initialScale.current * 10;
+      applyT({ ...t, scale: Math.max(minSc, Math.min(maxSc, t.scale * factor)) });
+    }
+  };
+  const onTE = () => { lastTouchPos.current = null; lastDist.current = null; };
+
+  const pct = Math.round((transform.scale / initialScale.current) * 100);
+
+  return (
+    <div style={{ position: "relative", width: "100%" }}>
+      <div
+        ref={containerRef}
+        style={{ width: "100%", aspectRatio: "16/10", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4", position: "relative", cursor: dragging ? "grabbing" : "grab", userSelect: "none", touchAction: "none" }}
+        onMouseDown={onMD} onMouseMove={onMM} onMouseUp={onMU} onMouseLeave={onMU}
+        onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}
+      >
+        {!loaded && (
+          <div style={{ position: "absolute", inset: 0, zIndex: 2, background: "linear-gradient(90deg,#EAE4DC 25%,#F2EDE7 50%,#EAE4DC 75%)", backgroundSize: "800px 100%", animation: "skeleton-shimmer 1.5s infinite linear" }} />
+        )}
+        <img
+          src={INTER_IMGS[1]} alt="交互文档节选"
+          draggable={false} onLoad={onLoad}
+          style={{ position: "absolute", left: 0, top: 0, width: IMG2_W, height: IMG2_H, transform: `translate(${transform.x}px,${transform.y}px) scale(${transform.scale})`, transformOrigin: "0 0", display: "block", pointerEvents: "none", opacity: loaded ? 1 : 0, transition: dragging ? "none" : "opacity 0.45s ease" }}
+        />
+        {/* Hint overlay */}
+        {loaded && (
+          <div style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", background: "rgba(46,46,46,0.52)", backdropFilter: "blur(8px)", borderRadius: 100, padding: "5px 14px", pointerEvents: "none", zIndex: 3 }}>
+            <p style={{ fontFamily: SANS, fontSize: 11, color: "#FFF", opacity: 0.9, margin: 0, letterSpacing: "0.05em", whiteSpace: "nowrap" }}>拖拽平移 · 滚轮 / 双指缩放</p>
+          </div>
+        )}
+      </div>
+      {/* Controls row */}
+      <div style={{ position: "absolute", top: 14, right: 14, display: "flex", alignItems: "center", gap: 8, zIndex: 4 }}>
+        <div style={{ background: "rgba(252,251,248,0.92)", backdropFilter: "blur(10px)", borderRadius: 100, padding: "4px 12px", border: `1px solid ${C.border}` }}>
+          <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 600, color: C.text, margin: 0 }}>{pct}%</p>
+        </div>
+        <button onClick={resetView} style={{ background: "rgba(252,251,248,0.92)", backdropFilter: "blur(10px)", border: `1px solid ${C.border}`, borderRadius: 100, padding: "4px 12px", cursor: "pointer", fontFamily: SANS, fontSize: 11, fontWeight: 600, color: C.text }}>重置</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Slide 9: Interaction Design_5 ─────────────────────────────────────────
+function Project01Slide9({ isActive = false }: { isActive?: boolean }) {
+  const BD = 0.35;
+  const [activeTab, setActiveTab] = useState(0);
+  const [loaded1, setLoaded1] = useState(false);
+  const [loaded2, setLoaded2] = useState(false);
+  const [pzResetKey, setPzResetKey] = useState(0);
+  const rv = (d: number) => ({ initial: { opacity: 0, y: 20 }, animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }, transition: { duration: 0.40, delay: d, ease: E } });
+
+  useEffect(() => {
+    if (isActive) { setActiveTab(0); setLoaded1(false); setLoaded2(false); setPzResetKey(k => k + 1); }
+  }, [isActive]);
+
+  const handleTabChange = (i: number) => {
+    setActiveTab(i);
+    if (i === 1) setPzResetKey(k => k + 1);
+  };
+
+  const tabs = ["全链路交互规范", "交互文档节选"];
+
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, background: "radial-gradient(ellipse 70% 55% at 55% 30%, rgba(178,149,126,0.06) 0%, transparent 65%)" }} />
+
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, position: "relative", zIndex: 1 }}>
+        <PageTitle title="「指令修改」功能交互设计" motionProps={rv(BD)} />
+
+        {/* Vertically-centered group */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", paddingBottom: 128 }}>
+          <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 24 }}>
+            <CompactStepBar activeStep={4} />
+          </motion.div>
+
+          <motion.div {...rv(BD + 0.10)}>
+            {/* Tab 1: 全链路交互规范 — full-width image, native ratio */}
+            {activeTab === 0 && (
+              <div style={{ width: "100%", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
+                {!loaded1 && (
+                  <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(90deg,#EAE4DC 25%,#F2EDE7 50%,#EAE4DC 75%)", backgroundSize: "800px 100%", animation: "skeleton-shimmer 1.5s infinite linear", minHeight: 200 }} />
+                )}
+                <img
+                  src={INTER_IMGS[0]} alt="全链路交互规范"
+                  onLoad={() => setLoaded1(true)}
+                  style={{ width: "100%", height: "auto", display: "block", opacity: loaded1 ? 1 : 0, transition: "opacity 0.45s ease" }}
+                />
+              </div>
+            )}
+
+            {/* Tab 2: 交互文档节选 — pan/zoom viewer */}
+            {activeTab === 1 && (
+              <PanZoomViewer loaded={loaded2} onLoad={() => setLoaded2(true)} resetKey={pzResetKey} />
+            )}
+          </motion.div>
+        </div>
+
+        {/* Bottom tabs — absolute, 60px from viewport bottom */}
+        <motion.div {...rv(BD + 0.14)} style={{ position: "absolute", bottom: 60, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
+          <CapsuleTabs tabs={tabs} active={activeTab} onChange={handleTabChange} />
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 // ── Page indicator ────────────────────────────────────────────────────────
 function PageIndicator({ total, current, textColor, labels, onGoTo }: {
   total: number; current: number; textColor: string; labels?: string[]; onGoTo: (i: number) => void;
@@ -755,7 +953,8 @@ export function ProjectDetailPage() {
 
   const slideLabels = params.num === "01"
     ? ["项目背景", "用户与能力", "业务全流程概览", "核心用户旅程界面", "关键方案展示",
-       "「指令修改」设计_1", "「指令修改」设计_2", "「指令修改」设计_3", "「指令修改」设计_4"]
+       "「指令修改」设计_1", "「指令修改」设计_2", "「指令修改」设计_3", "「指令修改」设计_4",
+       "「指令修改」交互设计_5"]
     : undefined;
 
   const commonProps = { title: item.title, tags: item.tags, desc: item.desc };
@@ -778,6 +977,7 @@ export function ProjectDetailPage() {
       slide6={params.num === "01" ? <Project01Slide6 /> : undefined}
       slide7={params.num === "01" ? <Project01Slide7 /> : undefined}
       slide8={params.num === "01" ? <Project01Slide8 /> : undefined}
+      slide9={params.num === "01" ? <Project01Slide9 /> : undefined}
       titleForReset={item.title}
     />
   );
@@ -813,7 +1013,7 @@ export function VibeDetailPage() {
 // ── DetailLayout ──────────────────────────────────────────────────────────
 function DetailLayout({
   isZh, navigate, sectionLabel, navSubtitle = "", prevPath, nextPath, slideLabels,
-  slide0, slide1, slide2, slide3, slide4, slide5, slide6, slide7, slide8, titleForReset,
+  slide0, slide1, slide2, slide3, slide4, slide5, slide6, slide7, slide8, slide9, titleForReset,
 }: {
   isZh: boolean; navigate: (to: string) => void;
   sectionLabel: string; navSubtitle?: string;
@@ -821,12 +1021,13 @@ function DetailLayout({
   slide0: React.ReactNode; slide1?: React.ReactNode; slide2?: React.ReactNode;
   slide3?: React.ReactNode; slide4?: React.ReactNode; slide5?: React.ReactNode;
   slide6?: React.ReactNode; slide7?: React.ReactNode; slide8?: React.ReactNode;
+  slide9?: React.ReactNode;
   titleForReset: string;
 }) {
   const [current, setCurrent] = useState(0);
   const currentRef = useRef(0);
   const busyRef    = useRef(false);
-  const slideNodes = [slide0, slide1, slide2, slide3, slide4, slide5, slide6, slide7, slide8];
+  const slideNodes = [slide0, slide1, slide2, slide3, slide4, slide5, slide6, slide7, slide8, slide9];
   const totalSlides = slideNodes.filter(Boolean).length;
 
   const goTo = (index: number) => {
@@ -944,6 +1145,7 @@ function DetailLayout({
           {i === 6 && slide6 && React.cloneElement(slide6 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 6 })}
           {i === 7 && slide7 && React.cloneElement(slide7 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 7 })}
           {i === 8 && slide8 && React.cloneElement(slide8 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 8 })}
+          {i === 9 && slide9 && React.cloneElement(slide9 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 9 })}
         </div>
       ))}
     </>
