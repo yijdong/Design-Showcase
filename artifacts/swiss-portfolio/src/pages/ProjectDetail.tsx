@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
@@ -18,13 +18,15 @@ const C = {
 };
 const SERIF = "'Playfair Display', 'DM Serif Display', serif";
 const SANS  = "'PingFang SC', 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+const NAVBAR_H = 57;
+const PAD_X = 60;
+const PAD_Y = 32;
 
 const SLIDE_BG = { bg: "#F9F6F1", text: "#2E2E2E" };
 const SLIDES = [
   SLIDE_BG, SLIDE_BG, SLIDE_BG, SLIDE_BG,
   SLIDE_BG, SLIDE_BG, SLIDE_BG,
 ];
-
 const DURATION = 500;
 
 function ProjTag({ children }: { children: string }) {
@@ -34,13 +36,10 @@ function ProjTag({ children }: { children: string }) {
       padding: "4px 10px", borderRadius: 100,
       background: "rgba(178,149,126,0.12)", color: "#96614A",
       display: "inline-block",
-    }}>
-      {children}
-    </span>
+    }}>{children}</span>
   );
 }
 
-/* ── Section label: accent square + uppercase text ── */
 function SectionLabel({ children }: { children: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
@@ -53,31 +52,39 @@ function SectionLabel({ children }: { children: string }) {
   );
 }
 
-/* ── Inline page title + fixed-width accent line ── */
-function PageTitle({
-  title, motionProps,
-}: {
-  title: string;
-  motionProps: object;
-}) {
+/* ── Page title + dynamic accent line ── */
+function PageTitle({ title, motionProps }: { title: string; motionProps: object }) {
+  const h2Ref = useRef<HTMLHeadingElement>(null);
+  const [lineW, setLineW] = useState(160);
+
+  useLayoutEffect(() => {
+    const el = h2Ref.current;
+    if (!el) return;
+    const update = () => setLineW(el.offsetWidth + 32);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [title]);
+
   return (
-    <motion.div style={{ flexShrink: 0 }} {...motionProps}>
-      <h2 style={{
+    <motion.div style={{ flexShrink: 0, display: "flex", flexDirection: "column" }} {...motionProps}>
+      <h2 ref={h2Ref} style={{
         fontFamily: SERIF, fontSize: 20, fontWeight: 700, color: C.text,
-        lineHeight: 1.3, marginBottom: 8,
-        letterSpacing: "-0.01em",
+        lineHeight: 1.3, marginBottom: 16,
+        display: "inline-block",
       }}>{title}</h2>
-      <div style={{ width: 320, height: 1.5, background: C.accent, marginBottom: 32 }} />
+      <div style={{ width: lineW, height: 1, background: C.accent, marginBottom: 32 }} />
     </motion.div>
   );
 }
 
-/* ── Compact step bar (centered, short connectors) ── */
+/* ── Compact step bar (centered, short connectors, Step 01 active) ── */
 const DESIGN_STEPS = [
-  { num: "01", label: "需求分析", active: true },
-  { num: "02", label: "竞品分析", active: false },
+  { num: "01", label: "需求分析",  active: true },
+  { num: "02", label: "竞品分析",  active: false },
   { num: "03", label: "多方案对比", active: false },
-  { num: "04", label: "交互文档", active: false },
+  { num: "04", label: "交互文档",  active: false },
 ];
 
 function CompactStepBar() {
@@ -134,21 +141,15 @@ const USER_IMGS = [
 ];
 const PHASE_IMGS = [1,2,3,4,5].map(n => `${BASE}details/annotation-platform/phase_${n}.png`);
 
-// ── Shared Slide 0 layout ─────────────────────────────────────────────────
-function BaseSlide0({
-  num, context, title, tags, desc,
-}: {
-  num: string; context: string; title: string;
-  tags: string[]; desc: string;
+// ── Shared Slide 0 ──────────────────────────────────────────────────────────
+function BaseSlide0({ num, context, title, tags, desc }: {
+  num: string; context: string; title: string; tags: string[]; desc: string;
 }) {
-  const NAVBAR_H = 57;
   return (
     <div style={{
-      position: "relative",
-      width: "100%", height: "100vh",
-      display: "flex", flexDirection: "column", justifyContent: "center",
-      paddingTop: NAVBAR_H + 60, paddingBottom: 80,
-      paddingLeft: 80, paddingRight: 80,
+      position: "relative", width: "100%", height: "100vh",
+      display: "flex", flexDirection: "column",
+      paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X,
       boxSizing: "border-box", overflow: "hidden",
     }}>
       <div style={{
@@ -158,7 +159,12 @@ function BaseSlide0({
         lineHeight: 1, pointerEvents: "none", userSelect: "none", zIndex: 0,
       }}>{num}</div>
 
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 780 }}>
+      <div style={{
+        flex: 1, minHeight: 0,
+        display: "flex", flexDirection: "column", justifyContent: "center",
+        paddingTop: PAD_Y, paddingBottom: PAD_Y,
+        position: "relative", zIndex: 1, maxWidth: 780,
+      }}>
         <p style={{
           fontFamily: SANS, fontSize: 10, fontWeight: 700,
           color: C.accent, letterSpacing: "0.16em", textTransform: "uppercase" as const,
@@ -182,12 +188,10 @@ function Project01Slide0({ title, tags, desc }: { title: string; tags: string[];
   return <BaseSlide0 num="01" context="ERNIE Bot · Wicresoft" title={title} tags={tags} desc={desc} />;
 }
 
-// ── Slide 1: Users & Capabilities ─────────────────────────────────────────
+// ── Slide 1: Users & Capabilities ──────────────────────────────────────────
 function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
-  const NAVBAR_H = 57;
   const BD = 0.35;
   const E: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
   const users = [
     { img: USER_IMGS[0], name: "管理人员",      role: "配置任务、规则与人员体系" },
     { img: USER_IMGS[1], name: "标注人员",      role: "完成具体数据标注任务" },
@@ -198,7 +202,6 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
     { name: "完整质量闭环",   note: "标注-质检-审核-返修-数据入库" },
     { name: "规模化人力调度", note: "支持场内+垂类兼职+专家人员协同作业" },
   ];
-
   const rv = (delay: number) => ({
     initial: { opacity: 0, y: 18 },
     animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 },
@@ -209,8 +212,7 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
     <div style={{
       position: "relative", width: "100%", height: "100vh",
       display: "flex", flexDirection: "column",
-      paddingTop: NAVBAR_H + 28, paddingBottom: 60,
-      paddingLeft: 88, paddingRight: 80,
+      paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X,
       boxSizing: "border-box", overflow: "hidden",
     }}>
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
@@ -221,7 +223,13 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
         width: 360, height: 360, borderRadius: "50%",
         border: `1px solid ${C.border}`, opacity: 0.6, pointerEvents: "none" }} />
 
-      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column" }}>
+      {/* Content: centered vertically in available area */}
+      <div style={{
+        flex: 1, minHeight: 0,
+        display: "flex", flexDirection: "column", justifyContent: "center",
+        paddingTop: PAD_Y, paddingBottom: PAD_Y,
+        position: "relative", zIndex: 1,
+      }}>
         <PageTitle title="用户与能力" motionProps={rv(BD)} />
 
         <div style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
@@ -267,12 +275,10 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
   );
 }
 
-// ── Slide 2: Business Flow ─────────────────────────────────────────────────
+// ── Slide 2: Business Flow ──────────────────────────────────────────────────
 function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
-  const NAVBAR_H = 57;
   const BD = 0.35;
   const E: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
   const phases = [
     { code: "01", label: "项目创建与规则准备" },
     { code: "02", label: "人员匹配与入场" },
@@ -280,7 +286,6 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
     { code: "04", label: "质检与审核" },
     { code: "05", label: "结算与闭环" },
   ];
-
   type Cell = { items?: string[]; highlight?: string; idle?: string };
   const rows: Array<{ role: string; en: string; cells: Cell[] }> = [
     {
@@ -325,20 +330,23 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
     <div style={{
       position: "relative", width: "100%", height: "100vh",
       display: "flex", flexDirection: "column",
-      paddingTop: NAVBAR_H + 12, paddingBottom: 14,
-      paddingLeft: 60, paddingRight: 60,
+      paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X,
+      paddingBottom: PAD_Y,
       boxSizing: "border-box", overflow: "hidden",
     }}>
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
         background: "radial-gradient(ellipse at 15% 95%, rgba(178,149,126,0.09) 0%, transparent 50%)" }} />
 
-      <PageTitle title="业务全流程概览" motionProps={{
-        initial: { opacity: 0, y: 18 },
-        animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 },
-        transition: { duration: 0.40, delay: isActive ? BD : 0, ease: E },
-        style: { position: "relative", zIndex: 1 },
-      }} />
+      {/* Title area */}
+      <div style={{ paddingTop: PAD_Y, position: "relative", zIndex: 1 }}>
+        <PageTitle title="业务全流程概览" motionProps={{
+          initial: { opacity: 0, y: 18 },
+          animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 },
+          transition: { duration: 0.40, delay: isActive ? BD : 0, ease: E },
+        }} />
+      </div>
 
+      {/* Grid: fills remaining height */}
       <motion.div
         style={{
           flex: 1, minHeight: 0,
@@ -360,7 +368,6 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
         }}>
           <span style={{ fontSize: 9, fontWeight: 700, color: C.desc, letterSpacing: "0.1em", textTransform: "uppercase" as const }}>阶段</span>
         </div>
-
         {phases.map((p, pi) => (
           <div key={pi} style={{
             padding: "10px 14px",
@@ -372,12 +379,10 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
             <p style={{ fontSize: 13.5, fontWeight: 700, color: C.text, lineHeight: 1.35 }}>{p.label}</p>
           </div>
         ))}
-
         {rows.map((row, ri) => (
           <React.Fragment key={ri}>
             <div style={{
-              display: "flex", flexDirection: "column",
-              alignItems: "center", justifyContent: "center",
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
               background: ROW_LABEL_BG[ri],
               borderRight: `1px solid ${LINE}`,
               borderBottom: ri < rows.length - 1 ? `1px solid ${LINE}` : undefined,
@@ -387,7 +392,6 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
               <p style={{ fontFamily: SANS, fontSize: 13, fontWeight: 700, color: C.text, letterSpacing: "0.04em", textAlign: "center" }}>{row.role}</p>
               <p style={{ fontFamily: SANS, fontSize: 11, color: C.desc, letterSpacing: "0.06em", textAlign: "center" }}>{row.en}</p>
             </div>
-
             {row.cells.map((cell, ci) => (
               <div key={ci} style={{
                 padding: "14px 14px",
@@ -421,17 +425,14 @@ function Project01Slide2({ isActive = false }: { isActive?: boolean }) {
   );
 }
 
-// ── Slide 3: Core User Journey ─────────────────────────────────────────────
+// ── Slide 3: Core User Journey ──────────────────────────────────────────────
 function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
-  const NAVBAR_H = 57;
   const BD = 0.35;
   const E: [number, number, number, number] = [0.16, 1, 0.3, 1];
   const [activePhase, setActivePhase] = useState(0);
   const [loadedImgs, setLoadedImgs] = useState<Set<number>>(new Set());
 
-  useEffect(() => {
-    if (isActive) setActivePhase(0);
-  }, [isActive]);
+  useEffect(() => { if (isActive) setActivePhase(0); }, [isActive]);
 
   const rv = (delay: number) => ({
     initial: { opacity: 0, y: 18 },
@@ -451,104 +452,102 @@ function Project01Slide3({ isActive = false }: { isActive?: boolean }) {
     <div style={{
       position: "relative", width: "100%", height: "100vh",
       display: "flex", flexDirection: "column",
-      paddingTop: NAVBAR_H + 24, paddingBottom: 60,
-      paddingLeft: 88, paddingRight: 80,
+      paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X,
       boxSizing: "border-box", overflow: "hidden",
     }}>
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
         background: "radial-gradient(ellipse at 85% 15%, rgba(178,149,126,0.08) 0%, transparent 50%)" }} />
 
-      <PageTitle title="核心用户旅程界面" motionProps={rv(BD)} />
-
       <div style={{
         flex: 1, minHeight: 0,
-        display: "flex", gap: 64,
+        display: "flex", flexDirection: "column", justifyContent: "center",
+        paddingTop: PAD_Y, paddingBottom: PAD_Y,
         position: "relative", zIndex: 1,
-        alignItems: "center", justifyContent: "center",
       }}>
-        <div style={{ width: 300, display: "flex", flexDirection: "column", justifyContent: "center", gap: 0 }}>
-          {phases.map((phase, i) => {
-            const active = activePhase === i;
-            return (
-              <motion.div
-                key={i}
-                {...rv(BD + 0.08 + i * 0.05)}
-                onMouseEnter={() => setActivePhase(i)}
-                style={{
-                  cursor: "pointer", padding: "18px 0",
-                  display: "flex", alignItems: "center", gap: 16,
-                  borderBottom: i < phases.length - 1 ? `1px solid ${C.border}` : undefined,
-                }}
-              >
-                <div style={{
-                  width: 3, height: active ? 38 : 0,
-                  background: C.accent, borderRadius: 2, flexShrink: 0,
-                  transition: "height 0.3s cubic-bezier(0.16,1,0.3,1)",
-                }} />
-                <div>
-                  <p style={{
-                    fontFamily: SANS, fontSize: 11, fontWeight: 700,
-                    color: active ? C.accent : C.desc,
-                    letterSpacing: "0.13em", textTransform: "uppercase" as const,
-                    marginBottom: 4, transition: "color 0.25s ease",
-                  }}>{phase.en}</p>
-                  <p style={{
-                    fontFamily: SANS, fontSize: 20,
-                    fontWeight: active ? 600 : 400,
-                    color: active ? C.text : "#999",
-                    lineHeight: 1.3, transition: "color 0.25s ease",
-                  }}>{phase.zh}</p>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+        <PageTitle title="核心用户旅程界面" motionProps={rv(BD)} />
 
-        <motion.div
-          {...rv(BD + 0.40)}
-          style={{
-            height: "100%", aspectRatio: "16/10",
-            borderRadius: 28, overflow: "hidden",
-            position: "relative",
-            backgroundColor: PHASE_PATTERN_COLOR,
-            backgroundImage: PHASE_PATTERN_IMAGE,
-            backgroundSize: "600px 600px",
-            flexShrink: 0,
-          }}
-        >
-          {PHASE_IMGS.map((src, i) => (
-            <div key={i} style={{ position: "absolute", inset: 0, opacity: activePhase === i ? 1 : 0, transition: "none" }}>
-              {!loadedImgs.has(i) && <div className="phase-skeleton" />}
-              <img
-                src={src} alt={`Phase ${i + 1}`}
-                onLoad={() => setLoadedImgs(prev => new Set([...prev, i]))}
-                style={{
-                  position: "absolute", inset: 0,
-                  width: "100%", height: "100%",
-                  objectFit: "cover", display: "block",
-                  opacity: loadedImgs.has(i) ? 1 : 0,
-                  transition: "opacity 0.3s ease",
-                }}
-              />
-            </div>
-          ))}
-        </motion.div>
+        <div style={{
+          flex: 1, minHeight: 0, display: "flex", gap: 64,
+          alignItems: "center", justifyContent: "center",
+        }}>
+          <div style={{ width: 300, flexShrink: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            {phases.map((phase, i) => {
+              const active = activePhase === i;
+              return (
+                <motion.div
+                  key={i}
+                  {...rv(BD + 0.08 + i * 0.05)}
+                  onMouseEnter={() => setActivePhase(i)}
+                  style={{
+                    cursor: "pointer", padding: "18px 0",
+                    display: "flex", alignItems: "center", gap: 16,
+                    borderBottom: i < phases.length - 1 ? `1px solid ${C.border}` : undefined,
+                  }}
+                >
+                  <div style={{
+                    width: 3, height: active ? 38 : 0,
+                    background: C.accent, borderRadius: 2, flexShrink: 0,
+                    transition: "height 0.3s cubic-bezier(0.16,1,0.3,1)",
+                  }} />
+                  <div>
+                    <p style={{
+                      fontFamily: SANS, fontSize: 11, fontWeight: 700,
+                      color: active ? C.accent : C.desc,
+                      letterSpacing: "0.13em", textTransform: "uppercase" as const,
+                      marginBottom: 4, transition: "color 0.25s ease",
+                    }}>{phase.en}</p>
+                    <p style={{
+                      fontFamily: SANS, fontSize: 20,
+                      fontWeight: active ? 600 : 400,
+                      color: active ? C.text : "#999",
+                      lineHeight: 1.3, transition: "color 0.25s ease",
+                    }}>{phase.zh}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          <motion.div
+            {...rv(BD + 0.40)}
+            style={{
+              flex: 1, maxHeight: "100%", aspectRatio: "16/10",
+              borderRadius: 28, overflow: "hidden", position: "relative",
+              backgroundColor: PHASE_PATTERN_COLOR,
+              backgroundImage: PHASE_PATTERN_IMAGE,
+              backgroundSize: "600px 600px",
+            }}
+          >
+            {PHASE_IMGS.map((src, i) => (
+              <div key={i} style={{ position: "absolute", inset: 0, opacity: activePhase === i ? 1 : 0, transition: "none" }}>
+                {!loadedImgs.has(i) && <div className="phase-skeleton" />}
+                <img
+                  src={src} alt={`Phase ${i + 1}`}
+                  onLoad={() => setLoadedImgs(prev => new Set([...prev, i]))}
+                  style={{
+                    position: "absolute", inset: 0,
+                    width: "100%", height: "100%", objectFit: "cover", display: "block",
+                    opacity: loadedImgs.has(i) ? 1 : 0, transition: "opacity 0.3s ease",
+                  }}
+                />
+              </div>
+            ))}
+          </motion.div>
+        </div>
       </div>
     </div>
   );
 }
 
-// ── Slide 4: 关键方案展示 (special full-center layout) ─────────────────────
+// ── Slide 4: 关键方案展示 ───────────────────────────────────────────────────
 function Project01SlideKeyMethod({ isActive = false }: { isActive?: boolean }) {
   const BD = 0.35;
   const E: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
   const rv = (delay: number) => ({
     initial: { opacity: 0, y: 24 },
     animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 },
     transition: { duration: 0.50, delay: isActive ? delay : 0, ease: E },
   });
-
   const steps = [
     { num: "01", label: "需求分析" },
     { num: "02", label: "竞品分析" },
@@ -561,48 +560,37 @@ function Project01SlideKeyMethod({ isActive = false }: { isActive?: boolean }) {
       position: "relative", width: "100%", height: "100vh",
       display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
-      padding: "0 80px", boxSizing: "border-box", overflow: "hidden",
+      paddingLeft: PAD_X, paddingRight: PAD_X,
+      boxSizing: "border-box", overflow: "hidden",
     }}>
-      {/* Atmosphere */}
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
         background: "radial-gradient(ellipse 70% 70% at 50% 40%, rgba(178,149,126,0.08) 0%, transparent 70%)",
       }} />
-      <div style={{
-        position: "absolute", width: 560, height: 560, borderRadius: "50%",
-        border: `1px solid ${C.border}`, opacity: 0.35, pointerEvents: "none",
-        top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-      }} />
-      <div style={{
-        position: "absolute", width: 320, height: 320, borderRadius: "50%",
-        border: `1px solid ${C.border}`, opacity: 0.25, pointerEvents: "none",
-        top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-      }} />
+      <div style={{ position: "absolute", width: 560, height: 560, borderRadius: "50%", border: `1px solid ${C.border}`, opacity: 0.35, pointerEvents: "none", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }} />
+      <div style={{ position: "absolute", width: 320, height: 320, borderRadius: "50%", border: `1px solid ${C.border}`, opacity: 0.25, pointerEvents: "none", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }} />
 
       <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: 820 }}>
-
         <motion.h1 {...rv(BD)} style={{
           fontFamily: SERIF, fontSize: 60, fontWeight: 700, color: C.text,
-          lineHeight: 1.1, marginBottom: 20, letterSpacing: "-0.02em",
+          lineHeight: 1.1, marginBottom: 28, letterSpacing: "-0.02em",
         }}>
           关键方案展示
         </motion.h1>
 
         <motion.p {...rv(BD + 0.08)} style={{
           fontFamily: SANS, fontSize: 20, color: C.desc, lineHeight: 1.8,
-          marginBottom: 52, maxWidth: 680, margin: "0 auto 52px",
+          maxWidth: 680, margin: "0 auto 60px",
         }}>
           以「指令修改」功能交互设计为例，完整呈现从需求到落地的全流程设计过程。
         </motion.p>
 
-        {/* Step visualization */}
         <motion.div {...rv(BD + 0.16)} style={{
           display: "flex", alignItems: "flex-start", justifyContent: "center",
         }}>
           {steps.map((step, i) => (
             <React.Fragment key={i}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, width: 148, flexShrink: 0 }}>
-                {/* Circle */}
                 <div style={{
                   width: 48, height: 48, borderRadius: "50%",
                   border: `2px solid ${C.accent}`,
@@ -611,17 +599,9 @@ function Project01SlideKeyMethod({ isActive = false }: { isActive?: boolean }) {
                 }}>
                   <span style={{ fontFamily: SERIF, fontSize: 16, fontWeight: 700, color: C.accent }}>{step.num}</span>
                 </div>
-                {/* Label */}
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <p style={{
-                    fontFamily: SANS, fontSize: 10, fontWeight: 700,
-                    color: C.accent, letterSpacing: "0.10em",
-                    textTransform: "uppercase" as const, margin: 0,
-                  }}>Step {step.num}</p>
-                  <p style={{
-                    fontFamily: SANS, fontSize: 18, fontWeight: 600,
-                    color: C.text, lineHeight: 1.3, margin: 0,
-                  }}>{step.label}</p>
+                  <p style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, color: C.accent, letterSpacing: "0.10em", textTransform: "uppercase" as const, margin: 0 }}>Step {step.num}</p>
+                  <p style={{ fontFamily: SANS, fontSize: 18, fontWeight: 600, color: C.text, lineHeight: 1.3, margin: 0 }}>{step.label}</p>
                 </div>
               </div>
               {i < steps.length - 1 && (
@@ -634,7 +614,6 @@ function Project01SlideKeyMethod({ isActive = false }: { isActive?: boolean }) {
             </React.Fragment>
           ))}
         </motion.div>
-
       </div>
     </div>
   );
@@ -642,24 +621,20 @@ function Project01SlideKeyMethod({ isActive = false }: { isActive?: boolean }) {
 
 // ── Slide 5: 「指令修改」功能交互设计_1 ────────────────────────────────────
 function Project01Slide5({ isActive = false }: { isActive?: boolean }) {
-  const NAVBAR_H = 57;
   const BD = 0.35;
   const E: [number,number,number,number] = [0.16,1,0.3,1];
-
   const rv = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
     animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
     transition: { duration: 0.40, delay, ease: E },
   });
-
   const iframeSrc = `${import.meta.env.BASE_URL}details/annotation-platform/slide-interaction.html`;
 
   return (
     <div style={{
       position: "relative", width: "100%", height: "100vh",
       display: "flex", flexDirection: "column",
-      paddingTop: NAVBAR_H + 24, paddingBottom: 60,
-      paddingLeft: 88, paddingRight: 80,
+      paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X,
       boxSizing: "border-box", overflow: "hidden",
     }}>
       <div style={{
@@ -667,78 +642,76 @@ function Project01Slide5({ isActive = false }: { isActive?: boolean }) {
         background: `radial-gradient(ellipse 70% 60% at 75% 40%, rgba(220,210,195,0.45) 0%, transparent 70%)`,
       }} />
 
-      <PageTitle title="「指令修改」功能交互设计" motionProps={{ ...rv(BD), style: { position: "relative", zIndex: 1 } }} />
-
-      {/* Step bar */}
-      <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 20, position: "relative", zIndex: 1 }}>
-        <CompactStepBar />
-      </motion.div>
-
-      {/* Body */}
       <div style={{
         flex: 1, minHeight: 0,
-        display: "flex", gap: 56,
+        display: "flex", flexDirection: "column",
+        paddingTop: PAD_Y, paddingBottom: PAD_Y,
         position: "relative", zIndex: 1,
-        alignItems: "stretch",
       }}>
-        {/* Left: structured text */}
-        <motion.div {...rv(BD + 0.12)} style={{
-          width: 300, flexShrink: 0,
-          display: "flex", flexDirection: "column", gap: 22, justifyContent: "center",
-        }}>
-          <div>
-            <SectionLabel>需求背景</SectionLabel>
-            <p style={{ fontFamily: SANS, fontSize: 15, lineHeight: 1.85, color: C.desc, margin: 0 }}>
-              智能体组件通过多轮对话生成推荐思考内容，标注人员需要频繁重新请求模型并人工调整结果，筛选可用内容用于后续模型训练。
-            </p>
-          </div>
-          <div style={{ height: 1, backgroundColor: C.border }} />
-          <div>
-            <SectionLabel>核心痛点</SectionLabel>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>结果不可控</p>
-                <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>每次全量重生成随机性高，标注人员需要反复试错才能获得可用结果。</p>
-              </div>
-              <div>
-                <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>优质内容丢失</p>
-                <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>重新生成会覆盖已有优质内容，缺乏对局部修改与结果保留的支持。</p>
-              </div>
-            </div>
-          </div>
-          <div style={{ height: 1, backgroundColor: C.border }} />
-          <div>
-            <SectionLabel>设计策略</SectionLabel>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>指令修改</p>
-                <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>通过明确修改指令意图，收敛生成范围。</p>
-              </div>
-              <div>
-                <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>断点后重写</p>
-                <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>仅重构不满意部分，降低试错与返工。</p>
-              </div>
-            </div>
-          </div>
+        <PageTitle title="「指令修改」功能交互设计" motionProps={rv(BD)} />
+
+        <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 20 }}>
+          <CompactStepBar />
         </motion.div>
 
-        {/* Right: iframe */}
-        <motion.div {...rv(BD + 0.22)} style={{
-          flex: 1, height: "100%",
-          borderRadius: 32, overflow: "hidden",
-          position: "relative",
-          backgroundColor: "#f8fafc",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.08)",
-        }}>
-          {isActive && (
-            <iframe
-              src={iframeSrc}
-              title="指令修改体验演示"
-              style={{ width: "100%", height: "100%", border: "none", display: "block" }}
-              sandbox="allow-scripts allow-same-origin"
-            />
-          )}
-        </motion.div>
+        <div style={{ flex: 1, minHeight: 0, display: "flex", gap: 56, alignItems: "stretch" }}>
+          <motion.div {...rv(BD + 0.12)} style={{
+            width: 300, flexShrink: 0,
+            display: "flex", flexDirection: "column", gap: 22, justifyContent: "center",
+          }}>
+            <div>
+              <SectionLabel>需求背景</SectionLabel>
+              <p style={{ fontFamily: SANS, fontSize: 15, lineHeight: 1.85, color: C.desc, margin: 0 }}>
+                智能体组件通过多轮对话生成推荐思考内容，标注人员需要频繁重新请求模型并人工调整结果，筛选可用内容用于后续模型训练。
+              </p>
+            </div>
+            <div style={{ height: 1, backgroundColor: C.border }} />
+            <div>
+              <SectionLabel>核心痛点</SectionLabel>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div>
+                  <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>结果不可控</p>
+                  <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>每次全量重生成随机性高，标注人员需要反复试错才能获得可用结果。</p>
+                </div>
+                <div>
+                  <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>优质内容丢失</p>
+                  <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>重新生成会覆盖已有优质内容，缺乏对局部修改与结果保留的支持。</p>
+                </div>
+              </div>
+            </div>
+            <div style={{ height: 1, backgroundColor: C.border }} />
+            <div>
+              <SectionLabel>设计策略</SectionLabel>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div>
+                  <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>指令修改</p>
+                  <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>通过明确修改指令意图，收敛生成范围。</p>
+                </div>
+                <div>
+                  <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px" }}>断点后重写</p>
+                  <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.75, color: C.desc, margin: 0 }}>仅重构不满意部分，降低试错与返工。</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div {...rv(BD + 0.22)} style={{
+            flex: 1, height: "100%",
+            borderRadius: 32, overflow: "hidden",
+            position: "relative",
+            backgroundColor: "#f8fafc",
+            boxShadow: "0 8px 40px rgba(0,0,0,0.08)",
+          }}>
+            {isActive && (
+              <iframe
+                src={iframeSrc}
+                title="指令修改体验演示"
+                style={{ width: "100%", height: "100%", border: "none", display: "block" }}
+                sandbox="allow-scripts allow-same-origin"
+              />
+            )}
+          </motion.div>
+        </div>
       </div>
     </div>
   );
@@ -746,10 +719,8 @@ function Project01Slide5({ isActive = false }: { isActive?: boolean }) {
 
 // ── Slide 6: 「指令修改」功能交互设计_2 ────────────────────────────────────
 function Project01Slide6({ isActive = false }: { isActive?: boolean }) {
-  const NAVBAR_H = 57;
   const BD = 0.35;
   const E: [number,number,number,number] = [0.16,1,0.3,1];
-
   const rv = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
     animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
@@ -777,8 +748,7 @@ function Project01Slide6({ isActive = false }: { isActive?: boolean }) {
     <div style={{
       position: "relative", width: "100%", height: "100vh",
       display: "flex", flexDirection: "column",
-      paddingTop: NAVBAR_H + 24, paddingBottom: 60,
-      paddingLeft: 88, paddingRight: 80,
+      paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X,
       boxSizing: "border-box", overflow: "hidden",
     }}>
       <div style={{
@@ -786,65 +756,78 @@ function Project01Slide6({ isActive = false }: { isActive?: boolean }) {
         background: "radial-gradient(ellipse 80% 55% at 60% 20%, rgba(178,149,126,0.07) 0%, transparent 65%)",
       }} />
 
-      <PageTitle title="「指令修改」功能交互设计" motionProps={{ ...rv(BD), style: { position: "relative", zIndex: 1, flexShrink: 0 } }} />
+      <div style={{
+        flex: 1, minHeight: 0,
+        display: "flex", flexDirection: "column",
+        paddingTop: PAD_Y, paddingBottom: PAD_Y,
+        position: "relative", zIndex: 1,
+      }}>
+        <PageTitle title="「指令修改」功能交互设计" motionProps={rv(BD)} />
 
-      {/* Step bar */}
-      <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 16, position: "relative", zIndex: 1 }}>
-        <CompactStepBar />
-      </motion.div>
+        {/* Step bar — tight to content */}
+        <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 12 }}>
+          <CompactStepBar />
+        </motion.div>
 
-      {/* Body */}
-      <motion.div
-        {...rv(BD + 0.12)}
-        style={{ flex: 1, minHeight: 0, display: "flex", gap: 48, alignItems: "center", position: "relative", zIndex: 1 }}
-      >
-        {/* Left: PM prototype */}
-        <div style={{ width: "36%", flexShrink: 0, display: "flex", flexDirection: "column", gap: 10, alignSelf: "center" }}>
+        {/* Body: left image larger, right analysis */}
+        <motion.div
+          {...rv(BD + 0.12)}
+          style={{ flex: 1, minHeight: 0, display: "flex", gap: 48, alignItems: "center" }}
+        >
+          {/* Left: PM prototype — larger */}
           <div style={{
-            borderRadius: 20, overflow: "hidden",
-            border: `1px solid ${C.border}`,
-            boxShadow: "0 4px 28px rgba(0,0,0,0.07)",
-            backgroundColor: "#FFFFFF",
+            width: "44%", flexShrink: 0,
+            display: "flex", flexDirection: "column", gap: 10, alignSelf: "center",
           }}>
-            <img src={pmProto} alt="产品原型" style={{ width: "100%", height: "auto", objectFit: "contain", display: "block" }} />
+            <div style={{
+              borderRadius: 20, overflow: "hidden",
+              border: `1px solid ${C.border}`,
+              boxShadow: "0 4px 28px rgba(0,0,0,0.07)",
+              backgroundColor: "#FFFFFF",
+            }}>
+              <img src={pmProto} alt="产品原型" style={{ width: "100%", height: "auto", objectFit: "contain", display: "block" }} />
+            </div>
+            <p style={{ fontFamily: SANS, fontSize: 11, color: C.desc, textAlign: "center" as const, margin: 0, letterSpacing: "0.04em", fontStyle: "italic" }}>产品原型</p>
           </div>
-          <p style={{ fontFamily: SANS, fontSize: 11, color: C.desc, textAlign: "center" as const, margin: 0, letterSpacing: "0.04em", fontStyle: "italic" }}>产品原型</p>
-        </div>
 
-        {/* Right: analysis */}
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignSelf: "center", gap: 0 }}>
-          <p style={{
-            fontFamily: SANS, fontSize: 15, color: C.desc, lineHeight: 1.8,
-            margin: "0 0 20px",
-            borderLeft: `3px solid ${C.accent}`, paddingLeft: 14,
-            paddingTop: 8, paddingBottom: 8,
-            backgroundColor: `${C.accent}08`, borderRadius: "0 6px 6px 0",
+          {/* Right: analysis text */}
+          <div style={{
+            flex: 1, minWidth: 0,
+            display: "flex", flexDirection: "column", alignSelf: "center",
           }}>
-            针对 PM 提供的「弹窗式指令修改」方案，从认知负荷、操作流失率及空间效率三个维度进行分析，存在以下主要问题：
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {problems.map((problem, i) => (
-              <div key={i} style={{
-                display: "flex", gap: 16, alignItems: "flex-start",
-                paddingBottom: i < 2 ? 16 : 0,
-                borderBottom: i < 2 ? `1px solid ${C.border}` : "none",
-              }}>
-                <div style={{
-                  width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
-                  background: C.accent,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: SERIF, fontSize: 13, fontWeight: 700,
-                  color: "#FFFFFF", marginTop: 2,
-                }}>{i + 1}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: SANS, fontSize: 16, fontWeight: 600, color: C.text, margin: "0 0 5px", lineHeight: 1.3 }}>{problem.title}</p>
-                  <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.8, margin: 0 }}>{problem.body}</p>
+            <p style={{
+              fontFamily: SANS, fontSize: 15, color: C.desc, lineHeight: 1.8,
+              margin: "0 0 24px",
+              borderLeft: `3px solid ${C.accent}`, paddingLeft: 14,
+              paddingTop: 8, paddingBottom: 8,
+              backgroundColor: `${C.accent}08`, borderRadius: "0 6px 6px 0",
+            }}>
+              针对 PM 提供的「弹窗式指令修改」方案，从认知负荷、操作流失率及空间效率三个维度进行分析，存在以下主要问题：
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+              {problems.map((problem, i) => (
+                <div key={i} style={{
+                  display: "flex", gap: 16, alignItems: "flex-start",
+                  paddingBottom: i < 2 ? 22 : 0,
+                  borderBottom: i < 2 ? `1px solid ${C.border}` : "none",
+                }}>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+                    background: C.accent,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: SERIF, fontSize: 13, fontWeight: 700,
+                    color: "#FFFFFF", marginTop: 2,
+                  }}>{i + 1}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontFamily: SANS, fontSize: 16, fontWeight: 600, color: C.text, margin: "0 0 6px", lineHeight: 1.3 }}>{problem.title}</p>
+                    <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.9, margin: 0 }}>{problem.body}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
@@ -869,19 +852,16 @@ function DefaultSlide0({ title, tags, desc }: { title: string; tags: string[]; d
   return <BaseSlide0 num="—" context="" title={title} tags={tags} desc={desc} />;
 }
 
-// ── Page indicator ────────────────────────────────────────────────────────
+// ── Page indicator ─────────────────────────────────────────────────────────
 function PageIndicator({
   total, current, textColor, labels, onGoTo,
 }: {
-  total: number;
-  current: number;
-  textColor: string;
-  labels?: string[];
-  onGoTo: (i: number) => void;
+  total: number; current: number; textColor: string;
+  labels?: string[]; onGoTo: (i: number) => void;
 }) {
   const [open, setOpen] = useState(false);
   const accent = C.accent;
-  const menuBg  = "rgba(250,248,245,0.96)";
+  const menuBg = "rgba(250,248,245,0.96)";
   const menuText = C.text;
 
   return (
@@ -951,7 +931,6 @@ function PageIndicator({
 }
 
 // ── Page exports ───────────────────────────────────────────────────────────
-
 export function ProjectDetailPage() {
   const params = useParams<{ num: string }>();
   const [, navigate] = useLocation();
@@ -959,23 +938,13 @@ export function ProjectDetailPage() {
   const isZh = lang === "zh";
   const data = isZh ? PROJECTS_ZH : PROJECTS_EN;
   const item = data.find(p => p.num === params.num);
-
   const seqIndex = DETAIL_SEQUENCE.findIndex(s => s.kind === "project" && s.id === params.num);
   const prevItem = seqIndex > 0 ? DETAIL_SEQUENCE[seqIndex - 1] : null;
   const nextItem = seqIndex < DETAIL_SEQUENCE.length - 1 ? DETAIL_SEQUENCE[seqIndex + 1] : null;
-
   if (!item) return <NotFound navigate={navigate} />;
 
   const slideLabels = params.num === "01"
-    ? [
-        "项目背景",
-        "用户与能力",
-        "业务全流程概览",
-        "核心用户旅程界面",
-        "关键方案展示",
-        "「指令修改」功能交互设计_1",
-        "「指令修改」功能交互设计_2",
-      ]
+    ? ["项目背景", "用户与能力", "业务全流程概览", "核心用户旅程界面", "关键方案展示", "「指令修改」功能交互设计_1", "「指令修改」功能交互设计_2"]
     : undefined;
 
   const commonProps = { title: item.title, tags: item.tags, desc: item.desc };
@@ -984,29 +953,21 @@ export function ProjectDetailPage() {
     : params.num === "03" ? <Project03Slide0 {...commonProps} />
     : <DefaultSlide0 {...commonProps} />;
 
-  const slide1 = params.num === "01" ? <Project01SlideUsers /> : undefined;
-  const slide2 = params.num === "01" ? <Project01Slide2 /> : undefined;
-  const slide3 = params.num === "01" ? <Project01Slide3 /> : undefined;
-  const slide4 = params.num === "01" ? <Project01SlideKeyMethod /> : undefined;
-  const slide5 = params.num === "01" ? <Project01Slide5 /> : undefined;
-  const slide6 = params.num === "01" ? <Project01Slide6 /> : undefined;
-
   return (
     <DetailLayout
-      isZh={isZh}
-      navigate={navigate}
+      isZh={isZh} navigate={navigate}
       sectionLabel={isZh ? "项目案例" : "Projects"}
       navSubtitle={item.title}
       prevPath={prevItem ? seqPath(prevItem) : null}
       nextPath={nextItem ? seqPath(nextItem) : null}
       slideLabels={slideLabels}
       slide0={slide0}
-      slide1={slide1}
-      slide2={slide2}
-      slide3={slide3}
-      slide4={slide4}
-      slide5={slide5}
-      slide6={slide6}
+      slide1={params.num === "01" ? <Project01SlideUsers /> : undefined}
+      slide2={params.num === "01" ? <Project01Slide2 /> : undefined}
+      slide3={params.num === "01" ? <Project01Slide3 /> : undefined}
+      slide4={params.num === "01" ? <Project01SlideKeyMethod /> : undefined}
+      slide5={params.num === "01" ? <Project01Slide5 /> : undefined}
+      slide6={params.num === "01" ? <Project01Slide6 /> : undefined}
       titleForReset={item.title}
     />
   );
@@ -1019,11 +980,9 @@ export function VibeDetailPage() {
   const isZh = lang === "zh";
   const data = isZh ? VIBE_ZH : VIBE_EN;
   const item = data.find(p => p.id === params.id);
-
   const seqIndex = DETAIL_SEQUENCE.findIndex(s => s.kind === "vibe" && s.id === params.id);
   const prevItem = seqIndex > 0 ? DETAIL_SEQUENCE[seqIndex - 1] : null;
   const nextItem = seqIndex < DETAIL_SEQUENCE.length - 1 ? DETAIL_SEQUENCE[seqIndex + 1] : null;
-
   if (!item) return <NotFound navigate={navigate} />;
 
   const slide0 = params.id === "0" ? <Vibe0Slide0 title={item.title} tags={item.tags} desc={item.desc} />
@@ -1033,8 +992,7 @@ export function VibeDetailPage() {
 
   return (
     <DetailLayout
-      isZh={isZh}
-      navigate={navigate}
+      isZh={isZh} navigate={navigate}
       sectionLabel={isZh ? "设计随想" : "Vibes"}
       navSubtitle={item.title}
       prevPath={prevItem ? seqPath(prevItem) : null}
@@ -1050,21 +1008,13 @@ function DetailLayout({
   isZh, navigate, sectionLabel, navSubtitle = "", prevPath, nextPath, slideLabels,
   slide0, slide1, slide2, slide3, slide4, slide5, slide6, titleForReset,
 }: {
-  isZh: boolean;
-  navigate: (to: string) => void;
-  sectionLabel: string;
-  navSubtitle?: string;
-  prevPath: string | null;
-  nextPath: string | null;
+  isZh: boolean; navigate: (to: string) => void;
+  sectionLabel: string; navSubtitle?: string;
+  prevPath: string | null; nextPath: string | null;
   slideLabels?: string[];
-  slide0: React.ReactNode;
-  slide1?: React.ReactNode;
-  slide2?: React.ReactNode;
-  slide3?: React.ReactNode;
-  slide4?: React.ReactNode;
-  slide5?: React.ReactNode;
-  slide6?: React.ReactNode;
-  titleForReset: string;
+  slide0: React.ReactNode; slide1?: React.ReactNode; slide2?: React.ReactNode;
+  slide3?: React.ReactNode; slide4?: React.ReactNode; slide5?: React.ReactNode;
+  slide6?: React.ReactNode; titleForReset: string;
 }) {
   const [current, setCurrent] = useState(0);
   const currentRef = useRef(0);
@@ -1079,13 +1029,11 @@ function DetailLayout({
     busyRef.current = true;
     currentRef.current = index;
     setCurrent(index);
-    setTimeout(() => { busyRef.current = false; }, DURATION + 50);
+    setTimeout(() => { busyRef.current = false; }, DURATION + 80);
   };
 
   useEffect(() => {
-    currentRef.current = 0;
-    setCurrent(0);
-    busyRef.current = false;
+    currentRef.current = 0; setCurrent(0); busyRef.current = false;
   }, [titleForReset]);
 
   useEffect(() => {
@@ -1093,12 +1041,17 @@ function DetailLayout({
     return () => { document.body.style.overflow = ""; };
   }, []);
 
+  // ── Wheel: reset accum while busy so one scroll = one page ──
   useEffect(() => {
     let accum = 0;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
+      if (busyRef.current) {
+        accum = 0; // discard events during transition
+        return;
+      }
       accum += e.deltaY;
-      if (accum > 60)  { accum = 0; goTo(currentRef.current + 1); }
+      if (accum > 60)       { accum = 0; goTo(currentRef.current + 1); }
       else if (accum < -60) { accum = 0; goTo(currentRef.current - 1); }
     };
     window.addEventListener("wheel", onWheel, { passive: false });
@@ -1106,12 +1059,14 @@ function DetailLayout({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalSlides]);
 
+  // ── Touch ──
   useEffect(() => {
     let startY = 0;
     const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY; };
     const onEnd   = (e: TouchEvent) => {
+      if (busyRef.current) return;
       const diff = startY - e.changedTouches[0].clientY;
-      if (diff > 50)  goTo(currentRef.current + 1);
+      if (diff > 50)       goTo(currentRef.current + 1);
       else if (diff < -50) goTo(currentRef.current - 1);
     };
     window.addEventListener("touchstart", onStart, { passive: true });
@@ -1123,6 +1078,7 @@ function DetailLayout({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalSlides]);
 
+  // ── Keyboard ──
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown" || e.key === "PageDown") goTo(currentRef.current + 1);
@@ -1135,7 +1091,6 @@ function DetailLayout({
 
   const textColor = SLIDES[Math.min(current, SLIDES.length - 1)].text;
   const navBg     = "rgba(252,251,248,0.96)";
-  const navBorder = C.border;
 
   return (
     <>
@@ -1164,32 +1119,26 @@ function DetailLayout({
         .phase-skeleton {
           position: absolute; inset: 0;
           background: linear-gradient(90deg, #E8E2D9 25%, #F0EBE4 50%, #E8E2D9 75%);
-          background-size: 1200px 100%;
+          background-size: 1200px 100%; border-radius: 32px;
           animation: skeleton-shimmer 1.4s infinite linear;
-          border-radius: 32px;
         }
       `}</style>
 
-      {/* ── NAVBAR ── */}
+      {/* Navbar */}
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 500,
         display: "flex", alignItems: "center",
-        paddingLeft: 60, paddingRight: 60,
-        paddingTop: 14, paddingBottom: 14,
-        background: navBg,
-        backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
-        borderBottom: `1px solid ${navBorder}`,
-        transition: `background ${DURATION}ms ease, border-color ${DURATION}ms ease`,
+        paddingLeft: PAD_X, paddingRight: PAD_X, paddingTop: 14, paddingBottom: 14,
+        background: navBg, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
+        borderBottom: `1px solid ${C.border}`,
+        transition: `background ${DURATION}ms ease`,
       }}>
         <button className="back-btn" style={{ color: textColor }} onClick={() => navigate("/")}>
           <ArrowLeft size={15} />
           {isZh ? "返回主页" : "Back to Home"}
         </button>
 
-        <div style={{
-          position: "absolute", left: "50%", transform: "translateX(-50%)",
-          zIndex: 1, pointerEvents: "none",
-        }}>
+        <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }}>
           <span style={{
             fontFamily: SERIF, fontSize: 17, fontWeight: 700,
             color: textColor, letterSpacing: "0.02em",
@@ -1203,50 +1152,36 @@ function DetailLayout({
         </div>
 
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-          <button
-            className="nav-btn"
-            disabled={!prevPath}
+          <button className="nav-btn" disabled={!prevPath}
             style={{ color: textColor, border: `1px solid ${textColor}40` }}
-            onClick={() => prevPath && navigate(prevPath)}
-          >
-            <ChevronLeft size={14} />
-            {isZh ? "上一个" : "Prev"}
+            onClick={() => prevPath && navigate(prevPath)}>
+            <ChevronLeft size={14} />{isZh ? "上一个" : "Prev"}
           </button>
-          <button
-            className="nav-btn"
-            disabled={!nextPath}
+          <button className="nav-btn" disabled={!nextPath}
             style={{ color: textColor, border: `1px solid ${textColor}40` }}
-            onClick={() => nextPath && navigate(nextPath)}
-          >
-            {isZh ? "下一个" : "Next"}
-            <ChevronRight size={14} />
+            onClick={() => nextPath && navigate(nextPath)}>
+            {isZh ? "下一个" : "Next"}<ChevronRight size={14} />
           </button>
         </div>
       </div>
 
-      {/* ── INDICATOR ── */}
+      {/* Indicator */}
       <PageIndicator
-        total={totalSlides}
-        current={current}
-        textColor={textColor}
-        labels={slideLabels}
-        onGoTo={goTo}
+        total={totalSlides} current={current} textColor={textColor}
+        labels={slideLabels} onGoTo={goTo}
       />
 
-      {/* ── SLIDES ── */}
+      {/* Slides */}
       {SLIDES.slice(0, totalSlides).map((slide, i) => (
-        <div
-          key={i}
-          style={{
-            position: "fixed", top: 0, left: 0,
-            width: "100vw", height: "100vh",
-            background: slide.bg,
-            transform: `translateY(${i <= current ? 0 : 100}vh)`,
-            transition: `transform ${DURATION}ms cubic-bezier(0.76, 0, 0.24, 1)`,
-            zIndex: i + 1,
-            display: "flex", alignItems: "center", justifyContent: "flex-start",
-          }}
-        >
+        <div key={i} style={{
+          position: "fixed", top: 0, left: 0,
+          width: "100vw", height: "100vh",
+          background: slide.bg,
+          transform: `translateY(${i <= current ? 0 : 100}vh)`,
+          transition: `transform ${DURATION}ms cubic-bezier(0.76, 0, 0.24, 1)`,
+          zIndex: i + 1,
+          display: "flex", alignItems: "center", justifyContent: "flex-start",
+        }}>
           {i === 0 && slide0}
           {i === 1 && slide1 && React.cloneElement(slide1 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 1 })}
           {i === 2 && slide2 && React.cloneElement(slide2 as React.ReactElement<{ isActive?: boolean }>, { isActive: current === 2 })}
