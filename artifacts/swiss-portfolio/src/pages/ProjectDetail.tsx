@@ -644,17 +644,16 @@ function Project01Slide6({ isActive = false }: { isActive?: boolean }) {
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
         background: "radial-gradient(ellipse 80% 55% at 60% 20%, rgba(178,149,126,0.07) 0%, transparent 65%)" }} />
 
-      {/* space-between: title floats to top, step bar + body group at bottom */}
       <div style={{
         flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
         paddingTop: PAD_Y, paddingBottom: PAD_Y,
-        justifyContent: "space-between", position: "relative", zIndex: 1,
+        position: "relative", zIndex: 1,
       }}>
         <PageTitle title="「指令修改」功能交互设计" motionProps={rv(BD)} />
 
-        {/* Lower group: step bar tight above body */}
-        <div style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
-          <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 12 }}>
+        {/* Step bar + body centered in remaining space */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 24 }}>
             <CompactStepBar activeStep={2} />
           </motion.div>
           <motion.div {...rv(BD + 0.12)} style={{ display: "flex", gap: 48, alignItems: "center" }}>
@@ -747,21 +746,20 @@ function Project01Slide7({ isActive = false }: { isActive?: boolean }) {
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
         background: "radial-gradient(ellipse 75% 60% at 55% 30%, rgba(178,149,126,0.07) 0%, transparent 65%)" }} />
 
-      {/* same space-between layout as slide 6 */}
       <div style={{
         flex: 1, minHeight: 0, display: "flex", flexDirection: "column",
         paddingTop: PAD_Y, paddingBottom: PAD_Y,
-        justifyContent: "space-between", position: "relative", zIndex: 1,
+        position: "relative", zIndex: 1,
       }}>
         <PageTitle title="「指令修改」功能交互设计" motionProps={rv(BD)} />
 
-        {/* Lower group: step bar tight above body */}
-        <div style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1 }}>
-          <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 16 }}>
+        {/* Step bar + body centered in remaining space */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 24 }}>
             <CompactStepBar activeStep={2} />
           </motion.div>
 
-          <motion.div {...rv(BD + 0.10)} style={{ flex: 1, minHeight: 0, display: "flex", gap: 56, alignItems: "stretch" }}>
+          <motion.div {...rv(BD + 0.10)} style={{ display: "flex", gap: 56, alignItems: "flex-start" }}>
             {/* Left: tabs + image */}
             <div style={{ width: "44%", flexShrink: 0, display: "flex", flexDirection: "column", gap: 14 }}>
               {/* Capsule tabs — same style as lang toggle */}
@@ -787,9 +785,10 @@ function Project01Slide7({ isActive = false }: { isActive?: boolean }) {
                 </div>
               </div>
 
-              {/* Image container */}
+              {/* Image container — aspect ratio matches 2094×1309 ≈ 16:10 */}
               <div style={{
-                flex: 1, minHeight: 0,
+                width: "100%",
+                aspectRatio: "2094 / 1309",
                 borderRadius: 20, overflow: "hidden",
                 border: `1px solid ${C.border}`,
                 boxShadow: "0 4px 28px rgba(0,0,0,0.07)",
@@ -803,20 +802,12 @@ function Project01Slide7({ isActive = false }: { isActive?: boolean }) {
                     alt={tabs[i].label}
                     style={{
                       position: "absolute", inset: 0, width: "100%", height: "100%",
-                      objectFit: "contain", display: "block",
+                      objectFit: "cover", display: "block",
                       opacity: activeTab === i ? 1 : 0,
                       transition: "opacity 0.28s ease",
                     }}
                   />
                 ))}
-                {/* Placeholder if images missing */}
-                <div style={{
-                  position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-                  color: "#C4BAB0", fontFamily: SANS, fontSize: 12, pointerEvents: "none",
-                  opacity: 0.6,
-                }}>
-                  <span style={{ fontStyle: "italic" }}>competitive analysis_{activeTab + 1}.png</span>
-                </div>
               </div>
             </div>
 
@@ -1048,15 +1039,27 @@ function DetailLayout({
   useEffect(() => { currentRef.current = 0; setCurrent(0); busyRef.current = false; }, [titleForReset]);
   useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
 
-  // Wheel: discard events while busy
+  // Wheel: timestamp-based cooldown prevents trackpad momentum from triggering extra pages
   useEffect(() => {
     let accum = 0;
+    let lastNavTime = 0;
+    const COOLDOWN_MS = DURATION + 700; // animation + momentum drain window
+
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      if (busyRef.current) { accum = 0; return; }
+      const now = Date.now();
+      if (now - lastNavTime < COOLDOWN_MS) {
+        accum = 0; // still cooling down – ignore all events
+        return;
+      }
       accum += e.deltaY;
-      if (accum > 60)       { accum = 0; goTo(currentRef.current + 1); }
-      else if (accum < -60) { accum = 0; goTo(currentRef.current - 1); }
+      if (accum > 80) {
+        accum = 0; lastNavTime = now;
+        goTo(currentRef.current + 1);
+      } else if (accum < -80) {
+        accum = 0; lastNavTime = now;
+        goTo(currentRef.current - 1);
+      }
     };
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
