@@ -759,33 +759,10 @@ function Project01Slide7({ isActive = false }: { isActive?: boolean }) {
             <CompactStepBar activeStep={2} />
           </motion.div>
 
-          <motion.div {...rv(BD + 0.10)} style={{ display: "flex", gap: 56, alignItems: "flex-start" }}>
-            {/* Left: tabs + image */}
-            <div style={{ width: "44%", flexShrink: 0, display: "flex", flexDirection: "column", gap: 14 }}>
-              {/* Capsule tabs — same style as lang toggle */}
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", background: "#EDE8E0", borderRadius: 100, padding: 3, gap: 2 }}>
-                  {tabs.map((tab, i) => (
-                    <div
-                      key={i}
-                      onClick={() => setActiveTab(i)}
-                      style={{
-                        padding: "6px 16px", borderRadius: 100,
-                        fontSize: 13, fontWeight: 600, fontFamily: SANS,
-                        letterSpacing: "0.03em", cursor: "pointer",
-                        transition: "background 0.22s, color 0.22s, box-shadow 0.22s",
-                        background: activeTab === i ? "#FFFFFF" : "transparent",
-                        color: activeTab === i ? C.text : "#999",
-                        boxShadow: activeTab === i ? "0 1px 6px rgba(46,46,46,0.10)" : "none",
-                        userSelect: "none" as const,
-                        whiteSpace: "nowrap" as const,
-                      }}
-                    >{tab.label}</div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Image container — aspect ratio matches 2094×1309 ≈ 16:10 */}
+          <motion.div {...rv(BD + 0.10)} style={{ display: "flex", gap: 40, alignItems: "center" }}>
+            {/* Left: image with tabs overlaid inside */}
+            <div style={{ width: "54%", flexShrink: 0 }}>
+              {/* Image container — aspect ratio 2094×1309, tabs float inside at top */}
               <div style={{
                 width: "100%",
                 aspectRatio: "2094 / 1309",
@@ -795,6 +772,40 @@ function Project01Slide7({ isActive = false }: { isActive?: boolean }) {
                 backgroundColor: "#F5F2ED",
                 position: "relative",
               }}>
+                {/* Tabs inside image, 24px from top, centered */}
+                <div style={{
+                  position: "absolute", top: 24, left: 0, right: 0,
+                  zIndex: 3, display: "flex", justifyContent: "center",
+                  pointerEvents: "none",
+                }}>
+                  <div style={{
+                    display: "flex", alignItems: "center",
+                    background: "rgba(255,255,255,0.88)",
+                    backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+                    borderRadius: 100, padding: 3, gap: 2,
+                    boxShadow: "0 2px 14px rgba(46,46,46,0.12)",
+                    pointerEvents: "auto",
+                  }}>
+                    {tabs.map((tab, i) => (
+                      <div
+                        key={i}
+                        onClick={() => setActiveTab(i)}
+                        style={{
+                          padding: "6px 16px", borderRadius: 100,
+                          fontSize: 13, fontWeight: 600, fontFamily: SANS,
+                          letterSpacing: "0.03em", cursor: "pointer",
+                          transition: "background 0.22s, color 0.22s, box-shadow 0.22s",
+                          background: activeTab === i ? "#FFFFFF" : "transparent",
+                          color: activeTab === i ? C.text : "#999",
+                          boxShadow: activeTab === i ? "0 1px 6px rgba(46,46,46,0.12)" : "none",
+                          userSelect: "none" as const,
+                          whiteSpace: "nowrap" as const,
+                        }}
+                      >{tab.label}</div>
+                    ))}
+                  </div>
+                </div>
+
                 {COMP_IMGS.map((src, i) => (
                   <img
                     key={i}
@@ -812,7 +823,7 @@ function Project01Slide7({ isActive = false }: { isActive?: boolean }) {
             </div>
 
             {/* Right: pros / cons */}
-            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 24 }}>
+            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 20 }}>
               {/* Pros */}
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
