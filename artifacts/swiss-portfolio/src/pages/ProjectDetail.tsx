@@ -789,11 +789,7 @@ function PanZoomViewer({ loaded, onLoad, resetKey }: { loaded: boolean; onLoad: 
           src={INTER_IMGS[1]} alt="交互文档节选" draggable={false} onLoad={onLoad}
           style={{ position: "absolute", left: 0, top: 0, width: IMG2_W, height: IMG2_H, transform: `translate(${transform.x}px,${transform.y}px) scale(${transform.scale})`, transformOrigin: "0 0", display: "block", pointerEvents: "none", opacity: loaded ? 1 : 0, transition: dragging ? "none" : "opacity 0.45s ease" }}
         />
-        {loaded && (
-          <div style={{ position: "absolute", bottom: 64, left: "50%", transform: "translateX(-50%)", background: "rgba(46,46,46,0.52)", backdropFilter: "blur(8px)", borderRadius: 100, padding: "5px 14px", pointerEvents: "none", zIndex: 3 }}>
-            <p style={{ fontFamily: SANS, fontSize: 11, color: "#FFF", opacity: 0.9, margin: 0, letterSpacing: "0.05em", whiteSpace: "nowrap" }}>拖拽平移 · 滚轮 / 双指缩放</p>
-          </div>
-        )}
+        {/* Hint removed — container is compact; controls overlay provides reset */}
       </div>
       <div style={{ position: "absolute", top: 14, right: 14, display: "flex", alignItems: "center", gap: 8, zIndex: 4 }}>
         <div style={{ background: "rgba(252,251,248,0.92)", backdropFilter: "blur(10px)", borderRadius: 100, padding: "4px 12px", border: `1px solid ${C.border}` }}>
@@ -830,38 +826,40 @@ function Project01Slide9({ isActive = false }: { isActive?: boolean }) {
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, background: "radial-gradient(ellipse 70% 55% at 55% 30%, rgba(178,149,126,0.06) 0%, transparent 65%)" }} />
 
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", position: "relative", zIndex: 1, paddingLeft: PAD_X, paddingRight: PAD_X }}>
-        {/* Title */}
+        {/* Title — 60px from viewport edge (inherited from outer PAD_X) */}
         <div style={{ paddingTop: PAD_Y }}>
           <PageTitle title="「指令修改」功能交互设计" motionProps={rv(BD)} />
         </div>
 
-        {/* Step bar — 16px below title, close to image */}
+        {/* Step bar */}
         <motion.div {...rv(BD + 0.05)} style={{ flexShrink: 0, marginTop: 0 }}>
           <CompactStepBar activeStep={4} />
         </motion.div>
 
-        {/* Image area — 32px below step bar, 32px from viewport bottom; tabs overlaid */}
-        <motion.div {...rv(BD + 0.09)} style={{ flex: 1, minHeight: 0, marginTop: 32, marginBottom: 32, position: "relative" }}>
-          {/* Tab 1: full image, objectFit contain preserves 1920:956 ratio */}
+        {/* Image area — 400px from viewport edge (340px extra on each side beyond PAD_X=60) */}
+        <motion.div {...rv(BD + 0.09)} style={{ marginTop: 32, marginBottom: 32, marginLeft: 340, marginRight: 340, position: "relative" }}>
+          {/* Tab 1: container matches image ratio 1803:862 — no distortion */}
           {activeTab === 0 && (
-            <div style={{ width: "100%", height: "100%", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
+            <div style={{ width: "100%", aspectRatio: "1803/862", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
               {!loaded1 && (
                 <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(90deg,#EAE4DC 25%,#F2EDE7 50%,#EAE4DC 75%)", backgroundSize: "800px 100%", animation: "skeleton-shimmer 1.5s infinite linear" }} />
               )}
               <img
                 src={INTER_IMGS[0]} alt="全链路交互规范" onLoad={() => setLoaded1(true)}
-                style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", display: "block", opacity: loaded1 ? 1 : 0, transition: "opacity 0.45s ease" }}
+                style={{ width: "100%", height: "100%", objectFit: "fill", display: "block", opacity: loaded1 ? 1 : 0, transition: "opacity 0.45s ease" }}
               />
             </div>
           )}
 
-          {/* Tab 2: pan/zoom viewer fills the same area */}
+          {/* Tab 2: container matches image ratio 9504:2672 — PanZoomViewer fills it */}
           {activeTab === 1 && (
-            <PanZoomViewer loaded={loaded2} onLoad={() => setLoaded2(true)} resetKey={pzResetKey} />
+            <div style={{ width: "100%", aspectRatio: "9504/2672", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
+              <PanZoomViewer loaded={loaded2} onLoad={() => setLoaded2(true)} resetKey={pzResetKey} />
+            </div>
           )}
 
-          {/* Capsule tabs overlaid at bottom-center of image area */}
-          <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 10, pointerEvents: "none" }}>
+          {/* Capsule tabs overlaid at bottom-center */}
+          <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 10, pointerEvents: "none" }}>
             <div style={{ pointerEvents: "auto" }}>
               <CapsuleTabs tabs={tabs} active={activeTab} onChange={handleTabChange} />
             </div>
@@ -923,7 +921,12 @@ function Project01Slide10({ isActive = false }: { isActive?: boolean }) {
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
               <p style={{ fontFamily: SANS, fontSize: 15, color: C.desc, lineHeight: 1.8, margin: 0 }}>{top.content}</p>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
-                {top.tags.map((t, i) => (
+                {top.tags.map((t, i) => t === "如期交付率：100%" ? (
+                  <span key={i} style={{ fontFamily: SANS, fontSize: 12, fontWeight: 700, color: "#FFF", background: C.accent, border: "none", borderRadius: 100, padding: "5px 14px", letterSpacing: "0.04em", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}><path d="M2 6.5L4.8 9.5L10 3" stroke="#FFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    {t}
+                  </span>
+                ) : (
                   <span key={i} style={{ fontFamily: SANS, fontSize: 12, fontWeight: 600, color: C.accent, background: `${C.accent}12`, border: `1px solid ${C.accent}30`, borderRadius: 100, padding: "4px 12px", letterSpacing: "0.04em" }}>{t}</span>
                 ))}
               </div>
