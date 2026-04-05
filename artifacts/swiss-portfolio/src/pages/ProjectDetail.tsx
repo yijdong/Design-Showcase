@@ -720,7 +720,7 @@ function PanZoomViewer({ loaded, onLoad, resetKey }: { loaded: boolean; onLoad: 
     const h = containerRef.current.getBoundingClientRect().height;
     const sc = Math.max(h / IMG2_H, 0.01);
     initialScale.current = sc;
-    applyT({ x: 0, y: 0, scale: sc });
+    applyT({ x: 0, y: 0, scale: sc * 3 }); // default 300%
   };
 
   useEffect(() => {
@@ -904,27 +904,27 @@ function Project01Slide10({ isActive = false }: { isActive?: boolean }) {
   const { top, cards } = SUMMARY_DATA;
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
+    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: 96, paddingRight: 96, boxSizing: "border-box", overflow: "hidden" }}>
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, background: "radial-gradient(ellipse 80% 50% at 50% 60%, rgba(178,149,126,0.07) 0%, transparent 65%)" }} />
 
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, position: "relative", zIndex: 1 }}>
         <PageTitle title="AI数据标注平台项目总结" motionProps={rv(BD)} />
 
-        {/* Main layout: vertically centered group */}
-        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 20, paddingBottom: 24 }}>
+        {/* Main layout: vertically centered */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 16, paddingBottom: 8 }}>
           {/* Top overview card */}
-          <motion.div {...rv(BD + 0.06)} style={{ border: `1px solid ${C.border}`, borderRadius: 16, background: "rgba(255,253,249,0.7)", backdropFilter: "blur(8px)", padding: "24px 28px", display: "flex", gap: 32, alignItems: "flex-start" }}>
+          <motion.div {...rv(BD + 0.06)} style={{ border: `1px solid ${C.border}`, borderRadius: 16, background: "rgba(255,253,249,0.72)", backdropFilter: "blur(8px)", padding: "26px 32px", display: "flex", gap: 36, alignItems: "center" }}>
             {/* Number side */}
-            <div style={{ flexShrink: 0, borderRight: `1px solid ${C.border}`, paddingRight: 32, display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", minWidth: 140 }}>
-              <p style={{ fontFamily: SERIF, fontSize: 56, fontWeight: 700, color: C.text, margin: 0, lineHeight: 1 }}>{top.num}</p>
-              <p style={{ fontFamily: SANS, fontSize: 12, color: C.desc, margin: "8px 0 0", lineHeight: 1.4 }}>{top.numDesc}</p>
+            <div style={{ flexShrink: 0, borderRight: `1px solid ${C.border}`, paddingRight: 36, display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", minWidth: 160 }}>
+              <p style={{ fontFamily: SERIF, fontSize: 72, fontWeight: 700, color: C.text, margin: 0, lineHeight: 1 }}>{top.num}</p>
+              <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, margin: "10px 0 0", lineHeight: 1.4 }}>{top.numDesc}</p>
             </div>
             {/* Content side */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
-              <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.75, margin: 0 }}>{top.content}</p>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
+              <p style={{ fontFamily: SANS, fontSize: 15, color: C.desc, lineHeight: 1.8, margin: 0 }}>{top.content}</p>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
                 {top.tags.map((t, i) => (
-                  <span key={i} style={{ fontFamily: SANS, fontSize: 11, fontWeight: 600, color: C.accent, background: `${C.accent}12`, border: `1px solid ${C.accent}30`, borderRadius: 100, padding: "3px 10px", letterSpacing: "0.04em" }}>{t}</span>
+                  <span key={i} style={{ fontFamily: SANS, fontSize: 12, fontWeight: 600, color: C.accent, background: `${C.accent}12`, border: `1px solid ${C.accent}30`, borderRadius: 100, padding: "4px 12px", letterSpacing: "0.04em" }}>{t}</span>
                 ))}
               </div>
             </div>
@@ -933,12 +933,12 @@ function Project01Slide10({ isActive = false }: { isActive?: boolean }) {
           {/* Bottom cards row */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
             {cards.map((card, ci) => (
-              <motion.div key={ci} {...rv(BD + 0.10 + ci * 0.05)} style={{ border: `1px solid ${C.border}`, borderRadius: 16, background: "rgba(255,253,249,0.7)", backdropFilter: "blur(8px)", padding: "22px 22px 18px", display: "flex", flexDirection: "column", gap: 10 }}>
-                <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 700, color: C.text, margin: 0, lineHeight: 1.4 }}>{card.title}</p>
-                <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.7, margin: 0, flex: 1 }}>{card.content}</p>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const, marginTop: 4 }}>
+              <motion.div key={ci} {...rv(BD + 0.10 + ci * 0.05)} style={{ border: `1px solid ${C.border}`, borderRadius: 16, background: "rgba(255,253,249,0.72)", backdropFilter: "blur(8px)", padding: "22px 24px 20px", display: "flex", flexDirection: "column", gap: 12 }}>
+                <p style={{ fontFamily: SANS, fontSize: 17, fontWeight: 700, color: C.text, margin: 0, lineHeight: 1.4 }}>{card.title}</p>
+                <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.75, margin: 0, flex: 1 }}>{card.content}</p>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const, marginTop: 2 }}>
                   {card.tags.map((t, i) => (
-                    <span key={i} style={{ fontFamily: SANS, fontSize: 10, fontWeight: 600, color: C.accent, background: `${C.accent}12`, border: `1px solid ${C.accent}30`, borderRadius: 100, padding: "2px 8px", letterSpacing: "0.04em" }}>{t}</span>
+                    <span key={i} style={{ fontFamily: SANS, fontSize: 11, fontWeight: 600, color: C.accent, background: `${C.accent}12`, border: `1px solid ${C.accent}30`, borderRadius: 100, padding: "3px 10px", letterSpacing: "0.04em" }}>{t}</span>
                   ))}
                 </div>
               </motion.div>
