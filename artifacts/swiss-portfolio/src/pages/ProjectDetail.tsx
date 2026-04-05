@@ -80,11 +80,17 @@ function CompactStepBar({ activeStep = 1 }: { activeStep?: number }) {
   );
 }
 
-// Shared image box
-function ImgBox({ src, alt, ratio = "2094/1309", style }: { src: string; alt: string; ratio?: string; style?: React.CSSProperties }) {
+// Shared image box — supports optional skeleton-loading state
+function ImgBox({ src, alt, ratio = "2094/1309", style, loaded = true, onLoad }: {
+  src: string; alt: string; ratio?: string; style?: React.CSSProperties;
+  loaded?: boolean; onLoad?: () => void;
+}) {
   return (
     <div style={{ width: "100%", aspectRatio: ratio, borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", backgroundColor: "#F5F2ED", position: "relative", ...style }}>
-      <img src={src} alt={alt} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      {!loaded && (
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(90deg,#EAE4DC 25%,#F2EDE7 50%,#EAE4DC 75%)", backgroundSize: "800px 100%", animation: "skeleton-shimmer 1.5s infinite linear", borderRadius: 0 }} />
+      )}
+      <img src={src} alt={alt} onLoad={onLoad} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: loaded ? 1 : 0, transition: "opacity 0.45s ease" }} />
     </div>
   );
 }
@@ -530,7 +536,7 @@ function Project01Slide7({ isActive = false }: { isActive?: boolean }) {
                   {cur.pros.map((item, i) => (
                     <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
                       <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#7BAA8B", marginTop: 7, flexShrink: 0 }} />
-                      <div><p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 4px", lineHeight: 1.3 }}>{item.title}</p><p style={{ fontFamily: SANS, fontSize: 13.5, color: C.desc, lineHeight: 1.85, margin: 0 }}>{item.body}</p></div>
+                      <div><p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 4px", lineHeight: 1.3 }}>{item.title}</p><p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.85, margin: 0 }}>{item.body}</p></div>
                     </div>
                   ))}
                 </div>
@@ -545,7 +551,7 @@ function Project01Slide7({ isActive = false }: { isActive?: boolean }) {
                   {cur.cons.map((item, i) => (
                     <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
                       <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#BF7E7E", marginTop: 7, flexShrink: 0 }} />
-                      <div><p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 4px", lineHeight: 1.3 }}>{item.title}</p><p style={{ fontFamily: SANS, fontSize: 13.5, color: C.desc, lineHeight: 1.85, margin: 0 }}>{item.body}</p></div>
+                      <div><p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 4px", lineHeight: 1.3 }}>{item.title}</p><p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.85, margin: 0 }}>{item.body}</p></div>
                     </div>
                   ))}
                 </div>
@@ -562,116 +568,128 @@ function Project01Slide7({ isActive = false }: { isActive?: boolean }) {
 function Project01Slide8({ isActive = false }: { isActive?: boolean }) {
   const BD = 0.35;
   const [activeTab, setActiveTab] = useState(0);
+  // Track which solution images have loaded (index 0–3 matching SOL_IMGS)
+  const [loadedImgs, setLoadedImgs] = useState<Set<number>>(new Set());
   const rv = (d: number) => ({ initial: { opacity: 0, y: 20 }, animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }, transition: { duration: 0.40, delay: d, ease: E } });
-  useEffect(() => { if (isActive) setActiveTab(0); }, [isActive]);
+  useEffect(() => { if (isActive) { setActiveTab(0); setLoadedImgs(new Set()); } }, [isActive]);
   const tabs = ["理想方案", "废弃方案", "最终方案"];
+  const markLoaded = (i: number) => setLoadedImgs(prev => new Set([...prev, i]));
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, background: "radial-gradient(ellipse 70% 55% at 45% 35%, rgba(178,149,126,0.06) 0%, transparent 65%)" }} />
 
-      {/* Inner: relative so bottom tabs can position absolute */}
+      {/* Inner layout: relative for absolute-positioned tab bar */}
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, position: "relative", zIndex: 1 }}>
         <PageTitle title="「指令修改」功能交互设计" motionProps={rv(BD)} />
-        <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 24 }}><CompactStepBar activeStep={3} /></motion.div>
 
-        {/* Content area: padded bottom to clear tabs (60px bottom + ~44px tab + 24px gap) */}
-        <motion.div {...rv(BD + 0.10)} style={{ flex: 1, minHeight: 0, paddingBottom: 132, overflow: "hidden" }}>
+        {/* Vertically-centered group: step bar + content */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", paddingBottom: 128 }}>
+          <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 24 }}><CompactStepBar activeStep={3} /></motion.div>
 
-          {/* Tab 1: 理想方案 */}
-          {activeTab === 0 && (
-            <div style={{ height: "100%", display: "flex", gap: 40, alignItems: "flex-start" }}>
-              <div style={{ width: "46%", flexShrink: 0 }}>
-                <ImgBox src={SOL_IMGS[0]} alt="理想方案" />
-              </div>
-              <div style={{ flex: 1, minWidth: 0, height: "100%", overflowY: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
-                <div>
-                  <SectionLabel>设计思路</SectionLabel>
-                  <p style={{ fontFamily: SANS, fontSize: 13, lineHeight: 1.7, color: C.desc, margin: "0 0 8px" }}>核心是将AI修改从PM原型方案的全篇弹窗重写，转化为"基于上下文的轻量化编辑"，同时遵循操作原位化与视觉反馈即时化策略：</p>
-                  {[{ t: "指令修改", b: "参考文档纠错/批注逻辑，触发入口锚定在目标文本末尾，关联清晰。" }, { t: "断点重写", b: "借鉴代码编辑器插入点概念，划词激活，满足续写需求。" }].map(item => (
-                    <div key={item.t} style={{ display: "flex", gap: 8, marginBottom: 5 }}>
-                      <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.accent, marginTop: 7, flexShrink: 0 }} />
-                      <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.65, margin: 0 }}><b style={{ color: C.text, fontWeight: 600 }}>{item.t}：</b>{item.b}</p>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ height: 1, background: C.border }} />
-                <div>
-                  <SectionLabel color="#7BAA8B">优点</SectionLabel>
-                  {[{ t: "原位触发", b: "Hover、划词触发操作，无需切换视线，维持创作心流。" }, { t: "状态可视化", b: "Hover高亮界定指令作用域，解决修改边界模糊的焦虑。" }, { t: "轻量化浮窗", b: "替代重度弹窗，集成输入与一键填充，压缩操作闭环。" }].map(item => (
-                    <div key={item.t} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
-                      <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#7BAA8B", marginTop: 6, flexShrink: 0 }} />
-                      <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.65, margin: 0 }}><b style={{ color: C.text, fontWeight: 600 }}>{item.t}：</b>{item.b}</p>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ height: 1, background: C.border }} />
-                <div>
-                  <SectionLabel color="#BF7E7E">缺点</SectionLabel>
-                  {[
-                    { group: "技术实现成本高", items: ["文本偏移计算：流式输出、动态排版中，精准定位Hover位置并挂载图标，对前端性能要求高。", "划词逻辑冲突：需解决与标注页面现有划词快捷菜单的事件优先级、UI覆盖问题。"] },
-                    { group: "用户学习成本高", items: ["发现性不足：Hover、划词为隐式交互，缺乏引导时，用户可能无法发现该功能。", "视觉干扰：文本密集、多代码场景下，Hover图标和高亮可能产生视觉噪音，影响阅读。"] },
-                  ].map(g => (
-                    <div key={g.group} style={{ marginBottom: 8 }}>
-                      <p style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: C.text, margin: "0 0 4px", lineHeight: 1.4 }}>{g.group}</p>
-                      {g.items.map((item, ii) => (
-                        <div key={ii} style={{ display: "flex", gap: 8, marginBottom: 4 }}>
-                          <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#BF7E7E", marginTop: 7, flexShrink: 0 }} />
-                          <p style={{ fontFamily: SANS, fontSize: 12.5, color: C.desc, lineHeight: 1.65, margin: 0 }}>{item}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          <motion.div {...rv(BD + 0.10)} style={{ overflow: "hidden" }}>
 
-          {/* Tab 2: 废弃方案 */}
-          {activeTab === 1 && (
-            <div style={{ height: "100%", display: "flex", gap: 28, alignItems: "flex-start" }}>
-              {[{ src: SOL_IMGS[1], title: "全屏操作方案" }, { src: SOL_IMGS[2], title: "侧边栏操作方案" }].map(item => (
-                <div key={item.title} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
-                  <ImgBox src={item.src} alt={item.title} />
-                  <p style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: C.text, textAlign: "center" as const, margin: 0, letterSpacing: "0.02em" }}>{item.title}</p>
+            {/* ── Tab 1: 理想方案 ── */}
+            {activeTab === 0 && (
+              <div style={{ display: "flex", gap: 40, alignItems: "center" }}>
+                <div style={{ width: "46%", flexShrink: 0 }}>
+                  <ImgBox src={SOL_IMGS[0]} alt="理想方案" loaded={loadedImgs.has(0)} onLoad={() => markLoaded(0)} />
                 </div>
-              ))}
-            </div>
-          )}
-
-          {/* Tab 3: 最终方案 */}
-          {activeTab === 2 && (
-            <div style={{ height: "100%", display: "flex", gap: 40, alignItems: "flex-start" }}>
-              <div style={{ width: "46%", flexShrink: 0 }}>
-                <ImgBox src={SOL_IMGS[3]} alt="最终方案" />
-              </div>
-              <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 14 }}>
-                <div>
-                  <SectionLabel>设计思路：基于动作触发的「渐进式交互」</SectionLabel>
-                  <p style={{ fontFamily: SANS, fontSize: 13, lineHeight: 1.7, color: C.desc, margin: "0 0 8px" }}>核心是将修改任务拆解为"触发→声明意图→局部操作"三阶段：</p>
-                  {[
-                    "原位体验佳：用户始终处于文档视觉范围内，无上下文丢失；输入框和结果紧贴操作点，操作轻盈。",
-                    "符合用户习惯：修改Icon紧邻重生成按钮，贴合用户操作逻辑；下拉菜单、浮窗为通用交互，认知门槛低、发现性高。",
-                    "技术实现友好：固定入口触发，无需计算文本偏移，降低前端损耗。",
-                    "控制感精准：高亮选区明确指令范围，浮窗提示降低理解成本，\u201c所见即所得\u201d增强操作安全感。",
-                  ].map((item, i) => (
-                    <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
-                      <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.accent, marginTop: 7, flexShrink: 0 }} />
-                      <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.65, margin: 0 }}>{item}</p>
-                    </div>
-                  ))}
-                </div>
-                {/* Conclusion card */}
-                <div style={{ borderRadius: 12, padding: "16px 20px", background: `${C.accent}0D`, border: `1px solid ${C.accent}30`, borderLeft: `3px solid ${C.accent}` }}>
-                  <div style={{ display: "inline-flex", alignItems: "center", background: C.accent, borderRadius: 4, padding: "3px 10px", marginBottom: 10 }}>
-                    <p style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, color: "#FFF", letterSpacing: "0.08em", textTransform: "uppercase" as const, margin: 0 }}>最终方案</p>
+                <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div>
+                    <SectionLabel>设计思路</SectionLabel>
+                    <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.8, color: C.desc, margin: "0 0 10px" }}>核心是将AI修改从PM原型方案的全篇弹窗重写，转化为"基于上下文的轻量化编辑"，同时遵循操作原位化与视觉反馈即时化策略：</p>
+                    {[{ t: "指令修改", b: "参考文档纠错/批注逻辑，触发入口锚定在目标文本末尾，关联清晰。" }, { t: "断点重写", b: "借鉴代码编辑器插入点概念，划词激活，满足续写需求。" }].map(item => (
+                      <div key={item.t} style={{ display: "flex", gap: 9, marginBottom: 6 }}>
+                        <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.accent, marginTop: 8, flexShrink: 0 }} />
+                        <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.75, margin: 0 }}><b style={{ color: C.text, fontWeight: 600 }}>{item.t}：</b>{item.b}</p>
+                      </div>
+                    ))}
                   </div>
-                  <p style={{ fontFamily: SANS, fontSize: 13.5, color: C.text, lineHeight: 1.8, margin: 0 }}>结合竞品分析与多方案对比，方案二通过原位触发下拉菜单，平衡功能发现性与操作连贯性，以低成本实现"所见即所得"，精准解决场景切换诉求。</p>
+                  <div style={{ height: 1, background: C.border }} />
+                  <div>
+                    <SectionLabel color="#7BAA8B">优点</SectionLabel>
+                    {[{ t: "原位触发", b: "Hover、划词触发操作，无需切换视线，维持创作心流。" }, { t: "状态可视化", b: "Hover高亮界定指令作用域，解决修改边界模糊的焦虑。" }, { t: "轻量化浮窗", b: "替代重度弹窗，集成输入与一键填充，压缩操作闭环。" }].map(item => (
+                      <div key={item.t} style={{ display: "flex", gap: 9, marginBottom: 7 }}>
+                        <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#7BAA8B", marginTop: 7, flexShrink: 0 }} />
+                        <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.75, margin: 0 }}><b style={{ color: C.text, fontWeight: 600 }}>{item.t}：</b>{item.b}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ height: 1, background: C.border }} />
+                  <div>
+                    <SectionLabel color="#BF7E7E">缺点</SectionLabel>
+                    {[
+                      { group: "技术实现成本高", items: ["文本偏移计算：流式输出、动态排版中，精准定位Hover位置并挂载图标，对前端性能要求高。", "划词逻辑冲突：需解决与标注页面现有划词快捷菜单的事件优先级、UI覆盖问题。"] },
+                      { group: "用户学习成本高", items: ["发现性不足：Hover、划词为隐式交互，缺乏引导时，用户可能无法发现该功能。", "视觉干扰：文本密集、多代码场景下，Hover图标和高亮可能产生视觉噪音，影响阅读。"] },
+                    ].map(g => (
+                      <div key={g.group} style={{ marginBottom: 8 }}>
+                        <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 5px", lineHeight: 1.4 }}>{g.group}</p>
+                        {g.items.map((item, ii) => (
+                          <div key={ii} style={{ display: "flex", gap: 9, marginBottom: 5 }}>
+                            <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#BF7E7E", marginTop: 8, flexShrink: 0 }} />
+                            <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.75, margin: 0 }}>{item}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </motion.div>
+            )}
+
+            {/* ── Tab 2: 废弃方案 ── */}
+            {activeTab === 1 && (
+              <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
+                {[
+                  { src: SOL_IMGS[1], title: "全屏操作方案", idx: 1 },
+                  { src: SOL_IMGS[2], title: "侧边栏操作方案", idx: 2 },
+                ].map(item => (
+                  <div key={item.title} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
+                    <ImgBox src={item.src} alt={item.title} loaded={loadedImgs.has(item.idx)} onLoad={() => markLoaded(item.idx)} />
+                    <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: C.text, textAlign: "center" as const, margin: 0, letterSpacing: "0.02em" }}>{item.title}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ── Tab 3: 最终方案 ── */}
+            {activeTab === 2 && (
+              <div style={{ display: "flex", gap: 40, alignItems: "center" }}>
+                <div style={{ width: "46%", flexShrink: 0 }}>
+                  <ImgBox src={SOL_IMGS[3]} alt="最终方案" loaded={loadedImgs.has(3)} onLoad={() => markLoaded(3)} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div>
+                    <SectionLabel>设计思路：基于动作触发的「渐进式交互」</SectionLabel>
+                    <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.8, color: C.desc, margin: "0 0 10px" }}>核心是将修改任务拆解为"触发→声明意图→局部操作"三阶段：</p>
+                    {[
+                      "原位体验佳：用户始终处于文档视觉范围内，无上下文丢失；输入框和结果紧贴操作点，操作轻盈。",
+                      "符合用户习惯：修改Icon紧邻重生成按钮，贴合用户操作逻辑；下拉菜单、浮窗为通用交互，认知门槛低、发现性高。",
+                      "技术实现友好：固定入口触发，无需计算文本偏移，降低前端损耗。",
+                      "控制感精准：高亮选区明确指令范围，浮窗提示降低理解成本，\u201c所见即所得\u201d增强操作安全感。",
+                    ].map((item, i) => (
+                      <div key={i} style={{ display: "flex", gap: 9, marginBottom: 7 }}>
+                        <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.accent, marginTop: 8, flexShrink: 0 }} />
+                        <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.75, margin: 0 }}>{item}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Conclusion card — elevated hierarchy */}
+                  <div style={{ borderRadius: 14, padding: "20px 24px", background: `linear-gradient(135deg, ${C.accent}16 0%, ${C.accent}08 100%)`, border: `1px solid ${C.accent}40`, borderLeft: `4px solid ${C.accent}`, boxShadow: `0 4px 20px ${C.accent}18` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                      <div style={{ background: C.accent, borderRadius: 6, padding: "4px 12px" }}>
+                        <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 700, color: "#FFF", letterSpacing: "0.10em", textTransform: "uppercase" as const, margin: 0 }}>✓ 最终方案</p>
+                      </div>
+                      <div style={{ height: 1, flex: 1, background: `${C.accent}30` }} />
+                    </div>
+                    <p style={{ fontFamily: SANS, fontSize: 15, fontWeight: 500, color: C.text, lineHeight: 1.85, margin: 0 }}>结合竞品分析与多方案对比，方案二通过原位触发下拉菜单，平衡功能发现性与操作连贯性，以低成本实现"所见即所得"，精准解决场景切换诉求。</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </div>
 
         {/* Bottom tabs — absolute, 60px from viewport bottom */}
         <motion.div {...rv(BD + 0.14)} style={{ position: "absolute", bottom: 60, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
