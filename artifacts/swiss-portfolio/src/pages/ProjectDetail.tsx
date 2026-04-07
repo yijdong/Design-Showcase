@@ -134,7 +134,7 @@ const SOL_IMGS    = [1,2,3,4].map(n => `${BASE}details/annotation-platform/solut
 function BaseSlide0({ num, context, title, tags, desc }: { num: string; context: string; title: string; tags: string[]; desc: string }) {
   return (
     <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: NAVBAR_H, left: 66, fontFamily: SERIF, fontSize: "clamp(120px,18vw,220px)", fontWeight: 700, color: C.text, opacity: 0.030, lineHeight: 1, pointerEvents: "none", userSelect: "none", zIndex: 0 }}>{num}</div>
+      <div style={{ position: "absolute", top: "35%", left: 66, fontFamily: SERIF, fontSize: "clamp(120px,18vw,220px)", fontWeight: 700, color: C.text, opacity: 0.030, lineHeight: 1, pointerEvents: "none", userSelect: "none", zIndex: 0 }}>{num}</div>
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1, maxWidth: 780 }}>
         <p style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, color: C.accent, letterSpacing: "0.16em", textTransform: "uppercase" as const, marginBottom: 22 }}>{context}</p>
         <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 32 }} />
@@ -145,7 +145,7 @@ function BaseSlide0({ num, context, title, tags, desc }: { num: string; context:
     </div>
   );
 }
-function Project01Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) { return <BaseSlide0 num="01" context="ERNIE Bot · Wicresoft" title={title} tags={tags} desc={desc} />; }
+function Project01Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) { return <BaseSlide0 num="01" context="项目案例" title={title} tags={tags} desc={desc} />; }
 function Project02Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) { return <BaseSlide0 num="02" context="Huawei · Enterprise IT" title={title} tags={tags} desc={desc} />; }
 function Project03Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) { return <BaseSlide0 num="03" context="Mercedes-Benz Financial Services" title={title} tags={tags} desc={desc} />; }
 function Vibe0Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) { return <BaseSlide0 num="V1" context="Luxshare Precision · North America" title={title} tags={tags} desc={desc} />; }
@@ -171,8 +171,9 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
     <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 88% 88%, rgba(178,149,126,0.11) 0%, transparent 55%)" }} />
       <div style={{ position: "absolute", left: 0, top: "22%", bottom: "22%", width: 3, background: C.accent, borderRadius: "0 2px 2px 0" }} />
-      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1 }}>
-        <PageTitle title="用户与能力" motionProps={rv(BD)} />
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", position: "relative", zIndex: 1 }}>
+        <div style={{ paddingTop: PAD_Y }}><PageTitle title="标注平台背景介绍" motionProps={rv(BD)} /></div>
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", paddingBottom: PAD_Y }}>
         <div style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
           <div style={{ flex: 1 }}>
             <motion.div {...rv(BD + 0.06)} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
@@ -203,6 +204,7 @@ function Project01SlideUsers({ isActive = false }: { isActive?: boolean }) {
               </motion.div>
             ))}
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -351,7 +353,7 @@ function Project01SlideKeyMethod({ isActive = false }: { isActive?: boolean }) {
       <div style={{ position: "absolute", width: 320, height: 320, borderRadius: "50%", border: `1px solid ${C.border}`, opacity: 0.25, top: "50%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }} />
       <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: 820 }}>
         <motion.h1 {...rv(BD)} style={{ fontFamily: SERIF, fontSize: 60, fontWeight: 700, color: C.text, lineHeight: 1.1, marginBottom: 28, letterSpacing: "-0.02em" }}>关键方案展示</motion.h1>
-        <motion.p {...rv(BD + 0.08)} style={{ fontFamily: SANS, fontSize: 20, color: C.desc, lineHeight: 1.8, maxWidth: 680, margin: "0 auto 60px" }}>以「指令修改」功能交互设计为例，完整呈现从需求到落地的全流程设计过程。</motion.p>
+        <motion.p {...rv(BD + 0.08)} style={{ fontFamily: SANS, fontSize: 20, color: C.desc, lineHeight: 1.8, maxWidth: 540, margin: "0 auto 60px" }}>以「指令修改」功能交互设计为例，完整呈现从需求到落地的全流程设计过程。</motion.p>
         <motion.div {...rv(BD + 0.16)} style={{ display: "flex", alignItems: "flex-start", justifyContent: "center" }}>
           {steps.map((step, i) => (
             <React.Fragment key={i}>
@@ -390,7 +392,7 @@ function Project01Slide5({ isActive = false }: { isActive?: boolean }) {
           <motion.div {...rv(BD + 0.12)} style={{ width: 300, flexShrink: 0, display: "flex", flexDirection: "column", gap: 22, justifyContent: "center" }}>
             <div>
               <SectionLabel>需求背景</SectionLabel>
-              <p style={{ fontFamily: SANS, fontSize: 15, lineHeight: 1.85, color: C.desc, margin: 0 }}>智能体组件通过多轮对话生成推荐思考内容，标注人员需要频繁重新请求模型并人工调整结果，筛选可用内容用于后续模型训练。</p>
+              <p style={{ fontFamily: SANS, fontSize: 15, lineHeight: 1.85, color: C.desc, margin: 0 }}>标注人员在标注过程中需要频繁重新请求模型并人工调整结果，筛选可用内容用于后续模型训练。</p>
             </div>
             <div style={{ height: 1, backgroundColor: C.border }} />
             <div>
@@ -460,7 +462,7 @@ function Project01Slide6({ isActive = false }: { isActive?: boolean }) {
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1 }}>
         <PageTitle title="「指令修改」功能交互设计" motionProps={rv(BD)} />
         <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-          <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 24 }}><CompactStepBar activeStep={2} /></motion.div>
+          <motion.div {...rv(BD + 0.06)} style={{ flexShrink: 0, marginBottom: 24 }}><CompactStepBar activeStep={1} /></motion.div>
           <motion.div {...rv(BD + 0.12)} style={{ display: "flex", gap: 48, alignItems: "center" }}>
             <div style={{ width: "44%", flexShrink: 0, display: "flex", flexDirection: "column", gap: 10 }}>
               <div style={{ borderRadius: 20, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.07)", backgroundColor: "#FFFFFF" }}>
@@ -599,7 +601,7 @@ function Project01Slide8({ isActive = false }: { isActive?: boolean }) {
                   {/* 设计思路 — card style */}
                   <div style={{ borderRadius: 12, padding: "16px 20px", background: "rgba(178,149,126,0.07)", border: `1px solid ${C.border}` }}>
                     <SectionLabel>设计思路</SectionLabel>
-                    <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.8, color: C.desc, margin: "0 0 10px" }}>核心是将AI修改从PM原型方案的全篇弹窗重写，转化为"基于上下文的轻量化编辑"，同时遵循操作原位化与视觉反馈即时化策略：</p>
+                    <p style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.8, color: C.desc, margin: "0 0 10px" }}>基于上下文的轻量化编辑交互，同时遵循操作原位化与视觉反馈即时化策略：</p>
                     {[{ t: "指令修改", b: "参考文档纠错/批注逻辑，触发入口锚定在目标文本末尾，关联清晰。" }, { t: "断点重写", b: "借鉴代码编辑器插入点概念，划词激活，满足续写需求。" }].map(item => (
                       <div key={item.t} style={{ display: "flex", gap: 9, marginBottom: 6 }}>
                         <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.accent, marginTop: 8, flexShrink: 0 }} />
@@ -607,7 +609,7 @@ function Project01Slide8({ isActive = false }: { isActive?: boolean }) {
                       </div>
                     ))}
                   </div>
-                  <div>
+                  <div style={{ marginTop: 10 }}>
                     <SectionLabel color="#7BAA8B">优点</SectionLabel>
                     {[{ t: "原位触发", b: "Hover、划词触发操作，无需切换视线，维持创作心流。" }, { t: "状态可视化", b: "Hover高亮界定指令作用域，解决修改边界模糊的焦虑。" }, { t: "轻量化浮窗", b: "替代重度弹窗，集成输入与一键填充，压缩操作闭环。" }].map(item => (
                       <div key={item.t} style={{ display: "flex", gap: 9, marginBottom: 7 }}>
@@ -811,6 +813,10 @@ function Project01Slide9({ isActive = false }: { isActive?: boolean }) {
   const rv = (d: number) => ({ initial: { opacity: 0, y: 16 }, animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }, transition: { duration: 0.38, delay: d, ease: E } });
 
   useEffect(() => {
+    INTER_IMGS.forEach(src => { const img = new Image(); img.src = src; });
+  }, []);
+
+  useEffect(() => {
     if (isActive) { setActiveTab(0); setLoaded1(false); setLoaded2(false); setPzResetKey(k => k + 1); }
   }, [isActive]);
 
@@ -836,34 +842,37 @@ function Project01Slide9({ isActive = false }: { isActive?: boolean }) {
           <CompactStepBar activeStep={4} />
         </motion.div>
 
-        {/* Image area — 400px from viewport edge (340px extra on each side beyond PAD_X=60) */}
-        <motion.div {...rv(BD + 0.09)} style={{ marginTop: 32, marginBottom: 32, marginLeft: 340, marginRight: 340, position: "relative" }}>
-          {/* Tab 1: container matches image ratio 1803:862 — no distortion */}
+        {/* Image area — fills remaining height: 24px from stepbar, 32px from viewport bottom */}
+        <motion.div {...rv(BD + 0.09)} style={{ flex: 1, minHeight: 0, marginTop: 24, marginBottom: 32, position: "relative" }}>
+          {/* Tab 1: 400px from viewport edge (340px extra within outer PAD_X=60) */}
           {activeTab === 0 && (
-            <div style={{ width: "100%", aspectRatio: "1803/862", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
-              {!loaded1 && (
-                <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(90deg,#EAE4DC 25%,#F2EDE7 50%,#EAE4DC 75%)", backgroundSize: "800px 100%", animation: "skeleton-shimmer 1.5s infinite linear" }} />
-              )}
-              <img
-                src={INTER_IMGS[0]} alt="全链路交互规范" onLoad={() => setLoaded1(true)}
-                style={{ width: "100%", height: "100%", objectFit: "fill", display: "block", opacity: loaded1 ? 1 : 0, transition: "opacity 0.45s ease" }}
-              />
+            <div style={{ position: "absolute", top: 0, bottom: 0, left: 340, right: 340 }}>
+              <div style={{ width: "100%", height: "100%", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
+                {!loaded1 && (
+                  <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(90deg,#EAE4DC 25%,#F2EDE7 50%,#EAE4DC 75%)", backgroundSize: "800px 100%", animation: "skeleton-shimmer 1.5s infinite linear" }} />
+                )}
+                <img
+                  src={INTER_IMGS[0]} alt="全链路交互规范" onLoad={() => setLoaded1(true)}
+                  style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", opacity: loaded1 ? 1 : 0, transition: "opacity 0.45s ease" }}
+                />
+              </div>
+              <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 10, pointerEvents: "none" }}>
+                <div style={{ pointerEvents: "auto" }}><CapsuleTabs tabs={tabs} active={activeTab} onChange={handleTabChange} /></div>
+              </div>
             </div>
           )}
 
-          {/* Tab 2: container matches image ratio 9504:2672 — PanZoomViewer fills it */}
+          {/* Tab 2: 60px from viewport edge (no extra margin within outer PAD_X=60) */}
           {activeTab === 1 && (
-            <div style={{ width: "100%", aspectRatio: "9504/2672", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
-              <PanZoomViewer loaded={loaded2} onLoad={() => setLoaded2(true)} resetKey={pzResetKey} />
+            <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0, overflow: "hidden" }}>
+              <div style={{ width: "100%", height: "100%", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
+                <PanZoomViewer loaded={loaded2} onLoad={() => setLoaded2(true)} resetKey={pzResetKey} />
+              </div>
+              <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 10, pointerEvents: "none" }}>
+                <div style={{ pointerEvents: "auto" }}><CapsuleTabs tabs={tabs} active={activeTab} onChange={handleTabChange} /></div>
+              </div>
             </div>
           )}
-
-          {/* Capsule tabs overlaid at bottom-center */}
-          <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 10, pointerEvents: "none" }}>
-            <div style={{ pointerEvents: "auto" }}>
-              <CapsuleTabs tabs={tabs} active={activeTab} onChange={handleTabChange} />
-            </div>
-          </div>
         </motion.div>
       </div>
     </div>
@@ -902,14 +911,14 @@ function Project01Slide10({ isActive = false }: { isActive?: boolean }) {
   const { top, cards } = SUMMARY_DATA;
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: 96, paddingRight: 96, boxSizing: "border-box", overflow: "hidden" }}>
+    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, background: "radial-gradient(ellipse 80% 50% at 50% 60%, rgba(178,149,126,0.07) 0%, transparent 65%)" }} />
 
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, position: "relative", zIndex: 1 }}>
         <PageTitle title="AI数据标注平台项目总结" motionProps={rv(BD)} />
 
-        {/* Main layout: vertically centered */}
-        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 16, paddingBottom: 8 }}>
+        {/* Main layout: vertically centered, 400px from viewport edge (340px extra within PAD_X=60) */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 16, paddingBottom: 8, marginLeft: 340, marginRight: 340 }}>
           {/* Top overview card */}
           <motion.div {...rv(BD + 0.06)} style={{ border: `1px solid ${C.border}`, borderRadius: 16, background: "rgba(255,253,249,0.72)", backdropFilter: "blur(8px)", padding: "26px 32px", display: "flex", gap: 36, alignItems: "center" }}>
             {/* Number side */}
@@ -1012,7 +1021,7 @@ export function ProjectDetailPage() {
   const slideLabels = params.num === "01"
     ? ["项目背景", "用户与能力", "业务全流程概览", "核心用户旅程界面", "关键方案展示",
        "「指令修改」设计_1", "「指令修改」设计_2", "「指令修改」设计_3", "「指令修改」设计_4",
-       "「指令修改」交互设计_5", "项目总结"]
+       "10 「指令修改」设计_5", "项目总结"]
     : undefined;
 
   const commonProps = { title: item.title, tags: item.tags, desc: item.desc };
@@ -1095,24 +1104,39 @@ function DetailLayout({
     busyRef.current = true; currentRef.current = index; setCurrent(index);
     setTimeout(() => { busyRef.current = false; }, DURATION + 80);
   };
+  const lastNavTimeRef = useRef(0);
+  const COOLDOWN_MS = DURATION + 700;
 
   useEffect(() => { currentRef.current = 0; setCurrent(0); busyRef.current = false; }, [titleForReset]);
   useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
 
   // Wheel — timestamp cooldown
   useEffect(() => {
-    let accum = 0; let lastNavTime = 0;
-    const COOLDOWN_MS = DURATION + 700;
+    let accum = 0;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const now = Date.now();
-      if (now - lastNavTime < COOLDOWN_MS) { accum = 0; return; }
+      if (now - lastNavTimeRef.current < COOLDOWN_MS) { accum = 0; return; }
       accum += e.deltaY;
-      if (accum > 80)       { accum = 0; lastNavTime = now; goTo(currentRef.current + 1); }
-      else if (accum < -80) { accum = 0; lastNavTime = now; goTo(currentRef.current - 1); }
+      if (accum > 80)       { accum = 0; lastNavTimeRef.current = now; goTo(currentRef.current + 1); }
+      else if (accum < -80) { accum = 0; lastNavTimeRef.current = now; goTo(currentRef.current - 1); }
     };
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalSlides]);
+
+  // postMessage from iframe (e.g. slide-interaction.html scrolled to bottom → advance)
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type !== 'slideScrolledToBottom') return;
+      const now = Date.now();
+      if (now - lastNavTimeRef.current < COOLDOWN_MS) return;
+      lastNavTimeRef.current = now;
+      goTo(currentRef.current + 1);
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalSlides]);
 

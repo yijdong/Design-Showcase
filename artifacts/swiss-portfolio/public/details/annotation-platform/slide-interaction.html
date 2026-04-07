@@ -457,6 +457,14 @@
         }
 
         window.dispatchEvent(new Event('scroll'));
+
+        // Notify parent slide when user scrolls to the bottom and tries to scroll more
+        window.addEventListener('wheel', function(e) {
+            var atBottom = window.scrollY + window.innerHeight >= document.body.scrollHeight - 8;
+            if (atBottom && e.deltaY > 0) {
+                window.parent.postMessage({ type: 'slideScrolledToBottom' }, '*');
+            }
+        }, { passive: true });
     </script>
 </body>
 </html>
