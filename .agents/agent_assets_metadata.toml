@@ -1,0 +1,38 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "b2gW0qhPIeYgDYgSqhdWH"
+uri = "file://artifacts/swiss-portfolio/public/details/huawei-emm/avatar_1.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "sO_ceAXwqTLbt2ofD8Zlk"
+uri = "file://artifacts/swiss-portfolio/public/details/huawei-emm/avatar_2.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "0N-3HcaaG0H70U4uiHCLR"
+uri = "file://artifacts/swiss-portfolio/public/details/huawei-emm/avatar_3.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "9mYghoWRCMNU4D3OWq_JM"
+uri = "file://artifacts/swiss-portfolio/public/details/huawei-emm/avatar_4.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "J3jVLWl2GFnaLCY4Qe4Ap"
+uri = "file://artifacts/swiss-portfolio/public/details/huawei-emm/avatar_5.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "R0y1UhJymFJPek7cqIyJi"
+uri = "file://artifacts/swiss-portfolio/public/details/huawei-emm/avatar_6.png"
+type = "image"
+title = "generated_image"

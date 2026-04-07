@@ -146,7 +146,6 @@ function BaseSlide0({ num, context, title, tags, desc }: { num: string; context:
   );
 }
 function Project01Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) { return <BaseSlide0 num="01" context="项目案例" title={title} tags={tags} desc={desc} />; }
-function Project02Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) { return <BaseSlide0 num="02" context="Huawei · Enterprise IT" title={title} tags={tags} desc={desc} />; }
 function Project03Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) { return <BaseSlide0 num="03" context="Mercedes-Benz Financial Services" title={title} tags={tags} desc={desc} />; }
 function Vibe0Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) { return <BaseSlide0 num="V1" context="Luxshare Precision · North America" title={title} tags={tags} desc={desc} />; }
 function Vibe1Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) { return <BaseSlide0 num="V2" context="Personal Project · This Site" title={title} tags={tags} desc={desc} />; }
@@ -832,48 +831,47 @@ function Project01Slide9({ isActive = false }: { isActive?: boolean }) {
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, background: "radial-gradient(ellipse 70% 55% at 55% 30%, rgba(178,149,126,0.06) 0%, transparent 65%)" }} />
 
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", position: "relative", zIndex: 1, paddingLeft: PAD_X, paddingRight: PAD_X }}>
-        {/* Title — 60px from viewport edge (inherited from outer PAD_X) */}
+        {/* Title */}
         <div style={{ paddingTop: PAD_Y }}>
           <PageTitle title="「指令修改」功能交互设计" motionProps={rv(BD)} />
         </div>
 
-        {/* Step bar */}
-        <motion.div {...rv(BD + 0.05)} style={{ flexShrink: 0, marginTop: 0 }}>
-          <CompactStepBar activeStep={4} />
-        </motion.div>
+        {/* Step bar + image — vertically centered in remaining space */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", paddingBottom: PAD_Y }}>
+          <motion.div {...rv(BD + 0.05)} style={{ flexShrink: 0, marginBottom: 24 }}>
+            <CompactStepBar activeStep={4} />
+          </motion.div>
 
-        {/* Image area — fills remaining height: 24px from stepbar, 32px from viewport bottom */}
-        <motion.div {...rv(BD + 0.09)} style={{ flex: 1, minHeight: 0, marginTop: 24, marginBottom: 32, position: "relative" }}>
-          {/* Tab 1: 400px from viewport edge (340px extra within outer PAD_X=60) */}
-          {activeTab === 0 && (
-            <div style={{ position: "absolute", top: 0, bottom: 0, left: 340, right: 340 }}>
-              <div style={{ width: "100%", height: "100%", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
+          {/* Image area — aspect-ratio sized, full available width */}
+          <motion.div {...rv(BD + 0.09)} style={{ position: "relative" }}>
+            {/* Tab 1: ratio 2.09:1 */}
+            {activeTab === 0 && (
+              <div style={{ width: "100%", aspectRatio: "209/100", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
                 {!loaded1 && (
                   <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(90deg,#EAE4DC 25%,#F2EDE7 50%,#EAE4DC 75%)", backgroundSize: "800px 100%", animation: "skeleton-shimmer 1.5s infinite linear" }} />
                 )}
                 <img
                   src={INTER_IMGS[0]} alt="全链路交互规范" onLoad={() => setLoaded1(true)}
-                  style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", opacity: loaded1 ? 1 : 0, transition: "opacity 0.45s ease" }}
+                  style={{ width: "100%", height: "100%", objectFit: "fill", display: "block", opacity: loaded1 ? 1 : 0, transition: "opacity 0.45s ease" }}
                 />
               </div>
-              <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 10, pointerEvents: "none" }}>
-                <div style={{ pointerEvents: "auto" }}><CapsuleTabs tabs={tabs} active={activeTab} onChange={handleTabChange} /></div>
-              </div>
-            </div>
-          )}
+            )}
 
-          {/* Tab 2: 60px from viewport edge (no extra margin within outer PAD_X=60) */}
-          {activeTab === 1 && (
-            <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0, overflow: "hidden" }}>
-              <div style={{ width: "100%", height: "100%", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
+            {/* Tab 2: ratio 3.56:1 */}
+            {activeTab === 1 && (
+              <div style={{ width: "100%", aspectRatio: "356/100", position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.09)", backgroundColor: "#EEEAE4" }}>
                 <PanZoomViewer loaded={loaded2} onLoad={() => setLoaded2(true)} resetKey={pzResetKey} />
               </div>
-              <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 10, pointerEvents: "none" }}>
-                <div style={{ pointerEvents: "auto" }}><CapsuleTabs tabs={tabs} active={activeTab} onChange={handleTabChange} /></div>
+            )}
+
+            {/* Capsule tabs overlaid at bottom-center of whichever tab is active */}
+            <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 10, pointerEvents: "none" }}>
+              <div style={{ pointerEvents: "auto" }}>
+                <CapsuleTabs tabs={tabs} active={activeTab} onChange={handleTabChange} />
               </div>
             </div>
-          )}
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
@@ -917,8 +915,8 @@ function Project01Slide10({ isActive = false }: { isActive?: boolean }) {
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, position: "relative", zIndex: 1 }}>
         <PageTitle title="AI数据标注平台项目总结" motionProps={rv(BD)} />
 
-        {/* Main layout: vertically centered, 400px from viewport edge (340px extra within PAD_X=60) */}
-        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 16, paddingBottom: 8, marginLeft: 340, marginRight: 340 }}>
+        {/* Main layout: vertically centered, 400px from viewport edge (340px extra within PAD_X=60), shifted up 60px */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 16, paddingBottom: 128, marginLeft: 340, marginRight: 340 }}>
           {/* Top overview card */}
           <motion.div {...rv(BD + 0.06)} style={{ border: `1px solid ${C.border}`, borderRadius: 16, background: "rgba(255,253,249,0.72)", backdropFilter: "blur(8px)", padding: "26px 32px", display: "flex", gap: 36, alignItems: "center" }}>
             {/* Number side */}
@@ -1005,6 +1003,330 @@ function PageIndicator({ total, current, textColor, labels, onGoTo }: {
   );
 }
 
+// ── Project02: 全球化企业设备管理平台 ─────────────────────────────────────
+const P02_BASE = `${BASE}details/huawei-emm/`;
+const PLATFORM_IMGS = [1,2,3,4,5].map(i => `${P02_BASE}platform_${i}.png`);
+const SCENARIO_IMGS = [1,2,3].map(i => `${P02_BASE}scenarios_${i}.png`);
+
+const P02_PERSONAS = [
+  { name: "渠道商管理员",  avatar: 1, needs: ["掌握所服务的所有企业的情况", "便捷管理我的用户"] },
+  { name: "企业管理员",    avatar: 2, needs: ["方便部署和管理企业设备", "方便管理企业用户", "遇到问题希望得到帮助"] },
+  { name: "华为运营管理员", avatar: 3, needs: ["查看服务的渠道商情况", "查看企业、设备和用户情况", "减少工单数量"] },
+  { name: "渠道商员工",    avatar: 4, needs: ["快速将设备录入系统", "掌握所服务的企业情况"] },
+  { name: "企业员工",      avatar: 5, needs: ["正常使用企业设备", "遇到问题可以得到帮助"] },
+  { name: "第三方 EMM 厂商", avatar: 6, needs: ["标准化的 API 接口"] },
+];
+
+const SIMPLE_FORMULA_COLS = ["WHO", "当用户在（什么情况下）", "他想要（什么行为）", "以便于他可以达成（什么目标）"];
+
+function Project02Slide0({ title, tags, desc }: { title: string; tags: string[]; desc: string }) {
+  return <BaseSlide0 num="02" context="项目案例" title={title} tags={tags} desc={desc} />;
+}
+
+// P02 Slide1 — Platform UI Showcase (mirrors Project01Slide3 hover pattern)
+function Project02Slide1({ isActive = false }: { isActive?: boolean }) {
+  const BD = 0.35;
+  const [activeItem, setActiveItem] = useState(0);
+  const [loadedImgs, setLoadedImgs] = useState<Set<number>>(new Set());
+  useEffect(() => { if (isActive) setActiveItem(0); }, [isActive]);
+  const rv = (d: number) => ({ initial: { opacity: 0, y: 18 }, animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }, transition: { duration: 0.40, delay: isActive ? d : 0, ease: E } });
+  const platforms = ["行业解决方案官网", "渠道商控制台", "企业控制台", "EMM控制台", "设备扫码移动端"];
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 85% 15%, rgba(178,149,126,0.08) 0%, transparent 50%)" }} />
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1 }}>
+        <PageTitle title="各平台核心界面展示" motionProps={rv(BD)} />
+        <motion.div {...rv(BD + 0.06)} style={{ marginBottom: 22, padding: "11px 16px", background: `${C.accent}08`, border: `1px solid ${C.border}`, borderRadius: 10, flexShrink: 0 }}>
+          <p style={{ fontFamily: SANS, fontSize: 13.5, color: C.desc, lineHeight: 1.75, margin: 0 }}>
+            作为项目中的 UX 设计师，参与完整平台设计工作；涉及的平台包括：行业解决方案官网、行业解决方案控制台、运营管理台、开发者联盟、设备扫码移动端
+          </p>
+        </motion.div>
+        <div style={{ flex: 1, minHeight: 0, display: "flex", gap: 60, alignItems: "center" }}>
+          <div style={{ width: 270, flexShrink: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            {platforms.map((name, i) => {
+              const active = activeItem === i;
+              return (
+                <motion.div key={i} {...rv(BD + 0.08 + i * 0.05)} onMouseEnter={() => setActiveItem(i)}
+                  style={{ cursor: "pointer", padding: "15px 0", display: "flex", alignItems: "center", gap: 16, borderBottom: i < platforms.length - 1 ? `1px solid ${C.border}` : undefined }}>
+                  <div style={{ width: 3, height: active ? 34 : 0, background: C.accent, borderRadius: 2, flexShrink: 0, transition: "height 0.3s cubic-bezier(0.16,1,0.3,1)" }} />
+                  <div>
+                    <p style={{ fontFamily: SANS, fontSize: 10.5, fontWeight: 700, color: active ? C.accent : C.desc, letterSpacing: "0.12em", textTransform: "uppercase" as const, marginBottom: 3, transition: "color 0.25s" }}>PLATFORM {String(i + 1).padStart(2, "0")}</p>
+                    <p style={{ fontFamily: SANS, fontSize: 18, fontWeight: active ? 600 : 400, color: active ? C.text : "#999", lineHeight: 1.3, transition: "color 0.25s" }}>{name}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+          <motion.div {...rv(BD + 0.40)} style={{ flex: 1, maxHeight: "100%", aspectRatio: "16/10", borderRadius: 24, overflow: "hidden", position: "relative", backgroundColor: PHASE_PATTERN_COLOR, backgroundImage: PHASE_PATTERN_IMAGE, backgroundSize: "600px 600px" }}>
+            {PLATFORM_IMGS.map((src, i) => (
+              <div key={i} style={{ position: "absolute", inset: 0, opacity: activeItem === i ? 1 : 0, transition: "opacity 0.4s ease" }}>
+                {!loadedImgs.has(i) && <div className="phase-skeleton" />}
+                <img src={src} alt={platforms[i]} onLoad={() => setLoadedImgs(prev => new Set([...prev, i]))}
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: loadedImgs.has(i) ? 1 : 0, transition: "opacity 0.35s" }} />
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// P02 Slide2 — User Personas
+function Project02Slide2({ isActive = false }: { isActive?: boolean }) {
+  const BD = 0.30;
+  const rv = (d: number) => ({ initial: { opacity: 0, y: 16 }, animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }, transition: { duration: 0.38, delay: isActive ? d : 0, ease: E } });
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 70% 80%, rgba(178,149,126,0.08) 0%, transparent 55%)" }} />
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1 }}>
+        <PageTitle title="用户画像" motionProps={rv(BD)} />
+        <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gridTemplateRows: "repeat(2, 1fr)", gap: 14 }}>
+          {P02_PERSONAS.map((p, i) => (
+            <motion.div key={i} {...rv(BD + 0.06 + i * 0.04)} style={{ display: "flex", gap: 14, alignItems: "flex-start", border: `1px solid ${C.border}`, borderRadius: 16, background: "rgba(255,253,249,0.80)", backdropFilter: "blur(8px)", padding: "16px 18px", overflow: "hidden" }}>
+              <div style={{ width: 66, height: 88, borderRadius: 10, overflow: "hidden", flexShrink: 0, border: `1px solid ${C.border}`, backgroundColor: "#EAE4DB" }}>
+                <img src={`${P02_BASE}avatar_${p.avatar}.png`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontFamily: SANS, fontSize: 14.5, fontWeight: 700, color: C.text, marginBottom: 9, lineHeight: 1.3 }}>{p.name}</p>
+                {p.needs.map((need, ni) => (
+                  <div key={ni} style={{ display: "flex", gap: 7, marginBottom: ni < p.needs.length - 1 ? 5 : 0, alignItems: "flex-start" }}>
+                    <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.accent, marginTop: 7, flexShrink: 0 }} />
+                    <p style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.65, margin: 0 }}>{need}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// P02 Slide3 — Design Method (场景化设计)
+function SceneModelSVG() {
+  const cx = 150, cy = 150, R = 88, NR = 27;
+  const ac = C.accent, blue = "#5580B0";
+  const nodeData = [
+    { label: "WHO", sub: "用户", a: -90 }, { label: "When", sub: "时间", a: -30 },
+    { label: "Where", sub: "地点", a: 30 },  { label: "What", sub: "事物", a: 90 },
+    { label: "Needs", sub: "需求", a: 150 }, { label: "Act", sub: "行为", a: 210 },
+  ];
+  const nodes = nodeData.map(n => {
+    const rad = n.a * Math.PI / 180;
+    return { ...n, x: cx + R * Math.cos(rad), y: cy + R * Math.sin(rad) };
+  });
+  const arrows = nodes.map((from, i) => {
+    const to = nodes[(i + 1) % 6];
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const gap = NR + 5;
+    return { x1: from.x + (dx/len)*gap, y1: from.y + (dy/len)*gap, x2: to.x - (dx/len)*gap, y2: to.y - (dy/len)*gap };
+  });
+  return (
+    <svg width="300" height="300" viewBox="0 0 300 300">
+      <defs>
+        <marker id="arrowHead02" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
+          <path d="M0,0.5 L0,6.5 L6,3.5 z" fill={ac} opacity="0.70" />
+        </marker>
+      </defs>
+      {arrows.map((a, i) => (
+        <line key={i} x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2} stroke={ac} strokeWidth="1.4" markerEnd="url(#arrowHead02)" opacity="0.55" />
+      ))}
+      {nodes.map((node, i) => (
+        <g key={i}>
+          <circle cx={node.x} cy={node.y} r={NR} fill={i === 0 ? blue : `${ac}14`} stroke={i === 0 ? blue : ac} strokeWidth="1.5" />
+          <text x={node.x} y={node.y - 5} textAnchor="middle" dominantBaseline="middle" fontSize="10" fontFamily="sans-serif" fontWeight="700" fill={i === 0 ? "white" : ac}>{node.label}</text>
+          <text x={node.x} y={node.y + 9} textAnchor="middle" dominantBaseline="middle" fontSize="9" fontFamily="sans-serif" fill={i === 0 ? "rgba(255,255,255,0.80)" : C.desc}>{node.sub}</text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function Project02Slide3({ isActive = false }: { isActive?: boolean }) {
+  const BD = 0.32;
+  const rv = (d: number) => ({ initial: { opacity: 0, y: 16 }, animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }, transition: { duration: 0.40, delay: isActive ? d : 0, ease: E } });
+  const formula6 = ["WHO", "在什么时间 (When)", "什么地点 (Where)", "察觉到什么事物 (What)", "产生什么需求 (Needs)", "通过什么行为 (Act) 满足需求"];
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse 75% 55% at 30% 70%, rgba(178,149,126,0.07) 0%, transparent 60%)" }} />
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1 }}>
+        <PageTitle title="设计方法" motionProps={rv(BD)} />
+        <div style={{ flex: 1, minHeight: 0, display: "flex", gap: 60, alignItems: "center" }}>
+          {/* Left: definition + formula */}
+          <div style={{ flex: "0 0 56%", display: "flex", flexDirection: "column", gap: 24 }}>
+            <motion.div {...rv(BD + 0.06)}>
+              <p style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, color: C.accent, letterSpacing: "0.16em", textTransform: "uppercase" as const, marginBottom: 6 }}>USER SCENARIO DESIGN</p>
+              <p style={{ fontFamily: SERIF, fontSize: 22, fontWeight: 700, color: C.text, marginBottom: 14, lineHeight: 1.3 }}>场景化设计</p>
+              <p style={{ fontFamily: SANS, fontSize: 13.5, color: C.desc, lineHeight: 1.9 }}>
+                场景化设计，就是把用户使用产品的典型场景进行提炼，并以<b style={{ color: C.text, fontWeight: 600 }}>场景公式</b>的形式清晰的描述出来，然后在产品设计中把<b style={{ color: C.text, fontWeight: 600 }}>用户场景具象化</b>，在特定的时机为用户提供所需的信息和自然交互，帮助用户自然而然达成目标的一种设计方式。
+              </p>
+            </motion.div>
+            <motion.div {...rv(BD + 0.12)}>
+              <SectionLabel>场景公式</SectionLabel>
+              <div style={{ border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", background: `${C.accent}0c` }}>
+                  {formula6.map((col, i) => (
+                    <div key={i} style={{ padding: "9px 10px", borderRight: i < 5 ? `1px solid ${C.border}` : undefined }}>
+                      <p style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, color: C.accent, margin: 0, lineHeight: 1.5 }}>{col}</p>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", borderTop: `1px solid ${C.border}`, minHeight: 32 }}>
+                  {formula6.map((_, i) => <div key={i} style={{ borderRight: i < 5 ? `1px solid ${C.border}` : undefined }} />)}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+          {/* Right: circular model */}
+          <motion.div {...rv(BD + 0.18)} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            <SceneModelSVG />
+            <p style={{ fontFamily: SANS, fontSize: 11, color: C.desc, letterSpacing: "0.08em", textTransform: "uppercase" as const, textAlign: "center" as const }}>场景模型</p>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// P02 Slide4 — Key Solutions (special centered layout, no title bar)
+function Project02Slide4({ isActive = false }: { isActive?: boolean }) {
+  const BD = 0.30;
+  const rv = (d: number) => ({ initial: { opacity: 0, y: 24 }, animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }, transition: { duration: 0.50, delay: isActive ? d : 0, ease: E } });
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0 }}>
+        <div style={{ position: "absolute", width: 560, height: 560, borderRadius: "50%", border: `1px solid ${C.border}`, opacity: 0.30, top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
+        <div style={{ position: "absolute", width: 320, height: 320, borderRadius: "50%", border: `1px solid ${C.border}`, opacity: 0.20, top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
+      </div>
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: 860 }}>
+        <motion.h1 {...rv(BD)} style={{ fontFamily: SERIF, fontSize: 60, fontWeight: 700, color: C.text, lineHeight: 1.1, marginBottom: 24, letterSpacing: "-0.02em" }}>关键方案展示</motion.h1>
+        <motion.p {...rv(BD + 0.08)} style={{ fontFamily: SANS, fontSize: 22, color: C.desc, lineHeight: 1.8, maxWidth: 700, margin: "0 auto 48px" }}>
+          以「行业解决方案控制台」三大场景为例，呈现场景化设计方法在实际项目中的完整应用流程。
+        </motion.p>
+        <motion.div {...rv(BD + 0.16)} style={{ textAlign: "left" as const }}>
+          <div style={{ border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "140px 1fr 1fr 1fr", background: `${C.accent}0c` }}>
+              {SIMPLE_FORMULA_COLS.map((col, i) => (
+                <div key={i} style={{ padding: "10px 14px", borderRight: i < 3 ? `1px solid ${C.border}` : undefined }}>
+                  <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 700, color: C.accent, margin: 0 }}>{col}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "140px 1fr 1fr 1fr", borderTop: `1px solid ${C.border}`, minHeight: 36 }}>
+              {SIMPLE_FORMULA_COLS.map((_, i) => <div key={i} style={{ borderRight: i < 3 ? `1px solid ${C.border}` : undefined }} />)}
+            </div>
+          </div>
+          <p style={{ fontFamily: SANS, fontSize: 11, color: C.desc, textAlign: "center" as const, marginTop: 8, letterSpacing: "0.1em" }}>简略版场景公式</p>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+// P02 Slides 5–7: Scenario slides (shared layout)
+interface ScenarioRow { who: string; when: string; what: string; goal: string; }
+function ScenarioTable({ rows }: { rows: ScenarioRow[] }) {
+  return (
+    <div style={{ border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", flexShrink: 0 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "150px 1fr 1fr 1fr", background: `${C.accent}0c` }}>
+        {SIMPLE_FORMULA_COLS.map((col, i) => (
+          <div key={i} style={{ padding: "10px 14px", borderRight: i < 3 ? `1px solid ${C.border}` : undefined }}>
+            <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 700, color: C.accent, margin: 0 }}>{col}</p>
+          </div>
+        ))}
+      </div>
+      {rows.map((row, ri) => (
+        <div key={ri} style={{ display: "grid", gridTemplateColumns: "150px 1fr 1fr 1fr", borderTop: `1px solid ${C.border}`, background: ri % 2 === 0 ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.30)" }}>
+          <div style={{ padding: "12px 14px", borderRight: `1px solid ${C.border}` }}>
+            <p style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: C.text, margin: 0, lineHeight: 1.75, whiteSpace: "pre-line" as const }}>{row.who}</p>
+          </div>
+          <div style={{ padding: "12px 14px", borderRight: `1px solid ${C.border}` }}>
+            <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, margin: 0, lineHeight: 1.75, whiteSpace: "pre-line" as const }}>{row.when}</p>
+          </div>
+          <div style={{ padding: "12px 14px", borderRight: `1px solid ${C.border}` }}>
+            <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, margin: 0, lineHeight: 1.75, whiteSpace: "pre-line" as const }}>{row.what}</p>
+          </div>
+          <div style={{ padding: "12px 14px" }}>
+            <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, margin: 0, lineHeight: 1.75, whiteSpace: "pre-line" as const }}>{row.goal}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ScenarioSlide({ isActive, title, rows, imgSrc, imgAlt }: {
+  isActive?: boolean; title: string; rows: ScenarioRow[]; imgSrc: string; imgAlt: string;
+}) {
+  const BD = 0.30;
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const rv = (d: number) => ({ initial: { opacity: 0, y: 16 }, animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }, transition: { duration: 0.38, delay: isActive ? d : 0, ease: E } });
+  useEffect(() => { if (isActive) setImgLoaded(false); }, [isActive]);
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse 80% 55% at 60% 20%, rgba(178,149,126,0.07) 0%, transparent 65%)" }} />
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1 }}>
+        <PageTitle title={title} motionProps={rv(BD)} />
+        <motion.div {...rv(BD + 0.07)} style={{ marginBottom: 20 }}>
+          <ScenarioTable rows={rows} />
+        </motion.div>
+        <motion.div {...rv(BD + 0.14)} style={{ flex: 1, minHeight: 0, position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.07)", backgroundColor: "#EAE4DB" }}>
+          {!imgLoaded && <div className="phase-skeleton" />}
+          <img src={imgSrc} alt={imgAlt} onLoad={() => setImgLoaded(true)}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: imgLoaded ? 1 : 0, transition: "opacity 0.4s ease" }} />
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+function Project02Slide5({ isActive = false }: { isActive?: boolean }) {
+  return <ScenarioSlide isActive={isActive} title="场景 1：渠道商绑定客户并上传设备" imgSrc={SCENARIO_IMGS[0]} imgAlt="场景1配图" rows={[{
+    who: "渠道商管理员\n\n渠道商员工",
+    when: "获得新的企业采购订单时",
+    what: "绑定企业客户\n\n为企业上传已采购的设备信息",
+    goal: "方便企业利用该平台进行设备管理",
+  }]} />;
+}
+function Project02Slide6({ isActive = false }: { isActive?: boolean }) {
+  return <ScenarioSlide isActive={isActive} title="场景 2：企业员工初始配置" imgSrc={SCENARIO_IMGS[1]} imgAlt="场景2配图" rows={[{
+    who: "企业管理员",
+    when: "首次登陆 HEM 管理台时",
+    what: "将企业员工（设备使用者）录入平台",
+    goal: "完成对企业使用者及设备的管理",
+  }]} />;
+}
+function Project02Slide7({ isActive = false }: { isActive?: boolean }) {
+  return <ScenarioSlide isActive={isActive} title="场景 3：三方管控" imgSrc={SCENARIO_IMGS[2]} imgAlt="场景3配图" rows={[{
+    who: "企业管理员",
+    when: "想要管控企业员工的设备时",
+    what: "通过三方 EMM（企业移动管理）厂商\n来管控员工设备",
+    goal: "有更多灵活的设备管控方式",
+  }]} />;
+}
+
+// P02 Slide8 — Closing quote
+function Project02Slide8({ isActive = false }: { isActive?: boolean }) {
+  const BD = 0.30;
+  const rv = (d: number) => ({ initial: { opacity: 0, y: 22 }, animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 22 }, transition: { duration: 0.55, delay: isActive ? d : 0, ease: E } });
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(178,149,126,0.09) 0%, transparent 65%)" }} />
+      <div style={{ position: "absolute", left: 0, top: "20%", bottom: "20%", width: 3, background: C.accent, borderRadius: "0 2px 2px 0", opacity: 0.45 }} />
+      <motion.div {...rv(BD)} style={{ position: "relative", zIndex: 1, maxWidth: 780, textAlign: "center" as const }}>
+        <div style={{ width: 28, height: 1.5, background: C.accent, margin: "0 auto 28px" }} />
+        <p style={{ fontFamily: SERIF, fontSize: 25, fontWeight: 600, color: C.text, lineHeight: 1.85, letterSpacing: "0.005em" }}>
+          通过场景化的设计，可以促进用户理解（减少用户认知成本），提升效率（降低用户操作成本），引起用户共鸣（情感化设计），帮助用户和产品更快更好的达成目标。
+        </p>
+        <div style={{ width: 28, height: 1.5, background: C.accent, margin: "28px auto 0" }} />
+      </motion.div>
+    </div>
+  );
+}
+
 // ── Page exports ──────────────────────────────────────────────────────────
 export function ProjectDetailPage() {
   const params = useParams<{ num: string }>();
@@ -1021,7 +1343,10 @@ export function ProjectDetailPage() {
   const slideLabels = params.num === "01"
     ? ["项目背景", "用户与能力", "业务全流程概览", "核心用户旅程界面", "关键方案展示",
        "「指令修改」设计_1", "「指令修改」设计_2", "「指令修改」设计_3", "「指令修改」设计_4",
-       "10 「指令修改」设计_5", "项目总结"]
+       "「指令修改」设计_5", "项目总结"]
+    : params.num === "02"
+    ? ["项目背景", "各平台核心界面展示", "用户画像", "设计方法", "关键方案展示",
+       "场景一", "场景二", "场景三", "设计总结"]
     : undefined;
 
   const commonProps = { title: item.title, tags: item.tags, desc: item.desc };
@@ -1036,14 +1361,14 @@ export function ProjectDetailPage() {
       sectionLabel={isZh ? "项目案例" : "Projects"} navSubtitle={item.title}
       prevPath={prevItem ? seqPath(prevItem) : null} nextPath={nextItem ? seqPath(nextItem) : null}
       slideLabels={slideLabels} slide0={slide0}
-      slide1={params.num === "01" ? <Project01SlideUsers /> : undefined}
-      slide2={params.num === "01" ? <Project01Slide2 /> : undefined}
-      slide3={params.num === "01" ? <Project01Slide3 /> : undefined}
-      slide4={params.num === "01" ? <Project01SlideKeyMethod /> : undefined}
-      slide5={params.num === "01" ? <Project01Slide5 /> : undefined}
-      slide6={params.num === "01" ? <Project01Slide6 /> : undefined}
-      slide7={params.num === "01" ? <Project01Slide7 /> : undefined}
-      slide8={params.num === "01" ? <Project01Slide8 /> : undefined}
+      slide1={params.num === "01" ? <Project01SlideUsers /> : params.num === "02" ? <Project02Slide1 /> : undefined}
+      slide2={params.num === "01" ? <Project01Slide2 /> : params.num === "02" ? <Project02Slide2 /> : undefined}
+      slide3={params.num === "01" ? <Project01Slide3 /> : params.num === "02" ? <Project02Slide3 /> : undefined}
+      slide4={params.num === "01" ? <Project01SlideKeyMethod /> : params.num === "02" ? <Project02Slide4 /> : undefined}
+      slide5={params.num === "01" ? <Project01Slide5 /> : params.num === "02" ? <Project02Slide5 /> : undefined}
+      slide6={params.num === "01" ? <Project01Slide6 /> : params.num === "02" ? <Project02Slide6 /> : undefined}
+      slide7={params.num === "01" ? <Project01Slide7 /> : params.num === "02" ? <Project02Slide7 /> : undefined}
+      slide8={params.num === "01" ? <Project01Slide8 /> : params.num === "02" ? <Project02Slide8 /> : undefined}
       slide9={params.num === "01" ? <Project01Slide9 /> : undefined}
       slide10={params.num === "01" ? <Project01Slide10 /> : undefined}
       titleForReset={item.title}

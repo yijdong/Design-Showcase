@@ -458,11 +458,19 @@
 
         window.dispatchEvent(new Event('scroll'));
 
-        // Notify parent slide when user scrolls to the bottom and tries to scroll more
+        // Notify parent slide when user scrolls to the bottom AND scrolls again to confirm intent
+        var readyToAdvance = false;
         window.addEventListener('wheel', function(e) {
             var atBottom = window.scrollY + window.innerHeight >= document.body.scrollHeight - 8;
             if (atBottom && e.deltaY > 0) {
-                window.parent.postMessage({ type: 'slideScrolledToBottom' }, '*');
+                if (readyToAdvance) {
+                    window.parent.postMessage({ type: 'slideScrolledToBottom' }, '*');
+                    readyToAdvance = false;
+                } else {
+                    readyToAdvance = true;
+                }
+            } else if (e.deltaY < 0) {
+                readyToAdvance = false;
             }
         }, { passive: true });
     </script>
