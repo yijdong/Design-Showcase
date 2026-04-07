@@ -458,19 +458,25 @@
 
         window.dispatchEvent(new Event('scroll'));
 
-        // Notify parent slide when user scrolls to the bottom AND scrolls again to confirm intent
+        // Notify parent slide when user scrolls to the bottom AND scrolls again (separate gesture) to confirm intent
         var readyToAdvance = false;
+        var readyTimestamp = 0;
+        var MIN_GESTURE_GAP_MS = 700; // require at least 700ms between first-reach-bottom and second scroll
         window.addEventListener('wheel', function(e) {
             var atBottom = window.scrollY + window.innerHeight >= document.body.scrollHeight - 8;
+            var now = Date.now();
             if (atBottom && e.deltaY > 0) {
-                if (readyToAdvance) {
+                if (readyToAdvance && (now - readyTimestamp) >= MIN_GESTURE_GAP_MS) {
                     window.parent.postMessage({ type: 'slideScrolledToBottom' }, '*');
                     readyToAdvance = false;
-                } else {
+                    readyTimestamp = 0;
+                } else if (!readyToAdvance) {
                     readyToAdvance = true;
+                    readyTimestamp = now;
                 }
             } else if (e.deltaY < 0) {
                 readyToAdvance = false;
+                readyTimestamp = 0;
             }
         }, { passive: true });
     </script>

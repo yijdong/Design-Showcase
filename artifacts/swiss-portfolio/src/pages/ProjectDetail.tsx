@@ -135,10 +135,10 @@ function BaseSlide0({ num, context, title, tags, desc }: { num: string; context:
   return (
     <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: "35%", left: 66, fontFamily: SERIF, fontSize: "clamp(120px,18vw,220px)", fontWeight: 700, color: C.text, opacity: 0.030, lineHeight: 1, pointerEvents: "none", userSelect: "none", zIndex: 0 }}>{num}</div>
-      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1, maxWidth: 780 }}>
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1, maxWidth: 960 }}>
         <p style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, color: C.accent, letterSpacing: "0.16em", textTransform: "uppercase" as const, marginBottom: 22 }}>{context}</p>
         <div style={{ width: 32, height: 1.5, background: C.accent, marginBottom: 32 }} />
-        <h1 style={{ fontFamily: SERIF, fontSize: "clamp(40px,5.4vw,72px)", fontWeight: 700, color: C.text, lineHeight: 1.08, marginBottom: 32 }}>{title}</h1>
+        <h1 style={{ fontFamily: SERIF, fontSize: "clamp(40px,5.4vw,72px)", fontWeight: 700, color: C.text, lineHeight: 1.08, marginBottom: 32, whiteSpace: "nowrap" as const }}>{title}</h1>
         <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 40 }}>{tags.map(t => <ProjTag key={t}>{t}</ProjTag>)}</div>
         <p style={{ fontFamily: SANS, fontSize: 16, color: C.desc, lineHeight: 2.0, maxWidth: 600 }}>{desc}</p>
       </div>
@@ -836,8 +836,8 @@ function Project01Slide9({ isActive = false }: { isActive?: boolean }) {
           <PageTitle title="「指令修改」功能交互设计" motionProps={rv(BD)} />
         </div>
 
-        {/* Step bar + image — vertically centered in remaining space */}
-        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", paddingBottom: PAD_Y }}>
+        {/* Step bar + image — grounded at bottom with 32px padding */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingBottom: PAD_Y }}>
           <motion.div {...rv(BD + 0.05)} style={{ flexShrink: 0, marginBottom: 24 }}>
             <CompactStepBar activeStep={4} />
           </motion.div>
@@ -1035,11 +1035,17 @@ function Project02Slide1({ isActive = false }: { isActive?: boolean }) {
     <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 85% 15%, rgba(178,149,126,0.08) 0%, transparent 50%)" }} />
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1 }}>
-        <PageTitle title="各平台核心界面展示" motionProps={rv(BD)} />
-        <motion.div {...rv(BD + 0.06)} style={{ marginBottom: 22, padding: "11px 16px", background: `${C.accent}08`, border: `1px solid ${C.border}`, borderRadius: 10, flexShrink: 0 }}>
-          <p style={{ fontFamily: SANS, fontSize: 13.5, color: C.desc, lineHeight: 1.75, margin: 0 }}>
-            作为项目中的 UX 设计师，参与完整平台设计工作；涉及的平台包括：行业解决方案官网、行业解决方案控制台、运营管理台、开发者联盟、设备扫码移动端
-          </p>
+        {/* Title + description card share one row */}
+        <motion.div {...rv(BD)} style={{ display: "flex", alignItems: "center", gap: 32, marginBottom: 22, flexShrink: 0 }}>
+          <div style={{ flexShrink: 0 }}>
+            <h2 style={{ fontFamily: SANS, fontSize: 20, fontWeight: 700, color: C.text, letterSpacing: "-0.01em", marginBottom: 10, whiteSpace: "nowrap" as const }}>各平台核心界面展示</h2>
+            <div style={{ height: 1, background: C.border }} />
+          </div>
+          <div style={{ flex: 1, padding: "10px 16px", background: `${C.accent}08`, border: `1px solid ${C.border}`, borderRadius: 10 }}>
+            <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, lineHeight: 1.7, margin: 0 }}>
+              作为项目中的 UX 设计师，参与完整平台设计工作；涉及的平台包括：行业解决方案官网、行业解决方案控制台、运营管理台、开发者联盟、设备扫码移动端
+            </p>
+          </div>
         </motion.div>
         <div style={{ flex: 1, minHeight: 0, display: "flex", gap: 60, alignItems: "center" }}>
           <div style={{ width: 270, flexShrink: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
@@ -1081,23 +1087,26 @@ function Project02Slide2({ isActive = false }: { isActive?: boolean }) {
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 70% 80%, rgba(178,149,126,0.08) 0%, transparent 55%)" }} />
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1 }}>
         <PageTitle title="用户画像" motionProps={rv(BD)} />
-        <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gridTemplateRows: "repeat(2, 1fr)", gap: 14 }}>
-          {P02_PERSONAS.map((p, i) => (
-            <motion.div key={i} {...rv(BD + 0.06 + i * 0.04)} style={{ display: "flex", gap: 14, alignItems: "flex-start", border: `1px solid ${C.border}`, borderRadius: 16, background: "rgba(255,253,249,0.80)", backdropFilter: "blur(8px)", padding: "16px 18px", overflow: "hidden" }}>
-              <div style={{ width: 66, height: 88, borderRadius: 10, overflow: "hidden", flexShrink: 0, border: `1px solid ${C.border}`, backgroundColor: "#EAE4DB" }}>
-                <img src={`${P02_BASE}avatar_${p.avatar}.png`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontFamily: SANS, fontSize: 14.5, fontWeight: 700, color: C.text, marginBottom: 9, lineHeight: 1.3 }}>{p.name}</p>
-                {p.needs.map((need, ni) => (
-                  <div key={ni} style={{ display: "flex", gap: 7, marginBottom: ni < p.needs.length - 1 ? 5 : 0, alignItems: "flex-start" }}>
-                    <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.accent, marginTop: 7, flexShrink: 0 }} />
-                    <p style={{ fontFamily: SANS, fontSize: 12, color: C.desc, lineHeight: 1.65, margin: 0 }}>{need}</p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          ))}
+        {/* Centered grid — cards auto-height, no blank space */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, width: "100%" }}>
+            {P02_PERSONAS.map((p, i) => (
+              <motion.div key={i} {...rv(BD + 0.06 + i * 0.04)} style={{ display: "flex", gap: 16, alignItems: "flex-start", border: `1px solid ${C.border}`, borderRadius: 16, background: "rgba(255,253,249,0.80)", backdropFilter: "blur(8px)", padding: 32, overflow: "hidden" }}>
+                <div style={{ width: 90, height: 120, borderRadius: 10, overflow: "hidden", flexShrink: 0, border: `1px solid ${C.border}`, backgroundColor: "#EAE4DB" }}>
+                  <img src={`${P02_BASE}avatar_${p.avatar}.png`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: SANS, fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 12, lineHeight: 1.3 }}>{p.name}</p>
+                  {p.needs.map((need, ni) => (
+                    <div key={ni} style={{ display: "flex", gap: 8, marginBottom: ni < p.needs.length - 1 ? 7 : 0, alignItems: "flex-start" }}>
+                      <div style={{ width: 4, height: 4, borderRadius: "50%", background: C.accent, marginTop: 8, flexShrink: 0 }} />
+                      <p style={{ fontFamily: SANS, fontSize: 14, color: C.desc, lineHeight: 1.65, margin: 0 }}>{need}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -1106,8 +1115,8 @@ function Project02Slide2({ isActive = false }: { isActive?: boolean }) {
 
 // P02 Slide3 — Design Method (场景化设计)
 function SceneModelSVG() {
-  const cx = 150, cy = 150, R = 88, NR = 27;
-  const ac = C.accent, blue = "#5580B0";
+  const cx = 150, cy = 150, R = 108, NR = 30;
+  const ac = C.accent;
   const nodeData = [
     { label: "WHO", sub: "用户", a: -90 }, { label: "When", sub: "时间", a: -30 },
     { label: "Where", sub: "地点", a: 30 },  { label: "What", sub: "事物", a: 90 },
@@ -1125,7 +1134,7 @@ function SceneModelSVG() {
     return { x1: from.x + (dx/len)*gap, y1: from.y + (dy/len)*gap, x2: to.x - (dx/len)*gap, y2: to.y - (dy/len)*gap };
   });
   return (
-    <svg width="300" height="300" viewBox="0 0 300 300">
+    <svg width="380" height="380" viewBox="0 0 300 300">
       <defs>
         <marker id="arrowHead02" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
           <path d="M0,0.5 L0,6.5 L6,3.5 z" fill={ac} opacity="0.70" />
@@ -1136,9 +1145,9 @@ function SceneModelSVG() {
       ))}
       {nodes.map((node, i) => (
         <g key={i}>
-          <circle cx={node.x} cy={node.y} r={NR} fill={i === 0 ? blue : `${ac}14`} stroke={i === 0 ? blue : ac} strokeWidth="1.5" />
-          <text x={node.x} y={node.y - 5} textAnchor="middle" dominantBaseline="middle" fontSize="10" fontFamily="sans-serif" fontWeight="700" fill={i === 0 ? "white" : ac}>{node.label}</text>
-          <text x={node.x} y={node.y + 9} textAnchor="middle" dominantBaseline="middle" fontSize="9" fontFamily="sans-serif" fill={i === 0 ? "rgba(255,255,255,0.80)" : C.desc}>{node.sub}</text>
+          <circle cx={node.x} cy={node.y} r={NR} fill={`${ac}14`} stroke={ac} strokeWidth="1.5" />
+          <text x={node.x} y={node.y - 5} textAnchor="middle" dominantBaseline="middle" fontSize="10" fontFamily="sans-serif" fontWeight="700" fill={ac}>{node.label}</text>
+          <text x={node.x} y={node.y + 9} textAnchor="middle" dominantBaseline="middle" fontSize="9" fontFamily="sans-serif" fill={C.desc}>{node.sub}</text>
         </g>
       ))}
     </svg>
@@ -1241,13 +1250,13 @@ function ScenarioTable({ rows }: { rows: ScenarioRow[] }) {
       {rows.map((row, ri) => (
         <div key={ri} style={{ display: "grid", gridTemplateColumns: "150px 1fr 1fr 1fr", borderTop: `1px solid ${C.border}`, background: ri % 2 === 0 ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.30)" }}>
           <div style={{ padding: "12px 14px", borderRight: `1px solid ${C.border}` }}>
-            <p style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: C.text, margin: 0, lineHeight: 1.75, whiteSpace: "pre-line" as const }}>{row.who}</p>
+            <p style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: C.text, margin: 0, lineHeight: 2.2, whiteSpace: "pre-line" as const }}>{row.who}</p>
           </div>
           <div style={{ padding: "12px 14px", borderRight: `1px solid ${C.border}` }}>
             <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, margin: 0, lineHeight: 1.75, whiteSpace: "pre-line" as const }}>{row.when}</p>
           </div>
           <div style={{ padding: "12px 14px", borderRight: `1px solid ${C.border}` }}>
-            <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, margin: 0, lineHeight: 1.75, whiteSpace: "pre-line" as const }}>{row.what}</p>
+            <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, margin: 0, lineHeight: 1.5, whiteSpace: "pre-line" as const }}>{row.what}</p>
           </div>
           <div style={{ padding: "12px 14px" }}>
             <p style={{ fontFamily: SANS, fontSize: 13, color: C.desc, margin: 0, lineHeight: 1.75, whiteSpace: "pre-line" as const }}>{row.goal}</p>
@@ -1264,20 +1273,27 @@ function ScenarioSlide({ isActive, title, rows, imgSrc, imgAlt }: {
   const BD = 0.30;
   const [imgLoaded, setImgLoaded] = useState(false);
   const rv = (d: number) => ({ initial: { opacity: 0, y: 16 }, animate: isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }, transition: { duration: 0.38, delay: isActive ? d : 0, ease: E } });
-  useEffect(() => { if (isActive) setImgLoaded(false); }, [isActive]);
+  // Preload immediately on mount (don't reset on slide re-visit to avoid re-flash)
+  useEffect(() => { const img = new window.Image(); img.src = imgSrc; }, [imgSrc]);
   return (
     <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column", paddingTop: NAVBAR_H, paddingLeft: PAD_X, paddingRight: PAD_X, boxSizing: "border-box", overflow: "hidden" }}>
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse 80% 55% at 60% 20%, rgba(178,149,126,0.07) 0%, transparent 65%)" }} />
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: PAD_Y, paddingBottom: PAD_Y, position: "relative", zIndex: 1 }}>
         <PageTitle title={title} motionProps={rv(BD)} />
-        <motion.div {...rv(BD + 0.07)} style={{ marginBottom: 20 }}>
-          <ScenarioTable rows={rows} />
-        </motion.div>
-        <motion.div {...rv(BD + 0.14)} style={{ flex: 1, minHeight: 0, position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.07)", backgroundColor: "#EAE4DB" }}>
-          {!imgLoaded && <div className="phase-skeleton" />}
-          <img src={imgSrc} alt={imgAlt} onLoad={() => setImgLoaded(true)}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: imgLoaded ? 1 : 0, transition: "opacity 0.4s ease" }} />
-        </motion.div>
+        {/* Width-constrained column: width = available-height × image-ratio (3836/1840 ≈ 2.085)
+            Both table and image share this width so they're perfectly aligned */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div style={{ maxWidth: "calc((100vh - 310px) * 2.085)", width: "100%", flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+            <motion.div {...rv(BD + 0.07)} style={{ marginBottom: 20, flexShrink: 0 }}>
+              <ScenarioTable rows={rows} />
+            </motion.div>
+            <motion.div {...rv(BD + 0.14)} style={{ flex: 1, minHeight: 0, position: "relative", borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, boxShadow: "0 4px 28px rgba(0,0,0,0.07)", backgroundColor: "#EAE4DB" }}>
+              {!imgLoaded && <div className="phase-skeleton" />}
+              <img src={imgSrc} alt={imgAlt} onLoad={() => setImgLoaded(true)}
+                style={{ width: "100%", height: "100%", objectFit: "fill", display: "block", opacity: imgLoaded ? 1 : 0, transition: "opacity 0.4s ease" }} />
+            </motion.div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1285,9 +1301,9 @@ function ScenarioSlide({ isActive, title, rows, imgSrc, imgAlt }: {
 
 function Project02Slide5({ isActive = false }: { isActive?: boolean }) {
   return <ScenarioSlide isActive={isActive} title="场景 1：渠道商绑定客户并上传设备" imgSrc={SCENARIO_IMGS[0]} imgAlt="场景1配图" rows={[{
-    who: "渠道商管理员\n\n渠道商员工",
+    who: "渠道商管理员\n渠道商员工",
     when: "获得新的企业采购订单时",
-    what: "绑定企业客户\n\n为企业上传已采购的设备信息",
+    what: "绑定企业客户\n为企业上传已采购的设备信息",
     goal: "方便企业利用该平台进行设备管理",
   }]} />;
 }
